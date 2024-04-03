@@ -1,54 +1,61 @@
 <?php
 // fetch_produk.php
 
-// Sambungan database
+// Database connection
 $mysqli = new mysqli("localhost", "root", "", "gamestore");
 
-// Periksa koneksi
+// Check connection
 if ($mysqli->connect_error) {
     die("Connection failed: " . $mysqli->connect_error);
 }
 
-// Inisialisasi filter
-$whereClause = "";
+// Initialize filter
+$whereClause = " WHERE 1";
 
-// Filter kategori (contoh, Anda harus mengganti ini dengan cara yang sesuai dengan struktur database Anda)
+// Filter by category
 if (isset($_POST['kategori'])) {
     $kategori = $_POST['kategori'];
-    $whereClause .= " AND kategori = '$kategori'";
+    $whereClause .= " AND kategori.id_kategori IN ($kategori)";
 }
 
-// Filter genre (contoh, Anda harus mengganti ini dengan cara yang sesuai dengan struktur database Anda)
+// Filter by genre
 if (isset($_POST['genre'])) {
     $genre = $_POST['genre'];
-    $whereClause .= " AND genre = '$genre'";
+    $whereClause .= " AND genre.id_genre IN ($genre)";
 }
 
-// Filter harga (contoh, Anda harus mengganti ini dengan cara yang sesuai dengan struktur database Anda)
+// Filter by price
 if (isset($_POST['harga'])) {
     $harga = $_POST['harga'];
-    // Contoh filter harga: Ambil produk dengan harga kurang dari atau sama dengan $harga
-    $whereClause .= " AND harga <= $harga";
+    // Example price filter: Get products with price less than or equal to $harga
+    $whereClause .= " AND harga_produk <= $harga";
 }
 
-// Query untuk mengambil data produk dengan filter yang dipilih
-$query = "SELECT * FROM produk WHERE 1 $whereClause";
+// Query to retrieve product data with selected filters
+$query = "SELECT produk.* FROM produk";
+$query .= " INNER JOIN detailkategori ON produk.id_produk = detailkategori.id_produk";
+$query .= " INNER JOIN kategori ON detailkategori.id_kategori = kategori.id_kategori";
+$query .= " INNER JOIN detailgenre ON produk.id_produk = detailgenre.id_produk";
+$query .= " INNER JOIN genre ON detailgenre.id_genre = genre.id_genre";
+$query .= $whereClause;
+$query .= " GROUP BY produk.id_produk"; // To avoid duplicate products
+
 $result = $mysqli->query($query);
 
-// Inisialisasi array untuk menyimpan data produk
+// Initialize array to store product data
 $produkData = array();
 
 if ($result->num_rows > 0) {
     while($row = $result->fetch_assoc()) {
-        // Menambahkan data produk ke dalam array
+        // Adding product data to the array
         $produkData[] = $row;
     }
 }
 
-// Menutup koneksi database
+// Close database connection
 $mysqli->close();
 
-// Mengirimkan data produk sebagai respons JSON
+// Sending product data as JSON response
 header('Content-Type: application/json');
 echo json_encode($produkData);
 ?>

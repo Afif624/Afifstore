@@ -40,15 +40,66 @@ document.addEventListener("DOMContentLoaded", function() {
     loadProductRecomData();
 });
 
+$('input[type="checkbox"]').change(function(){
+    updateFilterStorage(); // Perbarui filterStorage saat checkbox diubah
+    loadProductRecomData(); // Muat ulang data produk sesuai filter yang diterapkan
+    // location.reload();
+});
+
+function updateFilterStorage() {
+    var selectedKategori = [];
+    var selectedGenre = [];
+
+    // Ambil nilai filter kategori yang dipilih
+    $('#kategori input:checked').each(function() {
+        selectedKategori.push($(this).val());
+    });
+
+    // Ambil nilai filter genre yang dipilih
+    $('#genre input:checked').each(function() {
+        selectedGenre.push($(this).val());
+    });
+
+    // Simpan filter ke dalam filterStorage (gunakan sesuai kebutuhan, misalnya localStorage)
+    var filterStorage = {
+        kategori: selectedKategori,
+        genre: selectedGenre,
+        harga: $('#harga input:checked').val() // Harga hanya menyimpan satu nilai yang dipilih
+    };
+
+    // Simpan ke localStorage atau sesuai kebutuhan
+    localStorage.setItem('filterStorage', JSON.stringify(filterStorage));
+
+    // Tambahkan pesan alert atau log ke konsol untuk memastikan bahwa filterStorage sudah diperbarui
+    alert('Filter updated!'); // Atau console.log('Filter updated!');
+}
+
 function loadProductRecomData() {
+    var filterStorage = JSON.parse(localStorage.getItem('filterStorage'));
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", "php/filter.php", true);
-    xhr.onreadystatechange = function() {
-    if (xhr.readyState === 4 && xhr.status === 200) {
-        recomProductsData = JSON.parse(xhr.responseText);
-        renderProductsRecom(currentRecomPage);
-        renderPaginationRecom();
+    var url = "php/filter.php";
+    if (filterStorage) {
+        url += "?";
+        if (filterStorage.kategori.length > 0) {
+            url += "kategori=" + filterStorage.kategori.join(",") + "&";
+        }
+        if (filterStorage.genre.length > 0) {
+            url += "genre=" + filterStorage.genre.join(",") + "&";
+        }
+        if (filterStorage.harga) {
+            url += "harga=" + filterStorage.harga;
+        }
     }
+    xhr.open("GET", url, true);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            recomProductsData = JSON.parse(xhr.responseText);
+            renderProductsRecom(currentRecomPage);
+            renderPaginationRecom();
+
+            // Tambahkan pesan alert atau log ke konsol setelah data produk dimuat ulang
+            alert('Data produk dimuat ulang!'); // Atau console.log('Data produk dimuat ulang!');
+        }
     };
     xhr.send();
 }
@@ -163,24 +214,3 @@ function updatePaginationRecomState() {
         }
     });
 }
-
-// JavaScript untuk menangani filter dan memuat ulang data produk saat filter berubah
-// Misalnya, menggunakan jQuery untuk mempermudah tugasnya
-$('input[type="checkbox"]').change(function(){
-    // Ambil nilai filter yang dipilih
-    var kategori = $('#kategori input:checked').val();
-    var genre = $('#genre input:checked').val();
-    var harga = $('#harga input:checked').val();
-
-    // Kirim permintaan AJAX untuk mengambil data produk dengan filter yang dipilih
-    $.ajax({
-        type: "POST",
-        url: "php/filter.php",
-        data: { kategori: kategori, genre: genre, harga: harga },
-        dataType: "json",
-        success: function(response){
-            // Tampilkan data produk yang diperbarui
-            // Misalnya, dengan memperbarui tampilan HTML produk
-        }
-    });
-});
