@@ -1,3 +1,11 @@
+var currentRecomPage = 1;
+var recomProductsPerPage = 8;
+var recomProductsData = [];
+
+document.addEventListener("DOMContentLoaded", function() {
+    loadProductRecomData();
+});
+
 // JavaScript untuk mengambil data kategori dan genre dari database
 
 $(document).ready(function() {
@@ -10,8 +18,9 @@ $(document).ready(function() {
             // Update elemen HTML kategori
             var kategoriHTML = '';
             $.each(response.kategori, function(index, value) {
+                var isChecked = localStorage.getItem('kategori-' + value.id_kategori) === 'true' ? 'checked' : '';
                 kategoriHTML += '<div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">';
-                kategoriHTML += '<input type="checkbox" class="custom-control-input" id="kategori-' + value.id_kategori + '">';
+                kategoriHTML += '<input type="checkbox" class="custom-control-input kategori-checkbox" id="kategori-' + value.id_kategori + '" value="' + value.id_kategori + '" ' + isChecked + '>';
                 kategoriHTML += '<label class="custom-control-label" for="kategori-' + value.id_kategori + '">' + value.nama_kategori + '</label>';
                 kategoriHTML += '<span class="badge border font-weight-normal"></span>';
                 kategoriHTML += '</div>';
@@ -21,8 +30,9 @@ $(document).ready(function() {
             // Update elemen HTML genre
             var genreHTML = '';
             $.each(response.genre, function(index, value) {
+                var isChecked = localStorage.getItem('genre-' + value.id_genre) === 'true' ? 'checked' : '';
                 genreHTML += '<div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">';
-                genreHTML += '<input type="checkbox" class="custom-control-input" id="genre-' + value.id_genre + '">';
+                genreHTML += '<input type="checkbox" class="custom-control-input genre-checkbox" id="genre-' + value.id_genre + '" value="' + value.id_genre + '" ' + isChecked + '>';
                 genreHTML += '<label class="custom-control-label" for="genre-' + value.id_genre + '">' + value.nama_genre + '</label>';
                 genreHTML += '<span class="badge border font-weight-normal"></span>';
                 genreHTML += '</div>';
@@ -30,22 +40,50 @@ $(document).ready(function() {
             $('#genre').html(genreHTML);
         }
     });
+
+    // Periksa apakah ada filter yang tersimpan di localStorage
+    var filterStorage = JSON.parse(localStorage.getItem('filterStorage'));
+    if (filterStorage) {
+        // Periksa apakah ada filter kategori yang tersimpan
+        if (filterStorage.kategori.length > 0) {
+            filterStorage.kategori.forEach(function(id_kategori) {
+                $('#kategori-' + id_kategori).prop('checked', true);
+            });
+        }
+
+        // Periksa apakah ada filter genre yang tersimpan
+        if (filterStorage.genre.length > 0) {
+            filterStorage.genre.forEach(function(id_genre) {
+                $('#genre-' + id_genre).prop('checked', true);
+            });
+        }
+
+        // Periksa apakah ada filter harga yang tersimpan
+        if (filterStorage.harga) {
+            $('input[name="harga"][value="' + filterStorage.harga + '"]').prop('checked', true);
+        }
+    }
+
+    // Tambahkan event listener pada checkbox kategori
+    $('#kategori').on('change', '.kategori-checkbox', function() {
+        updateFilterStorage(); // Perbarui filterStorage saat checkbox diubah
+        location.reload(); // Muat ulang halaman setelah pembaruan filter
+    });
+
+    // Tambahkan event listener pada checkbox genre
+    $('#genre').on('change', '.genre-checkbox', function() {
+        updateFilterStorage(); // Perbarui filterStorage saat checkbox diubah
+        location.reload(); // Muat ulang halaman setelah pembaruan filter
+    });
+
+    // Tambahkan event listener pada checkbox harga
+    $('#harga').on('change', 'input[type="radio"]', function() {
+        updateFilterStorage(); // Perbarui filterStorage saat checkbox diubah
+        location.reload(); // Muat ulang halaman setelah pembaruan filter
+    });
 });
 
-var currentRecomPage = 1;
-var recomProductsPerPage = 8;
-var recomProductsData = [];
-
-document.addEventListener("DOMContentLoaded", function() {
-    loadProductRecomData();
-});
-
-$('input[type="checkbox"]').change(function(){
-    updateFilterStorage(); // Perbarui filterStorage saat checkbox diubah
-    loadProductRecomData(); // Muat ulang data produk sesuai filter yang diterapkan
-    // location.reload();
-});
-
+// Fungsi untuk memperbarui filterStorage
 function updateFilterStorage() {
     var selectedKategori = [];
     var selectedGenre = [];
@@ -53,11 +91,13 @@ function updateFilterStorage() {
     // Ambil nilai filter kategori yang dipilih
     $('#kategori input:checked').each(function() {
         selectedKategori.push($(this).val());
+        localStorage.setItem('kategori-' + $(this).val(), 'true'); // Simpan status centang ke localStorage
     });
 
     // Ambil nilai filter genre yang dipilih
     $('#genre input:checked').each(function() {
         selectedGenre.push($(this).val());
+        localStorage.setItem('genre-' + $(this).val(), 'true'); // Simpan status centang ke localStorage
     });
 
     // Simpan filter ke dalam filterStorage (gunakan sesuai kebutuhan, misalnya localStorage)
@@ -74,6 +114,7 @@ function updateFilterStorage() {
     alert('Filter updated!'); // Atau console.log('Filter updated!');
 }
 
+// Fungsi untuk memuat data produk sesuai dengan filter yang diterapkan
 function loadProductRecomData() {
     var filterStorage = JSON.parse(localStorage.getItem('filterStorage'));
     var xhr = new XMLHttpRequest();
