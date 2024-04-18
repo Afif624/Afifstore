@@ -13,20 +13,20 @@ if ($mysqli->connect_error) {
 $whereClause = " WHERE 1";
 
 // Filter by category
-if (isset($_POST['kategori'])) {
-    $kategori = $_POST['kategori'];
+if (isset($_GET['kategori'])) {
+    $kategori = $_GET['kategori'];
     $whereClause .= " AND kategori.id_kategori IN ($kategori)";
 }
 
 // Filter by genre
-if (isset($_POST['genre'])) {
-    $genre = $_POST['genre'];
+if (isset($_GET['genre'])) {
+    $genre = $_GET['genre'];
     $whereClause .= " AND genre.id_genre IN ($genre)";
 }
 
 // Filter by price
-if (isset($_POST['harga'])) {
-    $harga = $_POST['harga'];
+if (isset($_GET['harga'])) {
+    $harga = $_GET['harga'];
     // Example price filter: Get products with price less than or equal to $harga
     $whereClause .= " AND harga_produk <= $harga";
 }

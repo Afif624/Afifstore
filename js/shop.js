@@ -100,11 +100,22 @@ function updateFilterStorage() {
         localStorage.setItem('genre-' + $(this).val(), 'true'); // Simpan status centang ke localStorage
     });
 
+    // Hapus status centang dari kategori yang tidak dipilih
+    $('#kategori input:not(:checked)').each(function() {
+        localStorage.removeItem('kategori-' + $(this).val()); // Hapus status centang dari localStorage
+    });
+
+    // Hapus status centang dari genre yang tidak dipilih
+    $('#genre input:not(:checked)').each(function() {
+        localStorage.removeItem('genre-' + $(this).val()); // Hapus status centang dari localStorage
+    });
+
     // Simpan filter ke dalam filterStorage (gunakan sesuai kebutuhan, misalnya localStorage)
     var filterStorage = {
         kategori: selectedKategori,
         genre: selectedGenre,
         harga: $('#harga input:checked').val() // Harga hanya menyimpan satu nilai yang dipilih
+        
     };
 
     // Simpan ke localStorage atau sesuai kebutuhan
