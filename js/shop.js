@@ -174,11 +174,10 @@ function renderProductsRecom(page) {
                 <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-shopping-cart"></i></a>
                 <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a>
                 <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-sync-alt"></i></a>
-                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-search"></i></a>
             </div>
         </div>
         <div class="text-center py-4">
-            <a class="h6 text-decoration-none text-truncate" href="">${product.nama_produk}</a>
+            <a class="h6 text-decoration-none text-truncate" href="detail.html?id=${product.id_produk}">${product.nama_produk}</a>
             <div class="d-flex align-items-center justify-content-center mt-2">
                 <h5>$${product.harga_produk}</h5><h6 class="text-muted ml-2"><del>$123.00</del></h6>
             </div>

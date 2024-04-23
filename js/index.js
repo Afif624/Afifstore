@@ -7,10 +7,43 @@ var recentProductsPerPage = 8;
 var recentProductsData = [];
 
 document.addEventListener("DOMContentLoaded", function() {
+    loadKategoriData();
     loadGenreData();
     loadProductRecomData();
     loadProductRecentData();
 });
+
+function loadKategoriData() {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "php/kategori.php", true);
+    xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4 && xhr.status === 200) {
+        var response = JSON.parse(xhr.responseText);
+        populateKategoris(response);
+    }
+    };
+    xhr.send();
+}
+
+function populateKategoris(kategoris) {
+    var rowKategori = document.getElementById("rowKategori");
+    rowKategori.innerHTML = "";
+    kategoris.forEach(function(kategori) {
+        var kategoriDiv = document.createElement("div");
+        kategoriDiv.className = "col-lg-3 col-md-4 col-sm-6 pb-1";
+        kategoriDiv.innerHTML = `
+        <a class="text-decoration-none" href="">
+            <div class="cat-item d-flex align-items-center mb-4">
+                <div class="flex-fill pl-3">
+                    <h6>${kategori.nama_kategori}</h6>
+                    <small class="text-body">${kategori.jumlah_produk} Produk</small>
+                </div>
+            </div>
+        </a>
+        `;
+        rowKategori.appendChild(kategoriDiv);
+    });
+}
 
 function loadGenreData() {
     var xhr = new XMLHttpRequest();
