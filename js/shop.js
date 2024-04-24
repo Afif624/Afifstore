@@ -148,9 +148,6 @@ function loadProductRecomData() {
             recomProductsData = JSON.parse(xhr.responseText);
             renderProductsRecom(currentRecomPage);
             renderPaginationRecom();
-
-            // Tambahkan pesan alert atau log ke konsol setelah data produk dimuat ulang
-            alert('Data produk dimuat ulang!'); // Atau console.log('Data produk dimuat ulang!');
         }
     };
     xhr.send();
@@ -265,3 +262,11 @@ function updatePaginationRecomState() {
         }
     });
 }
+
+fetch('topbar.html').then(response => response.text()).then(html => {
+    document.getElementById('topbar').innerHTML = html;
+});
+
+fetch('footer.html').then(response => response.text()).then(html => {
+    document.getElementById('footer').innerHTML = html;
+});
