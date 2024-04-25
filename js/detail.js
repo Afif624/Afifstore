@@ -21,6 +21,17 @@ function renderProductDetails() {
                 console.error(xhr.responseText);
             }
         });
+        $.ajax({
+            url: 'php/serupa.php?id=' + productId,
+            type: 'GET',
+            success: function(data) {
+                // Insert product details into the HTML
+                $('.related-carousel').html(data);
+            },
+            error: function(xhr, status, error) {
+                console.error(xhr.responseText);
+            }
+        });
     } else {
         console.error('Product ID not found in URL.');
     }
@@ -32,15 +43,18 @@ $(document).ready(function() {
 });
 
 function setRating(rating) {
+    // Atur nilai rating ke input tersembunyi
     document.getElementById('rating').value = rating;
-    var stars = document.querySelectorAll('.fa-star');
-    for (var i = 0; i < stars.length; i++) {
-        if (i < rating) {
-            stars[i].classList.add('fas');
-            stars[i].classList.remove('far');
+
+    // Perbarui tampilan bintang berdasarkan rating yang dipilih
+    for (let i = 1; i <= 5; i++) {
+        const star = document.getElementById('star' + i);
+        if (i <= rating) {
+            star.classList.remove('far');
+            star.classList.add('fas');
         } else {
-            stars[i].classList.add('far');
-            stars[i].classList.remove('fas');
+            star.classList.remove('fas');
+            star.classList.add('far');
         }
     }
 }

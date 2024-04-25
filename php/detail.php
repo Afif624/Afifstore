@@ -83,7 +83,7 @@ if ($result->num_rows > 0) {
                         <small class="fas fa-star-half-alt"></small>
                         <small class="far fa-star"></small>
                     </div>
-                    <small class="pt-1">(99 Reviews)</small>
+                    <small class="pt-1">('. $result_reviews->num_rows .' Reviews)</small>
                 </div>
                 <h3 class="font-weight-semi-bold mb-4">$' . $harga_produk. '</h3>
                 <div class="d-flex mb-4">
@@ -153,7 +153,7 @@ if ($result->num_rows > 0) {
                 <div class="nav nav-tabs mb-4">
                     <a class="nav-item nav-link text-dark active" data-toggle="tab" href="#tab-pane-1">Description</a>
                     <a class="nav-item nav-link text-dark" data-toggle="tab" href="#tab-pane-2">Information</a>
-                    <a class="nav-item nav-link text-dark" data-toggle="tab" href="#tab-pane-3">Reviews (0)</a>
+                    <a class="nav-item nav-link text-dark" data-toggle="tab" href="#tab-pane-3">Reviews ('. $result_reviews->num_rows .')</a>
                 </div>
                 <div class="tab-content">
                     <div class="tab-pane fade show active" id="tab-pane-1">
@@ -180,6 +180,41 @@ if ($result->num_rows > 0) {
                     </div>
                     <div class="tab-pane fade" id="tab-pane-3">
                         <div class="row">
+                            <div class="col-md-6">
+                                <h4 class="mb-4">Leave a review</h4>
+                                <form method="post" action="php/review.php">
+                                    <div class="d-flex my-3">
+                                        <p class="mb-0 mr-2">Your Rating * :</p>
+                                        <div class="text-primary">
+                                            <!-- Rating stars -->
+                                            <input type="hidden" id="rating" name="rating" value="0">
+                                            <i class="far fa-star" onclick="setRating(1)" id="star1"></i>
+                                            <i class="far fa-star" onclick="setRating(2)" id="star2"></i>
+                                            <i class="far fa-star" onclick="setRating(3)" id="star3"></i>
+                                            <i class="far fa-star" onclick="setRating(4)" id="star4"></i>
+                                            <i class="far fa-star" onclick="setRating(5)" id="star5"></i>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="review">Your Review *</label>
+                                        <textarea id="review" name="review" cols="30" rows="5" class="form-control" required></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <!-- Menampilkan nama berdasarkan hasil query -->
+                                        <label for="name">Your Name *</label>
+                                        <input type="text" class="form-control" id="name" name="name" value="' . $nama . '" required readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <!-- Menampilkan email berdasarkan hasil query -->
+                                        <label for="email">Your Email *</label>
+                                        <input type="email" class="form-control" id="email" name="email" value="' . $email . '" required readonly>
+                                    </div>
+                                    <input type="hidden" name="id_produk" value="' . $product_id . '">
+                                    <div class="form-group mb-0">
+                                        <input type="submit" value="Leave Your Review" class="btn btn-primary px-3">
+                                    </div>
+                                </form>
+                            </div>
                             <div class="col-md-6">';
                             if ($result_reviews->num_rows > 0) {
                                 echo '<h4 class="mb-4">Review for "' . $nama_produk . '"</h4>';
@@ -204,42 +239,6 @@ if ($result->num_rows > 0) {
                                 echo '<h4 class="mb-4">No reviews yet</h4>';
                             }
                             echo '</div>
-                            <div class="col-md-6">
-                                <h4 class="mb-4">Leave a review</h4>
-                                <small>Your email address will not be published. Required fields are marked *</small>
-                                <form method="post" action="php/review.php">
-                                    <div class="d-flex my-3">
-                                        <p class="mb-0 mr-2">Your Rating * :</p>
-                                        <div class="text-primary">
-                                            <!-- Rating stars -->
-                                            <input type="hidden" id="rating" name="rating" value="0">
-                                            <i class="far fa-star" onclick="setRating(1)"></i>
-                                            <i class="far fa-star" onclick="setRating(2)"></i>
-                                            <i class="far fa-star" onclick="setRating(3)"></i>
-                                            <i class="far fa-star" onclick="setRating(4)"></i>
-                                            <i class="far fa-star" onclick="setRating(5)"></i>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="review">Your Review *</label>
-                                        <textarea id="review" name="review" cols="30" rows="5" class="form-control" required></textarea>
-                                    </div>
-                                    <div class="form-group">
-                                        <!-- Menampilkan nama berdasarkan hasil query -->
-                                        <label for="name">Your Name *</label>
-                                        <input type="text" class="form-control" id="name" name="name" value="' . $nama . '" required readonly>
-                                    </div>
-                                    <div class="form-group">
-                                        <!-- Menampilkan email berdasarkan hasil query -->
-                                        <label for="email">Your Email *</label>
-                                        <input type="email" class="form-control" id="email" name="email" value="' . $email . '" required readonly>
-                                    </div>
-                                    <input type="hidden" name="id_produk" value="' . $product_id . '">
-                                    <div class="form-group mb-0">
-                                        <input type="submit" value="Leave Your Review" class="btn btn-primary px-3">
-                                    </div>
-                                </form>
-                            </div>
                         </div>
                     </div>
                 </div>

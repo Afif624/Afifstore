@@ -18,10 +18,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $id_user = $_SESSION['id_user'];
     $rating = $_POST['rating'];
     $review = $_POST['review'];
+    $tanggal = date("Y-m-d");
 
     // SQL untuk menyimpan review ke database
-    $sql = "INSERT INTO review (id_produk, id_user, rating, review) 
-            VALUES ('$id_produk', '$id_user', '$rating', '$review')";
+    $sql = "INSERT INTO review (id_produk, id_user, rating, review, tanggal) 
+            VALUES ('$id_produk', '$id_user', '$rating', '$review', '$tanggal')";
 
     if ($conn->query($sql) === TRUE) {
         // Jika review berhasil disimpan, kembalikan ke halaman detail produk
