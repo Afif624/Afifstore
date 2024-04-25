@@ -1,13 +1,9 @@
 <?php
+session_start();
 $product_id = $_GET['id']; // Assuming you're getting product ID from URL parameter
 
-// Create connection
-$conn = new mysqli("localhost", "root", "", "gamestore");
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+// Include file koneksi ke database
+include_once("connect.php");
 
 // Fetch product details query
 $sql = "SELECT * FROM produk WHERE id_produk = $product_id";
@@ -42,6 +38,26 @@ if ($result->num_rows > 0) {
         $kategori_names[] = $kategori_row["nama_kategori"];
     }
     $kategoris = implode(", ", $kategori_names);
+
+    // Query untuk mengambil review dari database
+    $sql_reviews = "SELECT *,user.nama FROM review INNER JOIN user 
+        ON review.id_user = user.id_user WHERE review.id_produk = $product_id";
+    $result_reviews = $conn->query($sql_reviews);
+
+    // Ambil id_user dari sesi
+    $id_user = $_SESSION['id_user'];
+    
+    // Query untuk mengambil nama dan email dari tabel pengguna berdasarkan id_user
+    $sql_user = "SELECT nama, email FROM user WHERE id_user = $id_user";
+    $result_user = $conn->query($sql_user);
+    if ($result_user->num_rows > 0) {
+        $row_user = $result_user->fetch_assoc();
+        $nama = $row_user['nama'];
+        $email = $row_user['email'];
+    } else {
+        $nama = "Nama Pengguna";
+        $email = "email@example.com";
+    }
 
     // Output product details HTML
     echo '
@@ -164,49 +180,61 @@ if ($result->num_rows > 0) {
                     </div>
                     <div class="tab-pane fade" id="tab-pane-3">
                         <div class="row">
-                            <div class="col-md-6">
-                                <h4 class="mb-4">1 review for "Product Name"</h4>
-                                <div class="media mb-4">
+                            <div class="col-md-6">';
+                            if ($result_reviews->num_rows > 0) {
+                                echo '<h4 class="mb-4">Review for "' . $nama_produk . '"</h4>';
+                                while ($row_review = $result_reviews->fetch_assoc()) {
+                                echo '<div class="media mb-4">
                                     <img src="img/user.jpg" alt="Image" class="img-fluid mr-3 mt-1" style="width: 45px;">
                                     <div class="media-body">
-                                        <h6>John Doe<small> - <i>01 Jan 2045</i></small></h6>
-                                        <div class="text-primary mb-2">
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star-half-alt"></i>
-                                            <i class="far fa-star"></i>
-                                        </div>
-                                        <p>Diam amet duo labore stet elitr ea clita ipsum, tempor labore accusam ipsum et no at. Kasd diam tempor rebum magna dolores sed sed eirmod ipsum.</p>
+                                        <h6>' . $row_review['nama'] . '<small> - <i>' . $row_review['tanggal'] . '</i></small></h6>
+                                        <div class="text-primary mb-2">';
+                                        for ($i = 1; $i <= $row_review['rating']; $i++) {
+                                            echo '<i class="fas fa-star"></i>';
+                                        }
+                                        for ($i = $row_review['rating'] + 1; $i <= 5; $i++) {
+                                            echo '<i class="far fa-star"></i>';
+                                        }
+                                        echo '</div>
+                                        <p>' . $row_review['review'] . '</p>
                                     </div>
-                                </div>
-                            </div>
+                                </div>';
+                                }
+                            } else {
+                                echo '<h4 class="mb-4">No reviews yet</h4>';
+                            }
+                            echo '</div>
                             <div class="col-md-6">
                                 <h4 class="mb-4">Leave a review</h4>
                                 <small>Your email address will not be published. Required fields are marked *</small>
-                                <div class="d-flex my-3">
-                                    <p class="mb-0 mr-2">Your Rating * :</p>
-                                    <div class="text-primary">
-                                        <i class="far fa-star"></i>
-                                        <i class="far fa-star"></i>
-                                        <i class="far fa-star"></i>
-                                        <i class="far fa-star"></i>
-                                        <i class="far fa-star"></i>
-                                    </div>
-                                </div>
-                                <form>
-                                    <div class="form-group">
-                                        <label for="message">Your Review *</label>
-                                        <textarea id="message" cols="30" rows="5" class="form-control"></textarea>
+                                <form method="post" action="php/review.php">
+                                    <div class="d-flex my-3">
+                                        <p class="mb-0 mr-2">Your Rating * :</p>
+                                        <div class="text-primary">
+                                            <!-- Rating stars -->
+                                            <input type="hidden" id="rating" name="rating" value="0">
+                                            <i class="far fa-star" onclick="setRating(1)"></i>
+                                            <i class="far fa-star" onclick="setRating(2)"></i>
+                                            <i class="far fa-star" onclick="setRating(3)"></i>
+                                            <i class="far fa-star" onclick="setRating(4)"></i>
+                                            <i class="far fa-star" onclick="setRating(5)"></i>
+                                        </div>
                                     </div>
                                     <div class="form-group">
+                                        <label for="review">Your Review *</label>
+                                        <textarea id="review" name="review" cols="30" rows="5" class="form-control" required></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <!-- Menampilkan nama berdasarkan hasil query -->
                                         <label for="name">Your Name *</label>
-                                        <input type="text" class="form-control" id="name">
+                                        <input type="text" class="form-control" id="name" name="name" value="' . $nama . '" required readonly>
                                     </div>
                                     <div class="form-group">
+                                        <!-- Menampilkan email berdasarkan hasil query -->
                                         <label for="email">Your Email *</label>
-                                        <input type="email" class="form-control" id="email">
+                                        <input type="email" class="form-control" id="email" name="email" value="' . $email . '" required readonly>
                                     </div>
+                                    <input type="hidden" name="id_produk" value="' . $product_id . '">
                                     <div class="form-group mb-0">
                                         <input type="submit" value="Leave Your Review" class="btn btn-primary px-3">
                                     </div>

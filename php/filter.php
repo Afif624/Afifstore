@@ -1,13 +1,6 @@
 <?php
-// fetch_produk.php
-
-// Database connection
-$mysqli = new mysqli("localhost", "root", "", "gamestore");
-
-// Check connection
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
-}
+// Include file koneksi ke database
+include_once("connect.php");
 
 // Initialize filter
 $whereClause = " WHERE 1";
@@ -40,7 +33,7 @@ $query .= " INNER JOIN genre ON detailgenre.id_genre = genre.id_genre";
 $query .= $whereClause;
 $query .= " GROUP BY produk.id_produk"; // To avoid duplicate products
 
-$result = $mysqli->query($query);
+$result = $conn->query($query);
 
 // Initialize array to store product data
 $produkData = array();
@@ -53,7 +46,7 @@ if ($result->num_rows > 0) {
 }
 
 // Close database connection
-$mysqli->close();
+$conn->close();
 
 // Sending product data as JSON response
 header('Content-Type: application/json');

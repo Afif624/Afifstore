@@ -1,17 +1,10 @@
 <?php
-// fetch_produk.php
-
-// Sambungan database
-$mysqli = new mysqli("localhost", "root", "", "gamestore");
-
-// Periksa koneksi
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
-}
+// Include file koneksi ke database
+include_once("connect.php");
 
 // Query untuk mengambil data produk
 $query = "SELECT * FROM produk";
-$result = $mysqli->query($query);
+$result = $conn->query($query);
 
 // Inisialisasi array untuk menyimpan data produk
 $produkData = array();
@@ -24,7 +17,7 @@ if ($result->num_rows > 0) {
 }
 
 // Menutup koneksi database
-$mysqli->close();
+$conn->close();
 
 // Mengirimkan data produk sebagai respons JSON
 header('Content-Type: application/json');

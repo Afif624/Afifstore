@@ -31,6 +31,20 @@ $(document).ready(function() {
     renderProductDetails();
 });
 
+function setRating(rating) {
+    document.getElementById('rating').value = rating;
+    var stars = document.querySelectorAll('.fa-star');
+    for (var i = 0; i < stars.length; i++) {
+        if (i < rating) {
+            stars[i].classList.add('fas');
+            stars[i].classList.remove('far');
+        } else {
+            stars[i].classList.add('far');
+            stars[i].classList.remove('fas');
+        }
+    }
+}
+
 fetch('topbar.html').then(response => response.text()).then(html => {
     document.getElementById('topbar').innerHTML = html;
 });

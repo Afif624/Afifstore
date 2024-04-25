@@ -1,21 +1,14 @@
 <?php
-// fetch_kategori_genre.php
-
-// Sambungan database
-$mysqli = new mysqli("localhost", "root", "", "gamestore");
-
-// Periksa koneksi
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
-}
+// Include file koneksi ke database
+include_once("connect.php");
 
 // Query untuk mengambil data kategori
 $queryKategori = "SELECT * FROM kategori";
-$resultKategori = $mysqli->query($queryKategori);
+$resultKategori = $conn->query($queryKategori);
 
 // Query untuk mengambil data genre
 $queryGenre = "SELECT * FROM genre";
-$resultGenre = $mysqli->query($queryGenre);
+$resultGenre = $conn->query($queryGenre);
 
 // Inisialisasi array untuk menyimpan data kategori dan genre
 $data = array();
@@ -35,7 +28,7 @@ if ($resultGenre->num_rows > 0) {
 }
 
 // Menutup koneksi database
-$mysqli->close();
+$conn->close();
 
 // Mengirimkan data kategori dan genre sebagai respons JSON
 header('Content-Type: application/json');
