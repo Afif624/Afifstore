@@ -26,7 +26,7 @@ function renderProductDetails() {
             type: 'GET',
             success: function(data) {
                 // Insert product details into the HTML
-                $('.related-carousel').html(data);
+                $('.products').html(data);
             },
             error: function(xhr, status, error) {
                 console.error(xhr.responseText);
