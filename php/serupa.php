@@ -89,6 +89,7 @@ if ($result_selected_product->num_rows > 0) {
     $result_all_products = $conn->query($sql_all_products);
 
     // Menghitung similarity dengan produk lain
+    $recommendations = [];
     while ($row = $result_all_products->fetch_assoc()) {
         // Menghitung vektor fitur untuk produk saat ini
         $current_description_vector = calculate_description_feature_vector($row['desk_produk']);
@@ -112,52 +113,8 @@ if ($result_selected_product->num_rows > 0) {
         }
     }
 
-    // Tampilkan rekomendasi
-    if (!empty($recommendations)) {
-        // Jika terdapat rekomendasi, tampilkan produk yang direkomendasikan
-        $count_recommendations = count($recommendations);
-        $limit = min(6, $count_recommendations); // Batasi hingga 6 produk atau jumlah produk yang direkomendasikan, mana yang lebih sedikit
-
-        echo '
-        <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4"><span class="bg-secondary pr-3">You May Also Like</span></h2>
-        <div class="row px-xl-5">
-            <div class="col">
-                <div class="owl-carousel related-carousel">';
-                for ($i = 0; $i < $limit; $i++) {
-                    // Tampilkan detail lainnya dari produk rekomendasi jika diperlukan
-                    echo '
-                    <div class="product-item bg-light">
-                        <div class="product-img position-relative overflow-hidden">
-                            <img class="img-fluid w-100" src="img/' . $recommendations[$i]['file_produk'] . '" alt="">
-                            <div class="product-action">
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-shopping-cart"></i></a>
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a>
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-sync-alt"></i></a>
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-search"></i></a>
-                            </div>
-                        </div>
-                        <div class="text-center py-4">
-                            <a class="h6 text-decoration-none text-truncate" href="">' . $recommendations[$i]['nama_produk'] . '</a>
-                            <div class="d-flex align-items-center justify-content-center mt-2">
-                                <h5>$' . $recommendations[$i]['harga_produk'] . '</h5><h6 class="text-muted ml-2"><del>$123.00</del></h6>
-                            </div>
-                            <div class="d-flex align-items-center justify-content-center mb-1">
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small>(99)</small>
-                            </div>
-                        </div>
-                    </div>';
-                    // Tampilkan detail lainnya dari produk rekomendasi jika diperlukan
-                }
-                echo '
-                </div>
-            </div>
-        </div>';
-    }
+    // Mengirim data rekomendasi dalam format JSON
+    echo json_encode($recommendations);
 } else {
     echo "Produk tidak ditemukan.";
 }
