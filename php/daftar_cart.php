@@ -1,10 +1,11 @@
 <?php
+session_start();
 // Include file koneksi ke database
 include_once("connect.php");
 
 // Query untuk mengambil data produk
 $id_user = $_SESSION['id_user'];
-$query = "SELECT *, (SELECT SUM(harga_produk) FROM produk) AS total_harga FROM cart 
+$query = "SELECT * FROM cart 
     LEFT JOIN produk ON cart.id_produk = produk.id_produk 
     WHERE id_user=$id_user";
 $result = $conn->query($query);

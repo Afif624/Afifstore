@@ -1,0 +1,70 @@
+<?php
+session_start();
+
+// Memeriksa apakah pengguna sudah login atau belum
+if (!isset($_SESSION['id_user'])) {
+    // Redirect ke halaman login jika pengguna belum login
+    header("Location: ../login.html");
+    exit();
+}
+
+// Memeriksa apakah data cart dikirim melalui metode POST
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete'])) {
+    // Include file koneksi ke database
+    include_once("connect.php");
+
+    // Mendapatkan data yang dikirimkan dari form
+    $id_produk = $_GET['id_produk'];
+    $id_user = $_SESSION['id_user'];
+
+    // SQL untuk menghapus cart
+    $sql = "DELETE FROM cart WHERE id_produk=$id_produk AND id_user=$id_user";
+
+    if ($conn->query($sql) === TRUE) {
+        // Jika cart berhasil dihapus, kembalikan ke halaman detail produk
+        echo "<script>alert('Delete from Cart successful!!');
+            window.location.href = '../cart.html';
+                </script>";
+    } else {
+        // Jika terjadi kesalahan, tampilkan pesan error
+        echo "Error: " . $sql . "<br>" . $conn->error;
+    }
+
+    // Tutup koneksi database
+    $conn->close();
+} if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['order'])) {
+    // Include file koneksi ke database
+    include_once("connect.php");
+
+    // Mendapatkan data yang dikirimkan dari form
+    $id_user = $_SESSION['id_user'];
+    $payment = $_POST['payment'];
+
+    // SQL untuk membaca cart
+    $sql_read = "SELECT * FROM cart LEFT JOIN produk ON cart.id_produk = produk.id_produk WHERE id_user=$id_user";
+    while ($cart = $conn->query($sql_read)->fetch_assoc()){
+        // SQL untuk memasukkan cart ke order
+        $sql_insert = "INSERT INTO order(id_user, id_produk, payment) 
+            VALUES('$id_user', '" . $cart['id_produk'] . "', '$payment')";
+    }
+
+    // SQL untuk menghapus cart
+    $sql_delete = "DELETE FROM cart WHERE id_user=$id_user";
+    if ($conn->query($sql_delete) === TRUE) {
+        // Jika cart berhasil dihapus, kembalikan ke halaman detail produk
+        echo "<script>alert('Place order successful!!');
+            window.location.href = '../cart.html';
+                </script>";
+    } else {
+        // Jika terjadi kesalahan, tampilkan pesan error
+        echo "Error: " . $sql . "<br>" . $conn->error;
+    }
+
+    // Tutup koneksi database
+    $conn->close();
+} else {
+    // Jika metode request bukan POST, redirect ke halaman detail produk
+    header("Location: ../cart.html");
+    exit();
+}
+?>
