@@ -85,19 +85,19 @@ function renderCart(cart) {
                     <form class="bg-light p-30" action="php/form_cart.php" method="POST">
                         <div class="form-group">
                             <div class="custom-control custom-radio">
-                                <input type="radio" class="custom-control-input" name="payment" id="paypal">
+                                <input type="radio" class="custom-control-input" name="payment" id="paypal" value="Paypal" checked>
                                 <label class="custom-control-label" for="paypal">Paypal</label>
                             </div>
                         </div>
                         <div class="form-group">
                             <div class="custom-control custom-radio">
-                                <input type="radio" class="custom-control-input" name="payment" id="directcheck">
+                                <input type="radio" class="custom-control-input" name="payment" id="directcheck" value="Direct Check">
                                 <label class="custom-control-label" for="directcheck">Direct Check</label>
                             </div>
                         </div>
                         <div class="form-group mb-4">
                             <div class="custom-control custom-radio">
-                                <input type="radio" class="custom-control-input" name="payment" id="banktransfer">
+                                <input type="radio" class="custom-control-input" name="payment" id="banktransfer" value="Bank Transfer">
                                 <label class="custom-control-label" for="banktransfer">Bank Transfer</label>
                             </div>
                         </div>
