@@ -13,8 +13,9 @@ function loadCart() {
 function renderCart(cart) {
     var productsContainer = document.querySelector('.cartshop');
     productsContainer.innerHTML = "";
+    var htmlContent = ``;
     if (cart.length > 0) {
-        var htmlContent = `
+        htmlContent += `
         <div class="row px-xl-5">
             <div class="col-lg-8 table-responsive mb-5">
                 <table class="table table-light table-borderless table-hover text-center mb-0">
@@ -106,10 +107,13 @@ function renderCart(cart) {
                 </div>
             </div>
         </div>`;
-        productsContainer.innerHTML = htmlContent;
     } else {
-        console.error("No cart found.");
+        htmlContent += `
+        <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4">
+            <span class="bg-secondary pr-3">Masih Kosong</span>
+        </h2>`;
     }
+    productsContainer.innerHTML = htmlContent;
 }
 
 // Call renderProductDetails function

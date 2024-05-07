@@ -37,6 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Mendapatkan data yang dikirimkan dari form
         $id_user = $_SESSION['id_user'];
         $payment = $_POST['payment'];
+        $datetime = date("Y-m-d H:i:s");
 
         // SQL untuk membaca cart
         $sql_read = "SELECT * FROM cart LEFT JOIN produk ON cart.id_produk = produk.id_produk WHERE id_user=$id_user";
@@ -47,8 +48,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         while ($row_cart = $result_read->fetch_assoc()){
             // SQL untuk memasukkan cart ke order
-            $sql_insert = "INSERT INTO `order` (id_user, id_produk, payment) 
-                VALUES ('$id_user', '" . $row_cart['id_produk'] . "', '$payment')";
+            $sql_insert = "INSERT INTO `order` (id_user, id_produk, payment, waktu) 
+                VALUES ('$id_user', '" . $row_cart['id_produk'] . "', '$payment', '$datetime')";
             
             // Jalankan query untuk memasukkan data ke dalam tabel order
             if ($conn->query($sql_insert) !== TRUE) {
