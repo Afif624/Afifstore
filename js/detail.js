@@ -59,48 +59,43 @@ function loadRecommendations() {
 function renderRecommendations(recommendations) {
     var productsContainer = document.querySelector('.shop-similar');
     productsContainer.innerHTML = "";
+    var htmlContent = ``;
     if (recommendations.length > 0) {
-        var htmlContent = `
-        <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4"><span class="bg-secondary pr-3">You May Also Liked</span></h2>
-        <div class="row px-xl-5">
-            <div class="col">
-                <div class="owl-carousel related-carousel">`;
-                recommendations.forEach(function(product) {
-                    htmlContent += `
-                    <div class="product-item bg-light">
-                        <div class="product-img position-relative overflow-hidden">
-                            <img class="img-fluid w-100" src="img/${product.file_produk}" alt="">
-                            <div class="product-action">
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-shopping-cart"></i></a>
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a>
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-sync-alt"></i></a>
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-search"></i></a>
-                            </div>
-                        </div>
-                        <div class="text-center py-4">
-                            <a class="h6 text-decoration-none text-truncate" href="">${product.nama_produk}</a>
-                            <div class="d-flex align-items-center justify-content-center mt-2">
-                                <h5>$${product.harga_produk}</h5><h6 class="text-muted ml-2"><del>$123.00</del></h6>
-                            </div>
-                            <div class="d-flex align-items-center justify-content-center mb-1">
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small>(99)</small>
-                            </div>
-                        </div>
-                    </div>`;
-                });
-                htmlContent += `
+        recommendations.forEach(function(product) {
+            htmlContent += `
+            <div class="product-item bg-light">
+                <div class="product-img position-relative overflow-hidden">
+                    <img class="img-fluid w-100" src="img/${product.file_produk}" alt="">
+                    <div class="product-action">
+                        <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-shopping-cart"></i></a>
+                        <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a>
+                        <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-sync-alt"></i></a>
+                        <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-search"></i></a>
+                    </div>
                 </div>
-            </div>
-        </div>`;
-        productsContainer.innerHTML = htmlContent;
+                <div class="text-center py-4">
+                    <a class="h6 text-decoration-none text-truncate" href="">${product.nama_produk}</a>
+                    <div class="d-flex align-items-center justify-content-center mt-2">
+                        <h5>$${product.harga_produk}</h5><h6 class="text-muted ml-2"><del>$123.00</del></h6>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-center mb-1">
+                        <small class="fa fa-star text-primary mr-1"></small>
+                        <small class="fa fa-star text-primary mr-1"></small>
+                        <small class="fa fa-star text-primary mr-1"></small>
+                        <small class="fa fa-star text-primary mr-1"></small>
+                        <small class="fa fa-star text-primary mr-1"></small>
+                        <small>(99)</small>
+                    </div>
+                </div>
+            </div>`;
+        });
     } else {
-        console.error("No recommendations found.");
+        htmlContent += `
+        <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4">
+            <span class="bg-secondary pr-3">No recommendations found</span>
+        </h2>`;
     }
+    productsContainer.innerHTML = htmlContent;
 }
 
 // Call renderProductDetails function
