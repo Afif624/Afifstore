@@ -6,8 +6,23 @@ document.addEventListener("DOMContentLoaded", function() {
     loadProductRecomData();
 });
 
-// JavaScript untuk mengambil data kategori dan genre dari database
+// Tambahkan event listener pada window untuk menangani aksi sebelum halaman dimuat ulang atau ditutup
+window.addEventListener("beforeunload", function(event) {
+    // Hapus data kategori dari localStorage
+    $('#kategori input').each(function() {
+        localStorage.removeItem('kategori-' + $(this).val());
+    });
 
+    // Hapus data genre dari localStorage
+    $('#genre input').each(function() {
+        localStorage.removeItem('genre-' + $(this).val());
+    });
+
+    // Hapus data filterStorage dari localStorage
+    localStorage.removeItem('filterStorage');
+});
+
+// JavaScript untuk mengambil data kategori dan genre dari database
 $(document).ready(function() {
     // Ambil data kategori dan genre saat halaman dimuat
     $.ajax({
@@ -168,8 +183,14 @@ function renderProductsRecom(page) {
         <div class="product-img position-relative overflow-hidden">
             <img class="img-fluid w-100" src="img/${product.file_produk}" alt="${product.nama_produk}">
             <div class="product-action">
-                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-shopping-cart"></i></a>
-                <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a>
+                <form method="post" action="php/tambahcart.php">
+                    <input type="hidden" name="id_produk" value="${product.id_produk}">
+                    <a class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="fa fa-shopping-cart"></i></a>
+                </form>
+                <form method="post" action="php/tambahwish.php">
+                    <input type="hidden" name="id_produk" value="${product.id_produk}">
+                    <a class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="far fa-heart"></i></a>
+                </form>
                 <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-sync-alt"></i></a>
             </div>
         </div>

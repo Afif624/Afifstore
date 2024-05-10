@@ -124,8 +124,10 @@ if ($result->num_rows > 0) {
                             </button>
                         </div>
                     </div>
-                    <button class="btn btn-primary px-3"><i class="fa fa-shopping-cart mr-1"></i> Add To
-                        Cart</button>
+                    <form method="post" action="php/tambahcart.php">
+                        <input type="hidden" name="id_produk" value="' . $product_id . '">
+                        <button class="btn btn-primary px-3" type="submit" name="add"><i class="fa fa-shopping-cart mr-1"></i> Add To Cart</button>
+                    </form>
                 </div>
                 <div class="d-flex pt-2">
                     <strong class="text-dark mr-2">Share on:</strong>

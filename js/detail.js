@@ -61,6 +61,7 @@ function renderRecommendations(recommendations) {
     productsContainer.innerHTML = "";
     var htmlContent = ``;
     if (recommendations.length > 0) {
+        htmlContent += `<div class="owl-carousel related-carousel" id="carousel-container">`;
         recommendations.forEach(function(product) {
             htmlContent += `
             <div class="product-item bg-light">
@@ -74,7 +75,7 @@ function renderRecommendations(recommendations) {
                     </div>
                 </div>
                 <div class="text-center py-4">
-                    <a class="h6 text-decoration-none text-truncate" href="">${product.nama_produk}</a>
+                    <a class="h6 text-decoration-none text-truncate" href="detail.html?id=${product.id_produk}">${product.nama_produk}</a>
                     <div class="d-flex align-items-center justify-content-center mt-2">
                         <h5>$${product.harga_produk}</h5><h6 class="text-muted ml-2"><del>$123.00</del></h6>
                     </div>
@@ -89,6 +90,7 @@ function renderRecommendations(recommendations) {
                 </div>
             </div>`;
         });
+        htmlContent += `</div>`;
     } else {
         htmlContent += `
         <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4">
@@ -96,6 +98,15 @@ function renderRecommendations(recommendations) {
         </h2>`;
     }
     productsContainer.innerHTML = htmlContent;
+
+    // Assuming you have loaded the HTML using innerHTML
+    var carouselContainer = document.getElementById('carousel-container');
+
+    // Initialize owl carousel
+    $(carouselContainer).owlCarousel({
+        loop: true,
+        autoplay: true
+    });
 }
 
 // Call renderProductDetails function
