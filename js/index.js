@@ -1,3 +1,26 @@
+$(document).ready(function() {
+    $.ajax({
+        type: "GET",
+        url: "php/jumlah_cart&wishlist.php",
+        dataType: "json",
+        success: function(response) {
+            // Menampilkan respons di konsol
+        console.log(response);
+            // Update elemen HTML kategori
+            var wishlistHTML = '';
+            wishlistHTML += '<i class="fas fa-heart text-primary"></i>';
+            wishlistHTML += '<span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom: 2px;">'+ response.wishlist +'</span>';
+            $('#wishlist').html(wishlistHTML);
+
+            // Update elemen HTML genre
+            var cartHTML = '';
+            cartHTML += '<i class="fas fa-shopping-cart text-primary"></i>';
+            cartHTML += '<span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom: 2px;">'+ response.cart +'</span>';
+            $('#cart').html(cartHTML);
+        }
+    });
+});
+
 var currentRecomPage = 1;
 var recomProductsPerPage = 8;
 var recomProductsData = [];

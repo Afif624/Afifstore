@@ -110,24 +110,36 @@ if ($result->num_rows > 0) {
                         echo '</div>';
                     }
                 echo '</div>
-                <div class="d-flex align-items-center mb-4 pt-2">
-                    <div class="input-group quantity mr-3" style="width: 130px;">
-                        <div class="input-group-btn">
-                            <button class="btn btn-primary btn-minus">
-                                <i class="fa fa-minus"></i>
-                            </button>
-                        </div>
-                        <input type="text" class="form-control bg-secondary border-0 text-center" value="1">
-                        <div class="input-group-btn">
-                            <button class="btn btn-primary btn-plus">
-                                <i class="fa fa-plus"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <form method="post" action="php/tambahcart.php">
-                        <input type="hidden" name="id_produk" value="' . $product_id . '">
-                        <button class="btn btn-primary px-3" type="submit" name="add"><i class="fa fa-shopping-cart mr-1"></i> Add To Cart</button>
-                    </form>
+                <div class="d-flex align-items-center mb-4 pt-2">';
+                    $sql_wish = "SELECT * FROM wishlist WHERE id_user = $id_user AND id_produk = $product_id";
+                    $result_wish = $conn->query($sql_wish);
+                    if ($result_wish->num_rows > 0){
+                        echo '
+                        <form method="post" action="php/form_wish.php?id_produk=' . $product_id . '" class="mr-3">
+                            <button class="btn btn-primary px-3" type="submit" name="add"><i class="far fa-heart mr-1"></i> Delete From Wishlist</button>
+                        </form>';
+                    } else {
+                        echo '
+                        <form method="post" action="php/tambahwish.php" class="mr-3">
+                            <input type="hidden" name="id_produk" value="' . $product_id . '">
+                            <button class="btn btn-primary px-3" type="submit" name="add"><i class="far fa-heart mr-1"></i> Add To Wishlist</button>
+                        </form>';
+                    }
+                    $sql_cart = "SELECT * FROM cart WHERE id_user = $id_user AND id_produk = $product_id";
+                    $result_cart = $conn->query($sql_cart);
+                    if ($result_cart->num_rows > 0){
+                        echo '
+                        <form method="post" action="php/form_cart.php?id_produk=' . $product_id . '">
+                            <button class="btn btn-primary px-3" type="submit" name="delete"><i class="fa fa-shopping-cart mr-1"></i> Delete From Cart</button>
+                        </form>';
+                    } else{
+                        echo '
+                        <form method="post" action="php/tambahcart.php">
+                            <input type="hidden" name="id_produk" value="' . $product_id . '">
+                            <button class="btn btn-primary px-3" type="submit" name="add"><i class="fa fa-shopping-cart mr-1"></i> Add To Cart</button>
+                        </form>';
+                    }
+                    echo '
                 </div>
                 <div class="d-flex pt-2">
                     <strong class="text-dark mr-2">Share on:</strong>
