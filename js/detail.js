@@ -30,11 +30,22 @@ function getProductIdFromUrl() {
 
 // Function to render product details
 function renderProductDetails() {
+    var segments = window.location.pathname.split('/');
+    var toDelete = [];
+    for (var i = 0; i < segments.length; i++) {
+        if (segments[i].length < 1) {
+            toDelete.push(i);
+        }
+    }
+    for (var i = 0; i < toDelete.length; i++) {
+        segments.splice(i, 1);
+    }
+    var filename = segments[segments.length - 1];
     var productId = getProductIdFromUrl();
     if (productId) {
         // Fetch product details from PHP script
         $.ajax({
-            url: 'php/detail.php?id=' + productId,
+            url: 'php/detail.php?id=' + productId + '&filename=' + filename,
             type: 'GET',
             success: function(data) {
                 // Insert product details into the HTML

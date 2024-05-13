@@ -17,6 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Mendapatkan data yang dikirimkan dari form
         $id_produk = $_GET['id_produk'];
         $id_user = $_SESSION['id_user'];
+        $page = $_POST['sourcePage'];
 
         // SQL untuk menghapus cart
         $sql = "DELETE FROM cart WHERE id_produk=$id_produk AND id_user=$id_user";
@@ -24,7 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($conn->query($sql) === TRUE) {
             // Jika cart berhasil dihapus, kembalikan ke halaman cart
             echo "<script>alert('Delete from Cart successful!!');
-                window.location.href = '../cart.html';
+                window.location.href = '../$page';
                     </script>";
         } else {
             // Jika terjadi kesalahan, tampilkan pesan error

@@ -1,6 +1,7 @@
 <?php
 session_start();
 $product_id = $_GET['id']; // Assuming you're getting product ID from URL parameter
+$filename = $_GET['filename'];
 
 // Include file koneksi ke database
 include_once("connect.php");
@@ -116,7 +117,8 @@ if ($result->num_rows > 0) {
                     if ($result_wish->num_rows > 0){
                         echo '
                         <form method="post" action="php/form_wish.php?id_produk=' . $product_id . '" class="mr-3">
-                            <button class="btn btn-primary px-3" type="submit" name="add"><i class="far fa-heart mr-1"></i> Delete From Wishlist</button>
+                            <input type="hidden" name="sourcePage" value="'. $filename .'?id='. $product_id .'" />
+                            <button class="btn btn-primary px-3" type="submit" name="delete"><i class="far fa-heart mr-1"></i> Delete From Wishlist</button>
                         </form>';
                     } else {
                         echo '
@@ -130,6 +132,7 @@ if ($result->num_rows > 0) {
                     if ($result_cart->num_rows > 0){
                         echo '
                         <form method="post" action="php/form_cart.php?id_produk=' . $product_id . '">
+                            <input type="hidden" name="sourcePage" value="'. $filename .'?id='. $product_id .'" />
                             <button class="btn btn-primary px-3" type="submit" name="delete"><i class="fa fa-shopping-cart mr-1"></i> Delete From Cart</button>
                         </form>';
                     } else{

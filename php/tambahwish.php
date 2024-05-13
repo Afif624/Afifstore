@@ -8,7 +8,7 @@ if (!isset($_SESSION['id_user'])) {
     exit();
 }
 
-// Memeriksa apakah data cart dikirim melalui metode POST
+// Memeriksa apakah data wishlist dikirim melalui metode POST
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add'])) {
     // Include file koneksi ke database
     include_once("connect.php");
@@ -17,12 +17,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add'])) {
     $id_produk = $_POST['id_produk'];
     $id_user = $_SESSION['id_user'];
 
-    // SQL untuk menghapus cart
-    $sql = "INSERT INTO cart(id_user, id_produk) VALUES('$id_user','$id_produk')";
+    // SQL untuk menghapus wishlist
+    $sql = "INSERT INTO wishlist(id_user, id_produk) VALUES('$id_user','$id_produk')";
 
     if ($conn->query($sql) === TRUE) {
-        // Jika cart berhasil dihapus, kembalikan ke halaman cart
-        echo "<script>alert('Add to Cart successful!!');
+        // Jika wishlist berhasil dihapus, kembalikan ke halaman wishlist
+        echo "<script>alert('Add to wishlist successful!!');
             window.location.href = '../detail.html?id=$id_produk';
                 </script>";
     } else {
@@ -33,7 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add'])) {
     // Tutup koneksi database
     $conn->close();
 } else {
-    // Jika metode request bukan POST, redirect ke halaman cart
+    // Jika metode request bukan POST, redirect ke halaman wishlist
     header("Location: ../detail.html?id=$id_produk");
     exit();
 }
