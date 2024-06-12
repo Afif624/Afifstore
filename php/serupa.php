@@ -107,7 +107,7 @@ if ($result_selected_product->num_rows > 0) {
         $total_similarity = ($description_similarity + $developer_similarity + $genre_similarity + $category_similarity) / 4;
 
         // Jika similarity melewati threshold, tambahkan produk saat ini ke dalam rekomendasi
-        $threshold = 0.3; // Anda dapat menyesuaikan nilai threshold sesuai kebutuhan
+        $threshold = 0.2; // Anda dapat menyesuaikan nilai threshold sesuai kebutuhan
         if ($total_similarity > $threshold) {
             $recommendations[] = $row;
         }

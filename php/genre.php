@@ -6,7 +6,7 @@ include_once("connect.php");
 $query = "SELECT genre.nama_genre, COUNT(detailgenre.id_produk) AS jumlah_produk
           FROM genre
           LEFT JOIN detailgenre ON genre.id_genre = detailgenre.id_genre
-          GROUP BY genre.id_genre";
+          GROUP BY genre.id_genre ORDER BY genre.nama_genre";
 $result = $conn->query($query);
 
 // Inisialisasi array untuk menyimpan data genre
