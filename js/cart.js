@@ -70,9 +70,9 @@ function renderCart(cart) {
                         <tr>
                             <td class="align-middle"><img src="img/${product.file_produk}" alt="" style="width: 50px;"></td>
                             <td class="align-middle">${product.nama_produk}</td>
-                            <td class="align-middle">$${product.harga_produk}</td>
-                            <td class="align-middle">$${product.dev_produk}</td>
-                            <td class="align-middle">$${product.publ_produk}</td>
+                            <td class="align-middle">Rp ${product.harga_produk}</td>
+                            <td class="align-middle">${product.dev_produk}</td>
+                            <td class="align-middle">${product.publ_produk}</td>
                             <td class="align-middle">
                                 <form action="php/form_cart.php?id_produk=${product.id_produk}" method="POST">
                                     <input type="hidden" name="sourcePage" value="${filename}" />
@@ -102,17 +102,17 @@ function renderCart(cart) {
                     <div class="border-bottom pb-2">
                         <div class="d-flex justify-content-between mb-3">
                             <h6>Subtotal</h6>
-                            <h6>$${totalPrice}</h6>
+                            <h6>Rp ${totalPrice}</h6>
                         </div>
                         <div class="d-flex justify-content-between">
                             <h6 class="font-weight-medium">Tax</h6>
-                            <h6 class="font-weight-medium">$10</h6>
+                            <h6 class="font-weight-medium">Rp 1000</h6>
                         </div>
                     </div>
                     <div class="pt-2">
                         <div class="d-flex justify-content-between mt-2">
                             <h5>Total</h5>
-                            <h5>$${totalPrice+10}</h5>
+                            <h5>Rp ${totalPrice+1000}</h5>
                         </div>
                     </div>
                 </div>

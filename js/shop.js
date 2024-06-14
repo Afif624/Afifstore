@@ -6,22 +6,6 @@ document.addEventListener("DOMContentLoaded", function() {
     loadProductRecomData();
 });
 
-// Tambahkan event listener pada window untuk menangani aksi sebelum halaman dimuat ulang atau ditutup
-window.addEventListener("beforeunload", function(event) {
-    // Hapus data kategori dari localStorage
-    $('#kategori input').each(function() {
-        localStorage.removeItem('kategori-' + $(this).val());
-    });
-
-    // Hapus data genre dari localStorage
-    $('#genre input').each(function() {
-        localStorage.removeItem('genre-' + $(this).val());
-    });
-
-    // Hapus data filterStorage dari localStorage
-    localStorage.removeItem('filterStorage');
-});
-
 // JavaScript untuk mengambil data kategori dan genre dari database
 $(document).ready(function() {
     $.ajax({
@@ -218,7 +202,7 @@ function renderProductsRecom(page) {
         <div class="text-center py-4">
             <a class="h6 text-decoration-none text-truncate" href="detail.html?id=${product.id_produk}">${product.nama_produk}</a>
             <div class="d-flex align-items-center justify-content-center mt-2">
-                <h5>$${product.harga_produk}</h5><h6 class="text-muted ml-2"><del>$123.00</del></h6>
+                <h5>Rp ${product.harga_produk}</h5>
             </div>
             <div class="d-flex align-items-center justify-content-center mb-1">
                 <small class="fa fa-star text-primary mr-1"></small>

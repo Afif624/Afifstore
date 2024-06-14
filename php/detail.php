@@ -77,16 +77,37 @@ if ($result->num_rows > 0) {
             <div class="h-100 bg-light p-30">
                 <h3>' . $nama_produk . '</h3>
                 <div class="d-flex mb-3">
-                    <div class="text-primary mr-2">
-                        <small class="fas fa-star"></small>
-                        <small class="fas fa-star"></small>
-                        <small class="fas fa-star"></small>
-                        <small class="fas fa-star-half-alt"></small>
-                        <small class="far fa-star"></small>
-                    </div>
+                    <div class="text-primary mr-2">';
+                        $ratings = [];
+                        while($row = $result_reviews->fetch_assoc()) {
+                            $ratings[] = $row['rating'];
+                        }
+                        
+                        if (count($ratings) > 0) {
+                            $average_rating = array_sum($ratings) / count($ratings);
+                        } else {
+                            $average_rating = 0;
+                        }
+                        
+                        $full_stars = floor($average_rating);
+                        $half_star = ($average_rating - $full_stars) >= 0.5 ? 1 : 0;
+                        $empty_stars = 5 - ($full_stars + $half_star);
+                        
+                        echo '<div class="text-primary mr-2">';
+                        for ($i = 0; $i < $full_stars; $i++) {
+                            echo '<small class="fas fa-star"></small>';
+                        }
+                        if ($half_star) {
+                            echo '<small class="fas fa-star-half-alt"></small>';
+                        }
+                        for ($i = 0; $i < $empty_stars; $i++) {
+                            echo '<small class="far fa-star"></small>';
+                        }
+                        echo '</div>';
+                    echo '</div>
                     <small class="pt-1">('. $result_reviews->num_rows .' Reviews)</small>
                 </div>
-                <h3 class="font-weight-semi-bold mb-4">$' . $harga_produk. '</h3>
+                <h3 class="font-weight-semi-bold mb-4">Rp ' . $harga_produk. '</h3>
                 <div class="d-flex mb-4">
                     <strong class="text-dark mr-3">Genre:</strong>';
                     // Fetch genre names based on product ID

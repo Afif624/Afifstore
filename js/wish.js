@@ -71,9 +71,9 @@ function renderWish(wish) {
                         <tr>
                             <td class="align-middle"><img src="img/${product.file_produk}" alt="" style="width: 50px;"></td>
                             <td class="align-middle">${product.nama_produk}</td>
-                            <td class="align-middle">$${product.harga_produk}</td>
-                            <td class="align-middle">$${product.dev_produk}</td>
-                            <td class="align-middle">$${product.publ_produk}</td>
+                            <td class="align-middle">Rp ${product.harga_produk}</td>
+                            <td class="align-middle">${product.dev_produk}</td>
+                            <td class="align-middle">${product.publ_produk}</td>
                             <td class="align-middle">
                                 <form action="php/form_wish.php?id_produk=${product.id_produk}" method="POST">
                                     <input type="hidden" name="sourcePage" value="${filename}" />
