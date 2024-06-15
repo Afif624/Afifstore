@@ -61,7 +61,7 @@ function renderOrder(groupedData) {
                     <div class="border-bottom pt-3 pb-2">
                         <div class="d-flex justify-content-between mb-3">
                             <h6>Subtotal</h6>
-                            <h6>Rp ${total_harga.toFixed(2)}</h6>
+                            <h6>Rp ${total_harga}</h6>
                         </div>
                         <div class="d-flex justify-content-between">
                             <h6 class="font-weight-medium">Shipping</h6>
@@ -71,7 +71,7 @@ function renderOrder(groupedData) {
                     <div class="pt-2">
                         <div class="d-flex justify-content-between mt-2">
                             <h5>Total</h5>
-                            <h5>Rp ${(total_harga + 1000).toFixed(2)}</h5>
+                            <h5>Rp ${total_harga + 1000}</h5>
                         </div>
                     </div>
                     <div class="pt-2">
