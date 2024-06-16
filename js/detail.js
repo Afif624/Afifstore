@@ -113,14 +113,6 @@ function renderRecommendations(recommendations) {
                     <div class="d-flex align-items-center justify-content-center mt-2">
                         <h5>Rp ${product.harga_produk}</h5>
                     </div>
-                    <div class="d-flex align-items-center justify-content-center mb-1">
-                        <small class="fa fa-star text-primary mr-1"></small>
-                        <small class="fa fa-star text-primary mr-1"></small>
-                        <small class="fa fa-star text-primary mr-1"></small>
-                        <small class="fa fa-star text-primary mr-1"></small>
-                        <small class="fa fa-star text-primary mr-1"></small>
-                        <small>(99)</small>
-                    </div>
                 </div>
             </div>`;
         });

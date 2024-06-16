@@ -76,34 +76,32 @@ if ($result->num_rows > 0) {
         <div class="col-lg-7 h-auto mb-30">
             <div class="h-100 bg-light p-30">
                 <h3>' . $nama_produk . '</h3>
-                <div class="d-flex mb-3">
-                    <div class="text-primary mr-2">';
-                        $ratings = [];
-                        while($row = $result_reviews->fetch_assoc()) {
-                            $ratings[] = $row['rating'];
-                        }
-                        
-                        if (count($ratings) > 0) {
-                            $average_rating = array_sum($ratings) / count($ratings);
-                        } else {
-                            $average_rating = 0;
-                        }
-                        
-                        $full_stars = floor($average_rating);
-                        $half_star = ($average_rating - $full_stars) >= 0.5 ? 1 : 0;
-                        $empty_stars = 5 - ($full_stars + $half_star);
-                        
-                        echo '<div class="text-primary mr-2">';
-                        for ($i = 0; $i < $full_stars; $i++) {
-                            echo '<small class="fas fa-star"></small>';
-                        }
-                        if ($half_star) {
-                            echo '<small class="fas fa-star-half-alt"></small>';
-                        }
-                        for ($i = 0; $i < $empty_stars; $i++) {
-                            echo '<small class="far fa-star"></small>';
-                        }
-                        echo '</div>';
+                <div class="d-flex mb-3">';
+                    $ratings = [];
+                    while($row = $result_reviews->fetch_assoc()) {
+                        $ratings[] = $row['rating'];
+                    }
+                    
+                    if (count($ratings) > 0) {
+                        $average_rating = array_sum($ratings) / count($ratings);
+                    } else {
+                        $average_rating = 0;
+                    }
+                    
+                    $full_stars = floor($average_rating);
+                    $half_star = ($average_rating - $full_stars) >= 0.5 ? 1 : 0;
+                    $empty_stars = 5 - ($full_stars + $half_star);
+                    
+                    echo '<div class="text-primary mr-2">';
+                    for ($i = 0; $i < $full_stars; $i++) {
+                        echo '<small class="fas fa-star"></small>';
+                    }
+                    if ($half_star) {
+                        echo '<small class="fas fa-star-half-alt"></small>';
+                    }
+                    for ($i = 0; $i < $empty_stars; $i++) {
+                        echo '<small class="far fa-star"></small>';
+                    }
                     echo '</div>
                     <small class="pt-1">('. $result_reviews->num_rows .' Reviews)</small>
                 </div>
@@ -138,7 +136,7 @@ if ($result->num_rows > 0) {
                     if ($result_order->num_rows > 0){
                         echo '
                         <form method="post" class="mr-3">
-                            <button class="btn btn-primary px-3" disabled>Sudah Anda Dibeli</button>
+                            <button class="btn btn-primary px-3" disabled>Sudah Anda Beli</button>
                         </form>';
                     } else {
                         $sql_wish = "SELECT * FROM wishlist WHERE id_user = $id_user AND id_produk = $product_id";
@@ -263,6 +261,9 @@ if ($result->num_rows > 0) {
                                 </form>
                             </div>
                             <div class="col-md-6">';
+                            $sql_reviews = "SELECT *,user.nama FROM review INNER JOIN user 
+                                ON review.id_user = user.id_user WHERE review.id_produk = $product_id";
+                            $result_reviews = $conn->query($sql_reviews);
                             if ($result_reviews->num_rows > 0) {
                                 echo '<h4 class="mb-4">Review for "' . $nama_produk . '"</h4>';
                                 while ($row_review = $result_reviews->fetch_assoc()) {
