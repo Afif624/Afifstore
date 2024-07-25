@@ -86,6 +86,54 @@ if ($result_purchased_products->num_rows > 0) {
         return $categories;
     }
 
+    // Fungsi untuk mengambil rating rata-rata produk dari tabel review
+    function get_product_rating($conn, $product_id) {
+        $sql_rating = "SELECT AVG(rating) AS avg_rating FROM review WHERE id_produk = $product_id";
+        $result_rating = $conn->query($sql_rating);
+
+        if ($result_rating->num_rows > 0) {
+            $row = $result_rating->fetch_assoc();
+            return floatval($row['avg_rating']);
+        }
+        return 0;
+    }
+
+    // Fungsi untuk mengambil jumlah produk yang sudah diorder dari tabel order
+    function get_product_order_count($conn, $product_id) {
+        $sql_order_count = "SELECT COUNT(*) AS order_count FROM `order` WHERE id_produk = $product_id";
+        $result_order_count = $conn->query($sql_order_count);
+
+        if ($result_order_count->num_rows > 0) {
+            $row = $result_order_count->fetch_assoc();
+            return intval($row['order_count']);
+        }
+        return 0;
+    }
+
+    // Fungsi untuk mengambil jumlah produk yang sudah dimasukkan cart dari tabel cart
+    function get_product_cart_count($conn, $product_id) {
+        $sql_cart_count = "SELECT COUNT(*) AS cart_count FROM cart WHERE id_produk = $product_id";
+        $result_cart_count = $conn->query($sql_cart_count);
+
+        if ($result_cart_count->num_rows > 0) {
+            $row = $result_cart_count->fetch_assoc();
+            return intval($row['cart_count']);
+        }
+        return 0;
+    }
+
+    // Fungsi untuk mengambil jumlah produk yang sudah dimasukkan wishlist dari tabel wishlist
+    function get_product_wishlist_count($conn, $product_id) {
+        $sql_wishlist_count = "SELECT COUNT(*) AS wishlist_count FROM wishlist WHERE id_produk = $product_id";
+        $result_wishlist_count = $conn->query($sql_wishlist_count);
+
+        if ($result_wishlist_count->num_rows > 0) {
+            $row = $result_wishlist_count->fetch_assoc();
+            return intval($row['wishlist_count']);
+        }
+        return 0;
+    }
+
     // Menghitung similarity dengan produk yang pernah dibeli
     $recommendations = [];
     while ($row = $result_all_products->fetch_assoc()) {
@@ -130,15 +178,29 @@ if ($result_purchased_products->num_rows > 0) {
         }
 
         if ($is_recommended) {
+            // Tambahkan fitur tambahan ke produk
+            $row['avg_rating'] = get_product_rating($conn, $row['id_produk']);
+            $row['order_count'] = get_product_order_count($conn, $row['id_produk']);
+            $row['cart_count'] = get_product_cart_count($conn, $row['id_produk']);
+            $row['wishlist_count'] = get_product_wishlist_count($conn, $row['id_produk']);
+
             // Simpan produk beserta nilai similarity untuk pengurutan
             $row['similarity'] = $total_similarity;
             $recommendations[] = $row;
         }
     }
 
-    // Mengurutkan rekomendasi berdasarkan similarity tertinggi
+    // Mengurutkan rekomendasi berdasarkan prioritas
     usort($recommendations, function($a, $b) {
-        return $b['similarity'] <=> $a['similarity'];
+        if ($b['avg_rating'] != $a['avg_rating']) {
+            return $b['avg_rating'] <=> $a['avg_rating'];
+        } elseif ($b['order_count'] != $a['order_count']) {
+            return $b['order_count'] <=> $a['order_count'];
+        } elseif ($b['cart_count'] != $a['cart_count']) {
+            return $b['cart_count'] <=> $a['cart_count'];
+        } else {
+            return $b['wishlist_count'] <=> $a['wishlist_count'];
+        }
     });
 
     // Mengirim data rekomendasi dalam format JSON
@@ -150,6 +212,12 @@ if ($result_purchased_products->num_rows > 0) {
 
     $all_products = [];
     while ($row = $result_all_products->fetch_assoc()) {
+        // Tambahkan fitur tambahan ke produk
+        $row['avg_rating'] = get_product_rating($conn, $row['id_produk']);
+        $row['order_count'] = get_product_order_count($conn, $row['id_produk']);
+        $row['cart_count'] = get_product_cart_count($conn, $row['id_produk']);
+        $row['wishlist_count'] = get_product_wishlist_count($conn, $row['id_produk']);
+
         $all_products[] = $row;
     }
 

@@ -25,14 +25,30 @@ if (isset($_GET['harga'])) {
 }
 
 // Query to retrieve product data with selected filters
-$query = "SELECT produk.* FROM produk";
-$query .= " INNER JOIN detailkategori ON produk.id_produk = detailkategori.id_produk";
-$query .= " INNER JOIN kategori ON detailkategori.id_kategori = kategori.id_kategori";
-$query .= " INNER JOIN detailgenre ON produk.id_produk = detailgenre.id_produk";
-$query .= " INNER JOIN genre ON detailgenre.id_genre = genre.id_genre";
-$query .= $whereClause;
-$query .= " GROUP BY produk.id_produk"; // To avoid duplicate products
+$query = "
+    SELECT produk.*, 
+           AVG(review.rating) AS avg_rating,
+           COUNT(DISTINCT order.id_order) AS order_count,
+           COUNT(DISTINCT cart.id_cart) AS cart_count,
+           COUNT(DISTINCT wishlist.id_wishlist) AS wishlist_count
+    FROM produk
+    LEFT JOIN detailkategori ON produk.id_produk = detailkategori.id_produk
+    LEFT JOIN kategori ON detailkategori.id_kategori = kategori.id_kategori
+    LEFT JOIN detailgenre ON produk.id_produk = detailgenre.id_produk
+    LEFT JOIN genre ON detailgenre.id_genre = genre.id_genre
+    LEFT JOIN review ON produk.id_produk = review.id_produk
+    LEFT JOIN `order` ON produk.id_produk = order.id_produk
+    LEFT JOIN cart ON produk.id_produk = cart.id_produk
+    LEFT JOIN wishlist ON produk.id_produk = wishlist.id_produk
+    $whereClause
+    GROUP BY produk.id_produk
+    ORDER BY 
+        avg_rating DESC, 
+        order_count DESC, 
+        cart_count DESC, 
+        wishlist_count DESC";
 
+// Execute the query
 $result = $conn->query($query);
 
 // Initialize array to store product data

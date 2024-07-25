@@ -76,6 +76,7 @@ if ($result->num_rows > 0) {
         <div class="col-lg-7 h-auto mb-30">
             <div class="h-100 bg-light p-30">
                 <h3>' . $nama_produk . '</h3>
+                <h3 class="font-weight-semi-bold mb-4">Rp ' . $harga_produk. '</h3>
                 <div class="d-flex mb-3">';
                     $ratings = [];
                     while($row = $result_reviews->fetch_assoc()) {
@@ -105,7 +106,6 @@ if ($result->num_rows > 0) {
                     echo '</div>
                     <small class="pt-1">('. $result_reviews->num_rows .' Reviews)</small>
                 </div>
-                <h3 class="font-weight-semi-bold mb-4">Rp ' . $harga_produk. '</h3>
                 <div class="d-flex mb-4">
                     <strong class="text-dark mr-3">Genre:</strong>';
                     // Fetch genre names based on product ID
@@ -130,6 +130,37 @@ if ($result->num_rows > 0) {
                         echo '</div>';
                     }
                 echo '</div>
+                <div class="d-flex mb-4">';
+                    // Query untuk mengambil order dari database
+                        $sql_order = "SELECT * FROM `order` INNER JOIN user 
+                        ON order.id_user = user.id_user WHERE order.id_produk = $product_id";
+                    $result_order = $conn->query($sql_order);
+
+                    // Query untuk mengambil cart dari database
+                    $sql_cart = "SELECT * FROM cart INNER JOIN user 
+                        ON cart.id_user = user.id_user WHERE cart.id_produk = $product_id";
+                    $result_cart = $conn->query($sql_cart);
+
+                    // Query untuk mengambil cart dari database
+                    $sql_wish = "SELECT * FROM wishlist INNER JOIN user 
+                        ON wishlist.id_user = user.id_user WHERE wishlist.id_produk = $product_id";
+                    $result_wish = $conn->query($sql_wish);
+                    
+                    echo '
+                    <strong class="text-dark mr-3">User:</strong>
+                    <div class="custom-control custom-radio custom-control-inline">
+                    <input type="radio" class="custom-control-input" id="wish" name="wish" disabled>
+                    <label class="custom-control-label" for="wish">' . $result_wish->num_rows . ' Wishs</label>
+                    </div>
+                    <div class="custom-control custom-radio custom-control-inline">
+                    <input type="radio" class="custom-control-input" id="cart" name="cart" disabled>
+                    <label class="custom-control-label" for="cart">' . $result_cart->num_rows  . ' Carts</label>
+                    </div>
+                    <div class="custom-control custom-radio custom-control-inline">
+                    <input type="radio" class="custom-control-input" id="order" name="order" disabled>
+                    <label class="custom-control-label" for="order">' . $result_order->num_rows  . ' Orders</label>
+                    </div>
+                </div>
                 <div class="d-flex align-items-center mb-4 pt-2">';
                     $sql_order = "SELECT * FROM `order` WHERE id_user = $id_user AND id_produk = $product_id";
                     $result_order = $conn->query($sql_order);
