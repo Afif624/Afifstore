@@ -1,12 +1,12 @@
 var currentRecomPage = 1;
-var recomProductsPerPage = 8;
+var recomProductsPerPage = 44;
 var recomProductsData = [];
 
 document.addEventListener("DOMContentLoaded", function() {
     loadProductRecomData();
 });
 
-// JavaScript untuk mengambil data kategori dan genre dari database
+// JavaScript untuk mengambil data platform dan genre dari database
 $(document).ready(function() {
     $.ajax({
         type: "GET",
@@ -14,8 +14,8 @@ $(document).ready(function() {
         dataType: "json",
         success: function(response) {
             // Menampilkan respons di konsol
-        console.log(response);
-            // Update elemen HTML kategori
+            console.log(response);
+            // Update elemen HTML platform
             var wishlistHTML = '';
             wishlistHTML += '<i class="fas fa-heart text-primary"></i>';
             wishlistHTML += '<span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom: 2px;">'+ response.wishlist +'</span>';
@@ -29,31 +29,32 @@ $(document).ready(function() {
         }
     });
     
-    // Ambil data kategori dan genre saat halaman dimuat
+    // Ambil data platform dan genre saat halaman dimuat
     $.ajax({
         type: "GET",
-        url: "php/kategori_genre.php",
+        url: "php/platform_dan_genre.php",
         dataType: "json",
         success: function(response) {
-            // Update elemen HTML kategori
-            var kategoriHTML = '';
-            $.each(response.kategori, function(index, value) {
-                var isChecked = localStorage.getItem('kategori-' + value.id_kategori) === 'true' ? 'checked' : '';
-                kategoriHTML += '<div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">';
-                kategoriHTML += '<input type="checkbox" class="custom-control-input kategori-checkbox" id="kategori-' + value.id_kategori + '" value="' + value.id_kategori + '" ' + isChecked + '>';
-                kategoriHTML += '<label class="custom-control-label" for="kategori-' + value.id_kategori + '">' + value.nama_kategori + '</label>';
-                kategoriHTML += '<span class="badge border font-weight-normal"></span>';
-                kategoriHTML += '</div>';
+            console.log(response);
+            // Update elemen HTML platform
+            var platformHTML = '';
+            $.each(response.platform, function(index, value) {
+                var isChecked = localStorage.getItem('platform-' + index) === 'true' ? 'checked' : '';
+                platformHTML += '<div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">';
+                platformHTML += '<input type="checkbox" class="custom-control-input platform-checkbox" id="platform-' + index + '" value="' + index + '" ' + isChecked + '>';
+                platformHTML += '<label class="custom-control-label" for="platform-' + index + '">' + value + '</label>';
+                platformHTML += '<span class="badge border font-weight-normal"></span>';
+                platformHTML += '</div>';
             });
-            $('#kategori').html(kategoriHTML);
+            $('#platform').html(platformHTML);
 
             // Update elemen HTML genre
             var genreHTML = '';
             $.each(response.genre, function(index, value) {
-                var isChecked = localStorage.getItem('genre-' + value.id_genre) === 'true' ? 'checked' : '';
+                var isChecked = localStorage.getItem('genre-' + index) === 'true' ? 'checked' : '';
                 genreHTML += '<div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">';
-                genreHTML += '<input type="checkbox" class="custom-control-input genre-checkbox" id="genre-' + value.id_genre + '" value="' + value.id_genre + '" ' + isChecked + '>';
-                genreHTML += '<label class="custom-control-label" for="genre-' + value.id_genre + '">' + value.nama_genre + '</label>';
+                genreHTML += '<input type="checkbox" class="custom-control-input genre-checkbox" id="genre-' + index + '" value="' + index + '" ' + isChecked + '>';
+                genreHTML += '<label class="custom-control-label" for="genre-' + index + '">' + value + '</label>';
                 genreHTML += '<span class="badge border font-weight-normal"></span>';
                 genreHTML += '</div>';
             });
@@ -64,10 +65,10 @@ $(document).ready(function() {
     // Periksa apakah ada filter yang tersimpan di localStorage
     var filterStorage = JSON.parse(localStorage.getItem('filterStorage'));
     if (filterStorage) {
-        // Periksa apakah ada filter kategori yang tersimpan
-        if (filterStorage.kategori.length > 0) {
-            filterStorage.kategori.forEach(function(id_kategori) {
-                $('#kategori-' + id_kategori).prop('checked', true);
+        // Periksa apakah ada filter platform yang tersimpan
+        if (filterStorage.platform.length > 0) {
+            filterStorage.platform.forEach(function(id_platform) {
+                $('#platform-' + id_platform).prop('checked', true);
             });
         }
 
@@ -84,8 +85,8 @@ $(document).ready(function() {
         }
     }
 
-    // Tambahkan event listener pada checkbox kategori
-    $('#kategori').on('change', '.kategori-checkbox', function() {
+    // Tambahkan event listener pada checkbox platform
+    $('#platform').on('change', '.platform-checkbox', function() {
         updateFilterStorage(); // Perbarui filterStorage saat checkbox diubah
         location.reload(); // Muat ulang halaman setelah pembaruan filter
     });
@@ -105,13 +106,13 @@ $(document).ready(function() {
 
 // Fungsi untuk memperbarui filterStorage
 function updateFilterStorage() {
-    var selectedKategori = [];
+    var selectedPlatform = [];
     var selectedGenre = [];
 
-    // Ambil nilai filter kategori yang dipilih
-    $('#kategori input:checked').each(function() {
-        selectedKategori.push($(this).val());
-        localStorage.setItem('kategori-' + $(this).val(), 'true'); // Simpan status centang ke localStorage
+    // Ambil nilai filter platform yang dipilih
+    $('#platform input:checked').each(function() {
+        selectedPlatform.push($(this).val());
+        localStorage.setItem('platform-' + $(this).val(), 'true'); // Simpan status centang ke localStorage
     });
 
     // Ambil nilai filter genre yang dipilih
@@ -120,9 +121,9 @@ function updateFilterStorage() {
         localStorage.setItem('genre-' + $(this).val(), 'true'); // Simpan status centang ke localStorage
     });
 
-    // Hapus status centang dari kategori yang tidak dipilih
-    $('#kategori input:not(:checked)').each(function() {
-        localStorage.removeItem('kategori-' + $(this).val()); // Hapus status centang dari localStorage
+    // Hapus status centang dari platform yang tidak dipilih
+    $('#platform input:not(:checked)').each(function() {
+        localStorage.removeItem('platform-' + $(this).val()); // Hapus status centang dari localStorage
     });
 
     // Hapus status centang dari genre yang tidak dipilih
@@ -132,7 +133,7 @@ function updateFilterStorage() {
 
     // Simpan filter ke dalam filterStorage (gunakan sesuai kebutuhan, misalnya localStorage)
     var filterStorage = {
-        kategori: selectedKategori,
+        platform: selectedPlatform,
         genre: selectedGenre,
         harga: $('#harga input:checked').val() // Harga hanya menyimpan satu nilai yang dipilih
         
@@ -149,11 +150,11 @@ function updateFilterStorage() {
 function loadProductRecomData() {
     var filterStorage = JSON.parse(localStorage.getItem('filterStorage'));
     var xhr = new XMLHttpRequest();
-    var url = "php/filter.php";
+    var url = "php/produk.php";
     if (filterStorage) {
         url += "?";
-        if (filterStorage.kategori.length > 0) {
-            url += "kategori=" + filterStorage.kategori.join(",") + "&";
+        if (filterStorage.platform.length > 0) {
+            url += "platform=" + filterStorage.platform.join(",") + "&";
         }
         if (filterStorage.genre.length > 0) {
             url += "genre=" + filterStorage.genre.join(",") + "&";
@@ -165,7 +166,9 @@ function loadProductRecomData() {
     xhr.open("GET", url, true);
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4 && xhr.status === 200) {
-            recomProductsData = JSON.parse(xhr.responseText);
+            var response = JSON.parse(xhr.responseText);
+            console.log(response.terfilter);
+            recomProductsData = response.terfilter;
             renderProductsRecom(currentRecomPage);
             renderPaginationRecom();
         }
@@ -181,33 +184,33 @@ function renderProductsRecom(page) {
     var rowProduk = document.getElementById("rowProdukRekom");
     rowProduk.innerHTML = "";
     slicedData.forEach(function(product) {
-    var productDiv = document.createElement("div");
-    productDiv.className = "col-lg-3 col-md-4 col-sm-6 pb-1";
-    productDiv.innerHTML = `
-    <div class="product-item bg-light mb-4">
-        <div class="product-img position-relative overflow-hidden">
-            <img class="img-fluid w-100" src="img/${product.file_produk}" alt="${product.nama_produk}">
-            <div class="product-action">
-                <form method="post" action="php/tambahcart.php">
-                    <input type="hidden" name="id_produk" value="${product.id_produk}">
-                    <a class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="fa fa-shopping-cart"></i></a>
-                </form>
-                <form method="post" action="php/tambahwish.php">
-                    <input type="hidden" name="id_produk" value="${product.id_produk}">
-                    <a class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="far fa-heart"></i></a>
-                </form>
-                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-sync-alt"></i></a>
+        var productDiv = document.createElement("div");
+        productDiv.className = "col-lg-3 col-md-4 col-sm-6 pb-1";
+        productDiv.innerHTML = `
+            <div class="product-item bg-light mb-4">
+                <div class="product-img position-relative overflow-hidden">
+                    <img class="img-fluid w-100" src="${product.thumbnail}" alt="${product.title}">
+                    <div class="product-action">
+                        <form method="post" action="php/tambahcart.php">
+                            <input type="hidden" name="id_produk" value="${product.id}">
+                            <a class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="fa fa-shopping-cart"></i></a>
+                        </form>
+                        <form method="post" action="php/tambahwish.php">
+                            <input type="hidden" name="id_produk" value="${product.id}">
+                            <a class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="far fa-heart"></i></a>
+                        </form>
+                        <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-sync-alt"></i></a>
+                    </div>
+                </div>
+                <div class="text-center py-4">
+                    <a class="h6 text-decoration-none text-truncate" href="detail.html?id=${product.id}">${product.title}</a>
+                    <div class="d-flex align-items-center justify-content-center mt-2">
+                        <h5>Rp ${product.release_date}</h5>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="text-center py-4">
-            <a class="h6 text-decoration-none text-truncate" href="detail.html?id=${product.id_produk}">${product.nama_produk}</a>
-            <div class="d-flex align-items-center justify-content-center mt-2">
-                <h5>Rp ${product.harga_produk}</h5>
-            </div>
-        </div>
-    </div>
-    `;
-    rowProduk.appendChild(productDiv);
+        `;
+        rowProduk.appendChild(productDiv);
     });
 }
 
