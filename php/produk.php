@@ -1,4 +1,7 @@
 <?php
+// Include file koneksi ke database
+include_once("connect.php");
+
 // Initialize filter
 $filters = [];
 
@@ -12,45 +15,73 @@ if (isset($_GET['genre'])) {
     $filters['genre'] = $_GET['genre'];
 }
 
-// Filter by price
+// Filter by price (if applicable)
 if (isset($_GET['harga'])) {
     $filters['harga'] = $_GET['harga'];
 }
 
-// Function to fetch data from the API
-function fetchDataFromAPI($url) {
+// Function to fetch data from RAWG API
+function fetchDataFromRAWGAPI($url) {
     $response = file_get_contents($url);
     if ($response === FALSE) {
-        die('Error fetching data from API');
+        die('Error fetching data from RAWG API');
     }
     return json_decode($response, true);
 }
 
-// Fetch data from the API
-$apiUrl = "https://www.freetogame.com/api/games";
-$data = fetchDataFromAPI($apiUrl);
+// Build the initial RAWG API URL with filters
+$rawgUrl = "https://api.rawg.io/api/games?key={$apiKey}";
 
-// Apply filters
-$filteredData = array_filter($data, function($game) use ($filters) {
+// Add platform filter if set
+if (isset($filters['platform'])) {
+    $rawgUrl .= "&platforms={$filters['platform']}";
+}
+
+// Add genre filter if set
+if (isset($filters['genre'])) {
+    $rawgUrl .= "&genres={$filters['genre']}";
+}
+
+// Fetch data from all pages, but limit to 100 games
+$allGames = [];
+$nextPageUrl = $rawgUrl;
+$totalGames = 0;
+
+do {
+    // Fetch data from the current page
+    $data = fetchDataFromRAWGAPI($nextPageUrl);
+
+    // Add games from the current page to the list
+    $allGames = array_merge($allGames, $data['results']);
+
+    // Update the total number of games
+    $totalGames += count($data['results']);
+
+    // Check if we have reached 100 games
+    if ($totalGames >= 100) {
+        break;
+    }
+
+    // Check if there is a next page
+    $nextPageUrl = $data['next'];
+} while ($nextPageUrl); // Continue until there are no more pages or we have 100 games
+
+// Apply additional filters (e.g., price) if needed
+$filteredData = array_filter($allGames, function($game) use ($filters) {
     $match = true;
 
-    // Filter by platform
-    if (isset($filters['platform'])) {
-        $match = $match && (strpos($game['platform'], $filters['platform']) !== false);
-    }
-
-    // Filter by genre
-    if (isset($filters['genre'])) {
-        $match = $match && (strpos($game['genre'], $filters['genre']) !== false);
-    }
-
-    // Filter by price
+    // Filter by price (if applicable)
     if (isset($filters['harga'])) {
+        // RAWG API tidak memiliki informasi harga, jadi Anda perlu menyesuaikan logika ini
+        // Misalnya, jika Anda menyimpan harga di database atau sumber lain
         $match = $match && ($game['price'] <= $filters['harga']);
     }
 
     return $match;
 });
+
+// Limit the final result to 100 games
+$filteredData = array_slice($filteredData, 0, 100);
 
 // Prepare the response
 $response = [

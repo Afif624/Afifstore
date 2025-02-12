@@ -1,5 +1,5 @@
 var currentRecomPage = 1;
-var recomProductsPerPage = 44;
+var recomProductsPerPage = 100;
 var recomProductsData = [];
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -15,13 +15,13 @@ $(document).ready(function() {
         success: function(response) {
             // Menampilkan respons di konsol
             console.log(response);
-            // Update elemen HTML platform
+            // Update elemen HTML wishlist
             var wishlistHTML = '';
             wishlistHTML += '<i class="fas fa-heart text-primary"></i>';
             wishlistHTML += '<span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom: 2px;">'+ response.wishlist +'</span>';
             $('#wishlist').html(wishlistHTML);
 
-            // Update elemen HTML genre
+            // Update elemen HTML cart
             var cartHTML = '';
             cartHTML += '<i class="fas fa-shopping-cart text-primary"></i>';
             cartHTML += '<span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom: 2px;">'+ response.cart +'</span>';
@@ -32,17 +32,17 @@ $(document).ready(function() {
     // Ambil data platform dan genre saat halaman dimuat
     $.ajax({
         type: "GET",
-        url: "php/platform_dan_genre.php",
+        url: "php/platform_&_genre.php",
         dataType: "json",
         success: function(response) {
             console.log(response);
             // Update elemen HTML platform
             var platformHTML = '';
             $.each(response.platform, function(index, value) {
-                var isChecked = localStorage.getItem('platform-' + index) === 'true' ? 'checked' : '';
+                var isChecked = localStorage.getItem('platform-' + value.id) === 'true' ? 'checked' : '';
                 platformHTML += '<div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">';
-                platformHTML += '<input type="checkbox" class="custom-control-input platform-checkbox" id="platform-' + index + '" value="' + index + '" ' + isChecked + '>';
-                platformHTML += '<label class="custom-control-label" for="platform-' + index + '">' + value + '</label>';
+                platformHTML += '<input type="checkbox" class="custom-control-input platform-checkbox" id="platform-' + value.id + '" value="' + value.id + '" ' + isChecked + '>';
+                platformHTML += '<label class="custom-control-label" for="platform-' + value.id + '">' + value.name + '</label>';
                 platformHTML += '<span class="badge border font-weight-normal"></span>';
                 platformHTML += '</div>';
             });
@@ -51,10 +51,10 @@ $(document).ready(function() {
             // Update elemen HTML genre
             var genreHTML = '';
             $.each(response.genre, function(index, value) {
-                var isChecked = localStorage.getItem('genre-' + index) === 'true' ? 'checked' : '';
+                var isChecked = localStorage.getItem('genre-' + value.id) === 'true' ? 'checked' : '';
                 genreHTML += '<div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">';
-                genreHTML += '<input type="checkbox" class="custom-control-input genre-checkbox" id="genre-' + index + '" value="' + index + '" ' + isChecked + '>';
-                genreHTML += '<label class="custom-control-label" for="genre-' + index + '">' + value + '</label>';
+                genreHTML += '<input type="checkbox" class="custom-control-input genre-checkbox" id="genre-' + value.id + '" value="' + value.id + '" ' + isChecked + '>';
+                genreHTML += '<label class="custom-control-label" for="genre-' + value.id + '">' + value.name + '</label>';
                 genreHTML += '<span class="badge border font-weight-normal"></span>';
                 genreHTML += '</div>';
             });
@@ -176,6 +176,10 @@ function loadProductRecomData() {
     xhr.send();
 }
 
+function getRandomPrice(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 function renderProductsRecom(page) {
     var startIndex = (page - 1) * recomProductsPerPage;
     var endIndex = startIndex + recomProductsPerPage;
@@ -186,10 +190,21 @@ function renderProductsRecom(page) {
     slicedData.forEach(function(product) {
         var productDiv = document.createElement("div");
         productDiv.className = "col-lg-3 col-md-4 col-sm-6 pb-1";
+
+        // Cek apakah harga sudah ada di localStorage
+        var hargaKey = `harga_${product.id}`;
+        var harga = localStorage.getItem(hargaKey);
+
+        // Jika harga belum ada, buat harga acak dan simpan di localStorage
+        if (!harga) {
+            harga = getRandomPrice(100000, 1000000); // Harga acak antara 100.000 hingga 1.000.000
+            localStorage.setItem(hargaKey, harga);
+        }
+
         productDiv.innerHTML = `
             <div class="product-item bg-light mb-4">
                 <div class="product-img position-relative overflow-hidden">
-                    <img class="img-fluid w-100" src="${product.thumbnail}" alt="${product.title}">
+                    <img class="img-fluid w-100" src="${product.background_image}" alt="${product.name}">
                     <div class="product-action">
                         <form method="post" action="php/tambahcart.php">
                             <input type="hidden" name="id_produk" value="${product.id}">
@@ -203,9 +218,9 @@ function renderProductsRecom(page) {
                     </div>
                 </div>
                 <div class="text-center py-4">
-                    <a class="h6 text-decoration-none text-truncate" href="detail.html?id=${product.id}">${product.title}</a>
+                    <a class="h6 text-decoration-none text-truncate" href="detail.html?id=${product.id}">${product.name}</a>
                     <div class="d-flex align-items-center justify-content-center mt-2">
-                        <h5>Rp ${product.release_date}</h5>
+                        <h5>Rp ${harga}</h5>
                     </div>
                 </div>
             </div>
