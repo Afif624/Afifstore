@@ -9710,3 +9710,13 @@ a.text-dark:hover, a.text-dark:focus {
     transform: translateY(-15px);
   }
 }
+
+.product-name {
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Batasi teks ke 2 baris */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal; /* Memungkinkan teks untuk wrap */
+  max-width: 100%; /* Membatasi lebar maksimum */
+}

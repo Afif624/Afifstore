@@ -1,6 +1,6 @@
 <?php
 // Include file koneksi ke database
-include_once("connect.php");
+include_once("produk_list_all.php");
 
 // URL API untuk genre dan platform
 $genreUrl = "https://api.rawg.io/api/genres?key={$apiKey}";
@@ -10,9 +10,20 @@ $platformUrl = "https://api.rawg.io/api/platforms?key={$apiKey}";
 $genreResponse = file_get_contents($genreUrl);
 $genres = json_decode($genreResponse, true);
 
-// Mengambil data platform dari API
-$platformResponse = file_get_contents($platformUrl);
-$platforms = json_decode($platformResponse, true);
+// Fungsi untuk mengambil semua data platform dari API multi-page
+function getAllPlatforms($url) {
+    $allPlatforms = [];
+    do {
+        $response = file_get_contents($url);
+        $data = json_decode($response, true);
+        $allPlatforms = array_merge($allPlatforms, $data['results']);
+        $url = $data['next']; // URL halaman berikutnya
+    } while ($url); // Lanjutkan selama ada halaman berikutnya
+    return $allPlatforms;
+}
+
+// Mengambil semua data platform dari API
+$platforms = getAllPlatforms($platformUrl);
 
 // Inisialisasi array untuk menyimpan data genre dan platform
 $data = array(
@@ -20,19 +31,47 @@ $data = array(
     'platform' => array()
 );
 
-// Mengumpulkan data genre (id dan nama)
+// Mengumpulkan data genre (id, nama, dan jumlah game)
 foreach ($genres['results'] as $genre) {
+    $genreId = $genre['id'];
+    $genreName = $genre['name'];
+    $gameCount = 0;
+
+    // Menghitung jumlah game yang memiliki genre ini
+    foreach ($allGames as $game) {
+        // Ekstrak ID genre dari array asosiatif
+        $gameGenreIds = array_column($game['genres'], 'id');
+        if (in_array($genreId, $gameGenreIds)) {
+            $gameCount++;
+        }
+    }
+
     $data['genre'][] = array(
-        'id' => $genre['id'],
-        'name' => $genre['name']
+        'id' => $genreId,
+        'name' => $genreName,
+        'games_count' => $gameCount
     );
 }
 
-// Mengumpulkan data platform (id dan nama)
-foreach ($platforms['results'] as $platform) {
+// Mengumpulkan data platform (id, nama, dan jumlah game)
+foreach ($platforms as $platform) {
+    $platformId = $platform['id'];
+    $platformName = $platform['name'];
+    $gameCount = 0;
+
+    // Menghitung jumlah game yang memiliki platform ini
+    foreach ($allGames as $game) {
+        // Ekstrak ID platform dari array platform yang kompleks
+        $gamePlatformIds = array_column(array_column($game['platforms'], 'platform'), 'id');
+        if (in_array($platformId, $gamePlatformIds)) {
+            $gameCount++;
+        }
+    }
+
     $data['platform'][] = array(
-        'id' => $platform['id'],
-        'name' => $platform['name']
+        'id' => $platformId,
+        'name' => $platformName,
+        'games_count' => $gameCount
     );
 }
 

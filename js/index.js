@@ -6,7 +6,7 @@ $(document).ready(function() {
         success: function(response) {
             // Menampilkan respons di konsol
         console.log(response);
-            // Update elemen HTML kategori
+            // Update elemen HTML platform
             var wishlistHTML = '';
             wishlistHTML += '<i class="fas fa-heart text-primary"></i>';
             wishlistHTML += '<span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom: 2px;">'+ response.wishlist +'</span>';
@@ -30,57 +30,59 @@ var recentProductsPerPage = 8;
 var recentProductsData = [];
 
 document.addEventListener("DOMContentLoaded", function() {
-    loadKategoriData();
-    loadGenreData();
+    loadPlatform();
+    loadGenre();
     loadProductRecomData();
     loadProductRecentData();
 });
 
-function loadKategoriData() {
+function loadPlatform() {
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", "php/kategori.php", true);
+    xhr.open("GET", "php/platform_&_genre.php", true);
     xhr.onreadystatechange = function() {
     if (xhr.readyState === 4 && xhr.status === 200) {
         var response = JSON.parse(xhr.responseText);
-        populateKategoris(response);
+        console.log(response.platform);
+        populatePlatform(response.platform);
     }
     };
     xhr.send();
 }
 
-function populateKategoris(kategoris) {
-    var rowKategori = document.getElementById("rowKategori");
-    rowKategori.innerHTML = "";
-    kategoris.forEach(function(kategori) {
-        var kategoriDiv = document.createElement("div");
-        kategoriDiv.className = "col-lg-3 col-md-4 col-sm-6 pb-1";
-        kategoriDiv.innerHTML = `
+function populatePlatform(platforms) {
+    var rowPlatform = document.getElementById("rowPlatform");
+    rowPlatform.innerHTML = "";
+    platforms.forEach(function(platform) {
+        var platformDiv = document.createElement("div");
+        platformDiv.className = "col-lg-3 col-md-4 col-sm-6 pb-1";
+        platformDiv.innerHTML = `
         <a class="text-decoration-none" href="">
             <div class="cat-item d-flex align-items-center mb-4">
                 <div class="flex-fill pl-3">
-                    <h6>${kategori.nama_kategori}</h6>
-                    <small class="text-body">${kategori.jumlah_produk} Produk</small>
+                    <h6>${platform.name}</h6>
+                    <small class="text-body">${platform.games_count} Produk</small>
                 </div>
             </div>
         </a>
         `;
-        rowKategori.appendChild(kategoriDiv);
+        rowPlatform.appendChild(platformDiv);
     });
 }
 
-function loadGenreData() {
+function loadGenre() {
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", "php/genre.php", true);
+    xhr.open("GET", "php/platform_&_genre.php", true);
     xhr.onreadystatechange = function() {
     if (xhr.readyState === 4 && xhr.status === 200) {
         var response = JSON.parse(xhr.responseText);
-        populateGenres(response);
+        console.log(response.genre);
+        populateGenre(response.genre);
     }
     };
     xhr.send();
 }
 
-function populateGenres(genres) {
+function populateGenre(genres) {
     var rowGenre = document.getElementById("rowGenre");
     rowGenre.innerHTML = "";
     genres.forEach(function(genre) {
@@ -90,8 +92,8 @@ function populateGenres(genres) {
         <a class="text-decoration-none" href="">
             <div class="cat-item d-flex align-items-center mb-4">
                 <div class="flex-fill pl-3">
-                    <h6>${genre.nama_genre}</h6>
-                    <small class="text-body">${genre.jumlah_produk} Produk</small>
+                    <h6>${genre.name}</h6>
+                    <small class="text-body">${genre.games_count} Produk</small>
                 </div>
             </div>
         </a>
@@ -105,7 +107,9 @@ function loadProductRecomData() {
     xhr.open("GET", "php/rekomendasi.php", true);
     xhr.onreadystatechange = function() {
     if (xhr.readyState === 4 && xhr.status === 200) {
-        recomProductsData = JSON.parse(xhr.responseText);
+        var response = JSON.parse(xhr.responseText);
+        console.log(response.terekomendasi);
+        recomProductsData = response.terekomendasi;
         renderProductsRecom(currentRecomPage);
         renderPaginationRecom();
     }
@@ -121,28 +125,69 @@ function renderProductsRecom(page) {
     var rowProduk = document.getElementById("rowProdukRekom");
     rowProduk.innerHTML = "";
     slicedData.forEach(function(product) {
-    var productDiv = document.createElement("div");
-    productDiv.className = "col-lg-3 col-md-4 col-sm-6 pb-1";
-    productDiv.innerHTML = `
-    <div class="product-item bg-light mb-4">
-        <div class="product-img position-relative overflow-hidden">
-            <img class="img-fluid w-100" src="img/${product.file_produk}" alt="${product.nama_produk}">
-            <div class="product-action">
-                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-shopping-cart"></i></a>
-                <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a>
-                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-sync-alt"></i></a>
-                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-search"></i></a>
+        function getOrSetRandomPrice(id, min, max) {
+            var hargaKey = `harga_${id}`;
+            var harga = localStorage.getItem(hargaKey);
+        
+            if (!harga) {
+                harga = Math.floor(Math.random() * (max - min + 1)) + min;
+                localStorage.setItem(hargaKey, harga);
+            }
+            return parseInt(harga, 10);
+        }
+
+        function generateRatingStars(rating) {
+            let stars = '';
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 !== 0;
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+        
+            for (let i = 0; i < fullStars; i++) {
+                stars += '<small class="fa fa-star text-primary mr-1"></small>';
+            }
+            if (hasHalfStar) {
+                stars += '<small class="fa fa-star-half-alt text-primary mr-1"></small>';
+            }
+            for (let i = 0; i < emptyStars; i++) {
+                stars += '<small class="far fa-star text-primary mr-1"></small>';
+            }
+            return stars;
+        }
+        
+        var harga = getOrSetRandomPrice(product.id, 100000, 1000000);
+        var ratingStars = generateRatingStars(product.rating);
+        
+        var productDiv = document.createElement("div");
+        productDiv.className = "col-lg-3 col-md-4 col-sm-6 pb-1";
+        productDiv.innerHTML = `
+            <div class="product-item bg-light mb-4">
+                <div class="product-img position-relative overflow-hidden">
+                    <img class="img-fluid w-100" src="${product.background_image}" alt="${product.name}">
+                    <div class="product-action">
+                        <form method="post" action="php/cart_add.php">
+                            <input type="hidden" name="id_produk" value="${product.id}">
+                            <a class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="fa fa-shopping-cart"></i></a>
+                        </form>
+                        <form method="post" action="php/wish_add.php">
+                            <input type="hidden" name="id_produk" value="${product.id}">
+                            <a class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="far fa-heart"></i></a>
+                        </form>
+                        <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-sync-alt"></i></a>
+                    </div>
+                </div>
+                <div class="text-center py-4">
+                    <a class="h6 text-decoration-none product-name" href="detail.html?id=${product.id}">${product.name}</a>
+                    <div class="d-flex align-items-center justify-content-center mt-2">
+                        <h5>Rp ${harga}</h5>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-center mb-1">
+                        ${ratingStars}
+                        <small>(${product.ratings_count})</small>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="text-center py-4">
-            <a class="h6 text-decoration-none text-truncate" href="detail.html?id=${product.id_produk}">${product.nama_produk}</a>
-            <div class="d-flex align-items-center justify-content-center mt-2">
-                <h5>Rp ${product.harga_produk}</h5>
-            </div>
-        </div>
-    </div>
-    `;
-    rowProduk.appendChild(productDiv);
+        `;
+        rowProduk.appendChild(productDiv);
     });
 }
 
@@ -218,10 +263,12 @@ function updatePaginationRecomState() {
 
 function loadProductRecentData() {
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", "php/terbaru.php", true);
+    xhr.open("GET", "php/produk_list.php", true);
     xhr.onreadystatechange = function() {
     if (xhr.readyState === 4 && xhr.status === 200) {
-        recentProductsData = JSON.parse(xhr.responseText);
+        var response = JSON.parse(xhr.responseText);
+        console.log(response.terbaru);
+        recentProductsData = response.terbaru;
         renderProductsRecent(currentRecentPage);
         renderPaginationRecent();
     }
@@ -237,28 +284,69 @@ function renderProductsRecent(page) {
     var rowProduk = document.getElementById("rowProdukBaru");
     rowProduk.innerHTML = "";
     slicedData.forEach(function(product) {
-    var productDiv = document.createElement("div");
-    productDiv.className = "col-lg-3 col-md-4 col-sm-6 pb-1";
-    productDiv.innerHTML = `
-    <div class="product-item bg-light mb-4">
-        <div class="product-img position-relative overflow-hidden">
-            <img class="img-fluid w-100" src="img/${product.file_produk}" alt="${product.nama_produk}">
-            <div class="product-action">
-                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-shopping-cart"></i></a>
-                <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a>
-                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-sync-alt"></i></a>
-                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-search"></i></a>
+        function getOrSetRandomPrice(id, min, max) {
+            var hargaKey = `harga_${id}`;
+            var harga = localStorage.getItem(hargaKey);
+        
+            if (!harga) {
+                harga = Math.floor(Math.random() * (max - min + 1)) + min;
+                localStorage.setItem(hargaKey, harga);
+            }
+            return parseInt(harga, 10);
+        }
+
+        function generateRatingStars(rating) {
+            let stars = '';
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 !== 0;
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+        
+            for (let i = 0; i < fullStars; i++) {
+                stars += '<small class="fa fa-star text-primary mr-1"></small>';
+            }
+            if (hasHalfStar) {
+                stars += '<small class="fa fa-star-half-alt text-primary mr-1"></small>';
+            }
+            for (let i = 0; i < emptyStars; i++) {
+                stars += '<small class="far fa-star text-primary mr-1"></small>';
+            }
+            return stars;
+        }
+        
+        var harga = getOrSetRandomPrice(product.id, 100000, 1000000);
+        var ratingStars = generateRatingStars(product.rating);
+        
+        var productDiv = document.createElement("div");
+        productDiv.className = "col-lg-3 col-md-4 col-sm-6 pb-1";
+        productDiv.innerHTML = `
+            <div class="product-item bg-light mb-4">
+                <div class="product-img position-relative overflow-hidden">
+                    <img class="img-fluid w-100" src="${product.background_image}" alt="${product.name}">
+                    <div class="product-action">
+                        <form method="post" action="php/cart_add.php">
+                            <input type="hidden" name="id_produk" value="${product.id}">
+                            <a class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="fa fa-shopping-cart"></i></a>
+                        </form>
+                        <form method="post" action="php/wish_add.php">
+                            <input type="hidden" name="id_produk" value="${product.id}">
+                            <a class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="far fa-heart"></i></a>
+                        </form>
+                        <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-sync-alt"></i></a>
+                    </div>
+                </div>
+                <div class="text-center py-4">
+                    <a class="h6 text-decoration-none product-name" href="detail.html?id=${product.id}">${product.name}</a>
+                    <div class="d-flex align-items-center justify-content-center mt-2">
+                        <h5>Rp ${harga}</h5>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-center mb-1">
+                        ${ratingStars}
+                        <small>(${product.ratings_count})</small>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="text-center py-4">
-            <a class="h6 text-decoration-none text-truncate" href="detail.html?id=${product.id_produk}">${product.nama_produk}</a>
-            <div class="d-flex align-items-center justify-content-center mt-2">
-                <h5>Rp ${product.harga_produk}</h5>
-            </div>
-        </div>
-    </div>
-    `;
-    rowProduk.appendChild(productDiv);
+        `;
+        rowProduk.appendChild(productDiv);
     });
 }
 

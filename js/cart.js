@@ -23,7 +23,7 @@ $(document).ready(function() {
 
 function loadCart() {
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", "php/daftar_cart.php", true);
+    xhr.open("GET", "php/cart_list.php", true);
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4 && xhr.status === 200) {
             var cart = JSON.parse(xhr.responseText);
@@ -74,7 +74,7 @@ function renderCart(cart) {
                             <td class="align-middle">${product.dev_produk}</td>
                             <td class="align-middle">${product.publ_produk}</td>
                             <td class="align-middle">
-                                <form action="php/form_cart.php?id_produk=${product.id_produk}" method="POST">
+                                <form action="php/cart_form.php?id_produk=${product.id_produk}" method="POST">
                                     <input type="hidden" name="sourcePage" value="${filename}" />
                                     <button class="btn btn-sm btn-danger" type="submit" name="delete">
                                         <i class="fa fa-times"></i>
@@ -118,7 +118,7 @@ function renderCart(cart) {
                 </div>
                 <div class="mb-5">
                     <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Payment</span></h5>
-                    <form class="bg-light p-30" action="php/form_cart.php" method="POST">
+                    <form class="bg-light p-30" action="php/cart_form.php" method="POST">
                         <div class="form-group">
                             <div class="custom-control custom-radio">
                                 <input type="radio" class="custom-control-input" name="payment" id="paypal" value="Paypal" checked>

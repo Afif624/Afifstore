@@ -43,7 +43,7 @@ $(document).ready(function() {
                 platformHTML += '<div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">';
                 platformHTML += '<input type="checkbox" class="custom-control-input platform-checkbox" id="platform-' + value.id + '" value="' + value.id + '" ' + isChecked + '>';
                 platformHTML += '<label class="custom-control-label" for="platform-' + value.id + '">' + value.name + '</label>';
-                platformHTML += '<span class="badge border font-weight-normal"></span>';
+                platformHTML += '<span class="badge border font-weight-normal">'+ value.games_count +'</span>';
                 platformHTML += '</div>';
             });
             $('#platform').html(platformHTML);
@@ -55,7 +55,7 @@ $(document).ready(function() {
                 genreHTML += '<div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">';
                 genreHTML += '<input type="checkbox" class="custom-control-input genre-checkbox" id="genre-' + value.id + '" value="' + value.id + '" ' + isChecked + '>';
                 genreHTML += '<label class="custom-control-label" for="genre-' + value.id + '">' + value.name + '</label>';
-                genreHTML += '<span class="badge border font-weight-normal"></span>';
+                genreHTML += '<span class="badge border font-weight-normal">'+ value.games_count +'</span>';
                 genreHTML += '</div>';
             });
             $('#genre').html(genreHTML);
@@ -150,7 +150,7 @@ function updateFilterStorage() {
 function loadProductRecomData() {
     var filterStorage = JSON.parse(localStorage.getItem('filterStorage'));
     var xhr = new XMLHttpRequest();
-    var url = "php/produk.php";
+    var url = "php/produk_list.php";
     if (filterStorage) {
         url += "?";
         if (filterStorage.platform.length > 0) {
@@ -176,10 +176,6 @@ function loadProductRecomData() {
     xhr.send();
 }
 
-function getRandomPrice(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
 function renderProductsRecom(page) {
     var startIndex = (page - 1) * recomProductsPerPage;
     var endIndex = startIndex + recomProductsPerPage;
@@ -188,29 +184,38 @@ function renderProductsRecom(page) {
     var rowProduk = document.getElementById("rowProdukRekom");
     rowProduk.innerHTML = "";
     slicedData.forEach(function(product) {
+        function generateRatingStars(rating) {
+            let stars = '';
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 !== 0;
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+        
+            for (let i = 0; i < fullStars; i++) {
+                stars += '<small class="fa fa-star text-primary mr-1"></small>';
+            }
+            if (hasHalfStar) {
+                stars += '<small class="fa fa-star-half-alt text-primary mr-1"></small>';
+            }
+            for (let i = 0; i < emptyStars; i++) {
+                stars += '<small class="far fa-star text-primary mr-1"></small>';
+            }
+            return stars;
+        }
+        
+        var ratingStars = generateRatingStars(product.rating);
+        
         var productDiv = document.createElement("div");
         productDiv.className = "col-lg-3 col-md-4 col-sm-6 pb-1";
-
-        // Cek apakah harga sudah ada di localStorage
-        var hargaKey = `harga_${product.id}`;
-        var harga = localStorage.getItem(hargaKey);
-
-        // Jika harga belum ada, buat harga acak dan simpan di localStorage
-        if (!harga) {
-            harga = getRandomPrice(100000, 1000000); // Harga acak antara 100.000 hingga 1.000.000
-            localStorage.setItem(hargaKey, harga);
-        }
-
         productDiv.innerHTML = `
             <div class="product-item bg-light mb-4">
                 <div class="product-img position-relative overflow-hidden">
                     <img class="img-fluid w-100" src="${product.background_image}" alt="${product.name}">
                     <div class="product-action">
-                        <form method="post" action="php/tambahcart.php">
+                        <form method="post" action="php/cart_add.php">
                             <input type="hidden" name="id_produk" value="${product.id}">
                             <a class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="fa fa-shopping-cart"></i></a>
                         </form>
-                        <form method="post" action="php/tambahwish.php">
+                        <form method="post" action="php/wish_add.php">
                             <input type="hidden" name="id_produk" value="${product.id}">
                             <a class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="far fa-heart"></i></a>
                         </form>
@@ -218,9 +223,13 @@ function renderProductsRecom(page) {
                     </div>
                 </div>
                 <div class="text-center py-4">
-                    <a class="h6 text-decoration-none text-truncate" href="detail.html?id=${product.id}">${product.name}</a>
+                    <a class="h6 text-decoration-none product-name" href="detail.html?id=${product.id}">${product.name}</a>
                     <div class="d-flex align-items-center justify-content-center mt-2">
-                        <h5>Rp ${harga}</h5>
+                        <h5>Rp ${product.price}</h5>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-center mb-1">
+                        ${ratingStars}
+                        <small>(${product.ratings_count})</small>
                     </div>
                 </div>
             </div>

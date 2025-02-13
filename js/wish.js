@@ -23,7 +23,7 @@ $(document).ready(function() {
 
 function loadWish() {
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", "php/daftar_wish.php", true);
+    xhr.open("GET", "php/wish_list.php", true);
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4 && xhr.status === 200) {
             var wish = JSON.parse(xhr.responseText);
@@ -75,7 +75,7 @@ function renderWish(wish) {
                             <td class="align-middle">${product.dev_produk}</td>
                             <td class="align-middle">${product.publ_produk}</td>
                             <td class="align-middle">
-                                <form action="php/form_wish.php?id_produk=${product.id_produk}" method="POST">
+                                <form action="php/wish_form.php?id_produk=${product.id_produk}" method="POST">
                                     <input type="hidden" name="sourcePage" value="${filename}" />
                                     <button class="btn btn-sm btn-danger" type="submit" name="delete">
                                         <i class="fa fa-times"></i>
@@ -83,7 +83,7 @@ function renderWish(wish) {
                                 </form
                             </td>
                             <td class="align-middle">
-                                <form action="php/form_wish.php?id_produk=${product.id_produk}" method="POST">
+                                <form action="php/wish_form.php?id_produk=${product.id_produk}" method="POST">
                                     <input type="hidden" name="sourcePage" value="${filename}" />
                                     <button class="btn btn-sm btn-danger" type="submit" name="add">
                                         <i class="fa fa-check"></i>

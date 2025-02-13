@@ -174,13 +174,13 @@ if ($result->num_rows > 0) {
                         $result_wish = $conn->query($sql_wish);
                         if ($result_wish->num_rows > 0){
                             echo '
-                            <form method="post" action="php/form_wish.php?id_produk=' . $product_id . '" class="mr-3">
+                            <form method="post" action="php/wish_form.php?id_produk=' . $product_id . '" class="mr-3">
                                 <input type="hidden" name="sourcePage" value="'. $filename .'?id='. $product_id .'" />
                                 <button class="btn btn-primary px-3" type="submit" name="delete"><i class="far fa-heart mr-1"></i> Delete From Wishlist</button>
                             </form>';
                         } else {
                             echo '
-                            <form method="post" action="php/tambahwish.php" class="mr-3">
+                            <form method="post" action="php/wish_add.php" class="mr-3">
                                 <input type="hidden" name="id_produk" value="' . $product_id . '">
                                 <button class="btn btn-primary px-3" type="submit" name="add"><i class="far fa-heart mr-1"></i> Add To Wishlist</button>
                             </form>';
@@ -189,13 +189,13 @@ if ($result->num_rows > 0) {
                         $result_cart = $conn->query($sql_cart);
                         if ($result_cart->num_rows > 0){
                             echo '
-                            <form method="post" action="php/form_cart.php?id_produk=' . $product_id . '">
+                            <form method="post" action="php/cart_form.php?id_produk=' . $product_id . '">
                                 <input type="hidden" name="sourcePage" value="'. $filename .'?id='. $product_id .'" />
                                 <button class="btn btn-primary px-3" type="submit" name="delete"><i class="fa fa-shopping-cart mr-1"></i> Delete From Cart</button>
                             </form>';
                         } else{
                             echo '
-                            <form method="post" action="php/tambahcart.php">
+                            <form method="post" action="php/cart_add.php">
                                 <input type="hidden" name="id_produk" value="' . $product_id . '">
                                 <button class="btn btn-primary px-3" type="submit" name="add"><i class="fa fa-shopping-cart mr-1"></i> Add To Cart</button>
                             </form>';

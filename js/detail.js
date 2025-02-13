@@ -45,7 +45,7 @@ function renderProductDetails() {
     if (productId) {
         // Fetch product details from PHP script
         $.ajax({
-            url: 'php/detail.php?id=' + productId + '&filename=' + filename,
+            url: 'php/produk_detail.php?id=' + productId + '&filename=' + filename,
             type: 'GET',
             success: function(data) {
                 // Insert product details into the HTML
