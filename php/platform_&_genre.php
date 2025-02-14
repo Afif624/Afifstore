@@ -35,6 +35,7 @@ $data = array(
 foreach ($genres['results'] as $genre) {
     $genreId = $genre['id'];
     $genreName = $genre['name'];
+    $genreImage = $genre['image_background'];
     $gameCount = 0;
 
     // Menghitung jumlah game yang memiliki genre ini
@@ -49,6 +50,7 @@ foreach ($genres['results'] as $genre) {
     $data['genre'][] = array(
         'id' => $genreId,
         'name' => $genreName,
+        'image' => $genreImage,
         'games_count' => $gameCount
     );
 }
@@ -57,6 +59,7 @@ foreach ($genres['results'] as $genre) {
 foreach ($platforms as $platform) {
     $platformId = $platform['id'];
     $platformName = $platform['name'];
+    $platformImage = $platform['image_background'];
     $gameCount = 0;
 
     // Menghitung jumlah game yang memiliki platform ini
@@ -71,6 +74,7 @@ foreach ($platforms as $platform) {
     $data['platform'][] = array(
         'id' => $platformId,
         'name' => $platformName,
+        'image' => $platformImage,
         'games_count' => $gameCount
     );
 }

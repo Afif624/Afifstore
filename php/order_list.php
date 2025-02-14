@@ -14,8 +14,8 @@ if (isset($_GET['id'])) {
     // Jika ada `id`, ambil hanya satu produk berdasarkan id_produk
     $id_produk = $_GET['id'];
 
-    // Query untuk mengambil satu produk dari wishlist user
-    $query = "SELECT * FROM wishlist WHERE id_user = $id_user AND id_produk = $id_produk";
+    // Query untuk mengambil satu produk dari order user
+    $query = "SELECT * FROM order WHERE id_user = $id_user AND id_produk = $id_produk";
     $result = $conn->query($query);
 
     if ($result->num_rows > 0) {
@@ -30,8 +30,8 @@ if (isset($_GET['id'])) {
         $produkData[] = $produkDetailArray;
     }
 } else {
-    // Jika tidak ada `id`, ambil semua produk dari wishlist user
-    $query = "SELECT * FROM wishlist WHERE id_user = $id_user";
+    // Jika tidak ada `id`, ambil semua produk dari order user
+    $query = "SELECT * FROM order WHERE id_user = $id_user";
     $result = $conn->query($query);
 
     if ($result->num_rows > 0) {

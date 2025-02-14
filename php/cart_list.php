@@ -3,20 +3,48 @@ session_start();
 // Include file koneksi ke database
 include_once("connect.php");
 
-// Query untuk mengambil data produk
+// Ambil id_user dari session
 $id_user = $_SESSION['id_user'];
-$query = "SELECT * FROM cart 
-    LEFT JOIN produk ON cart.id_produk = produk.id_produk 
-    WHERE id_user=$id_user";
-$result = $conn->query($query);
 
 // Inisialisasi array untuk menyimpan data produk
 $produkData = array();
 
-if ($result->num_rows > 0) {
-    while($row = $result->fetch_assoc()) {
-        // Menambahkan data produk ke dalam array
-        $produkData[] = $row;
+// Cek apakah ada parameter `id` yang dikirim melalui GET
+if (isset($_GET['id'])) {
+    // Jika ada `id`, ambil hanya satu produk berdasarkan id_produk
+    $id_produk = $_GET['id'];
+
+    // Query untuk mengambil satu produk dari cart user
+    $query = "SELECT * FROM cart WHERE id_user = $id_user AND id_produk = $id_produk";
+    $result = $conn->query($query);
+
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $id_produk = $row['id_produk'];
+
+        // Ambil detail produk dari produk_list_all.php
+        $produkDetail = file_get_contents("produk_list_all.php?id=" . $id_produk);
+        $produkDetailArray = json_decode($produkDetail, true);
+
+        // Simpan detail produk ke dalam array
+        $produkData[] = $produkDetailArray;
+    }
+} else {
+    // Jika tidak ada `id`, ambil semua produk dari cart user
+    $query = "SELECT * FROM cart WHERE id_user = $id_user";
+    $result = $conn->query($query);
+
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $id_produk = $row['id_produk'];
+
+            // Ambil detail produk dari produk_list_all.php
+            $produkDetail = file_get_contents("produk_list_all.php?id=" . $id_produk);
+            $produkDetailArray = json_decode($produkDetail, true);
+
+            // Simpan detail produk ke dalam array
+            $produkData[] = $produkDetailArray;
+        }
     }
 }
 

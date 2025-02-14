@@ -42,8 +42,9 @@ function loadPlatform() {
     xhr.onreadystatechange = function() {
     if (xhr.readyState === 4 && xhr.status === 200) {
         var response = JSON.parse(xhr.responseText);
-        console.log(response.platform);
+        console.log(response);
         populatePlatform(response.platform);
+        populateGenre(response.genre);
     }
     };
     xhr.send();
@@ -58,6 +59,9 @@ function populatePlatform(platforms) {
         platformDiv.innerHTML = `
         <a class="text-decoration-none" href="">
             <div class="cat-item d-flex align-items-center mb-4">
+                <div class="overflow-hidden" style="width: 100px; height: 100px;">
+                    <img class="img-fluid" src="${platform.image}" alt="">
+                </div>
                 <div class="flex-fill pl-3">
                     <h6>${platform.name}</h6>
                     <small class="text-body">${platform.games_count} Produk</small>
@@ -69,19 +73,6 @@ function populatePlatform(platforms) {
     });
 }
 
-function loadGenre() {
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", "php/platform_&_genre.php", true);
-    xhr.onreadystatechange = function() {
-    if (xhr.readyState === 4 && xhr.status === 200) {
-        var response = JSON.parse(xhr.responseText);
-        console.log(response.genre);
-        populateGenre(response.genre);
-    }
-    };
-    xhr.send();
-}
-
 function populateGenre(genres) {
     var rowGenre = document.getElementById("rowGenre");
     rowGenre.innerHTML = "";
@@ -91,6 +82,9 @@ function populateGenre(genres) {
         genreDiv.innerHTML = `
         <a class="text-decoration-none" href="">
             <div class="cat-item d-flex align-items-center mb-4">
+                <div class="overflow-hidden" style="width: 100px; height: 100px;">
+                    <img class="img-fluid" src="${genre.image}" alt="">
+                </div>
                 <div class="flex-fill pl-3">
                     <h6>${genre.name}</h6>
                     <small class="text-body">${genre.games_count} Produk</small>
