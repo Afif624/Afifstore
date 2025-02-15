@@ -44,77 +44,113 @@ function getProductIdFromUrl() {
     return productId;
 }
 
-// Fungsi untuk memuat detail produk
 function loadProductDetails(productId) {
-    // Array untuk menyimpan semua data
     let productData = {};
 
-    // Fetch data produk, review, genre, dan kategori
     fetch(`php/produk_list_all.php?id=${productId}`)
-        .then(response => response.json())
+        .then(response => {
+            console.log('Response from produk_list_all.php:', response); // Log respons mentah
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text(); // Ubah sementara ke .text() untuk melihat respons mentah
+        })
+        .then(text => {
+            console.log('Raw data from produk_list_all.php:', text); // Log teks respons
+            return JSON.parse(text); // Coba parse teks ke JSON
+        })
         .then(data => {
             productData = { ...productData, ...data };
-
-            // Fetch data wishlist
             return fetch(`php/wish_list.php?id=${productId}`);
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log('Response from wish_list.php:', response); // Log respons mentah
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text(); // Ubah sementara ke .text() untuk melihat respons mentah
+        })
+        .then(text => {
+            console.log('Raw data from wish_list.php:', text); // Log teks respons
+            return JSON.parse(text); // Coba parse teks ke JSON
+        })
         .then(data => {
             productData.wish_count = data.wish_count;
-
-            // Fetch data cart
             return fetch(`php/cart_list.php?id=${productId}`);
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log('Response from cart_list.php:', response); // Log respons mentah
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text(); // Ubah sementara ke .text() untuk melihat respons mentah
+        })
+        .then(text => {
+            console.log('Raw data from cart_list.php:', text); // Log teks respons
+            return JSON.parse(text); // Coba parse teks ke JSON
+        })
         .then(data => {
             productData.cart_count = data.cart_count;
-
-            // Fetch data order
             return fetch(`php/order_list.php?id=${productId}`);
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log('Response from order_list.php:', response); // Log respons mentah
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text(); // Ubah sementara ke .text() untuk melihat respons mentah
+        })
+        .then(text => {
+            console.log('Raw data from order_list.php:', text); // Log teks respons
+            return JSON.parse(text); // Coba parse teks ke JSON
+        })
         .then(data => {
             productData.order_count = data.order_count;
-
-            // Render semua data
             renderProductDetails(productData);
         })
         .catch(error => {
-            console.error('Error fetching data:', error);
+            console.error('Error in loadProductDetails:', error.message);
+            console.error('Stack trace:', error.stack); // Tampilkan stack trace untuk debugging
         });
 }
 
 // Fungsi untuk menampilkan detail produk
-function renderProductDetails(data) {
+function renderProductDetails(data, file) {
     console.log(data);
     var game = data.game;
     var added = game.added_by_status;
-    var platforms = game.platforms;
 
     var reviews = data.reviews;
-    var reviewUser = reviews.user;
 
-    var username = data.nama_user;
+    var user_name = data.nama_user;
     var email = data.email_user;
 
     var wishCount = data.wish_count;
     var cartCount = data.cart_count;
     var orderCount = data.order_count;
 
-    var html = '';
-    function renderScreenShots(screenshots) {
-        screenshots.forEach(screenshot => {
+    function renderScreenShots(image, screenshots) {
+        var html = '';
+        if (image != null){
             html += '<div class="carousel-item">';
-            html += '<img class="w-100 h-100" src="'+ screenshot.image +'" alt="Image">';
+            html += '<img class="w-100 h-100" src="'+ image +'" alt="Image">';
             html += '</div>';
-        });
+        }
+        if (screenshots != null){
+            screenshots.forEach(screenshot => {
+                html += '<div class="carousel-item">';
+                html += '<img class="w-100 h-100" src="'+ screenshot.image +'" alt="Image">';
+                html += '</div>';
+            });
+        }
         return html;
     }
 
     function renderRatingStars(rating) {
-        const fullStars = Math.floor(rating);
-        const hasHalfStar = rating % 1 !== 0;
-        const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+        var html = '';
+        var fullStars = Math.floor(rating);
+        var hasHalfStar = rating % 1 !== 0;
+        var emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
     
         for (let i = 0; i < fullStars; i++) {
             html += '<small class="fa fa-star"></small>';
@@ -129,51 +165,77 @@ function renderProductDetails(data) {
     }
 
     function renderGenres(genres) {
-        genres.forEach(genre => {
-            html += '<div class="custom-control custom-radio custom-control-inline">';
-            html += '<input type="radio" class="custom-control-input" id="genre-'+ genre.name +'" name="genre" disabled>';
-            html += '<label class="custom-control-label" for="genre-'+ genre.name +'">'+ genre.name +'</label>';
-            html += '</div>';
+        var html = '';
+        genres.forEach((genre, index) => {
+            html += genre.name;
+            if (index < genres.length - 1) {
+                html += ', ';
+            }
         });
         return html;
     }
 
     function renderPlatforms(platforms) {
-        platforms.forEach(platform => {
-            html += '<div class="custom-control custom-radio custom-control-inline">';
-            html += '<input type="radio" class="custom-control-input" id="platform-'+ platform.name +'" name="platform" disabled>';
-            html += '<label class="custom-control-label" for="platform-'+ platform.name +'">'+ platform.name +'</label>';
-            html += '</div>';
+        var html = '';
+        platforms.forEach((platform, index) => {
+            var plat = platform.platform;
+            html += plat.name;
+            if (index < platforms.length - 1) {
+                html += ', ';
+            }
         });
         return html;
     }
 
-    function renderButtons(order, wish, cart){
-        if (order.length > 0){
+    function renderDevelopers(developers) {
+        var html = '';
+        developers.forEach((developer, index) => {
+            html += developer.name;
+            if (index < developers.length - 1) {
+                html += ', ';
+            }
+        });
+        return html;
+    }
+
+    function renderPublishers(publishers) {
+        var html = '';
+        publishers.forEach((publisher, index) => {
+            html += publisher.name;
+            if (index < publishers.length - 1) {
+                html += ', ';
+            }
+        });
+        return html;
+    }
+
+    function renderButtons(order, wish, cart, id, file){
+        var html = '';
+        if (order > 0){
             html += '<form method="post" class="mr-3">';
             html += '<button class="btn btn-primary px-3" disabled>Sudah Anda Beli</button>';
             html += '</form>';
         } else {
-            if (wish.length > 0){
-                html += '<form method="post" action="php/wish_form.php?id_produk='+ game.id +'" class="mr-3">';
-                html += '<input type="hidden" name="sourcePage" value="'+ filename +'?id='+ game.id +'" />';
+            if (wish > 0){
+                html += '<form method="post" action="php/wish_form.php?id_produk='+ id +'" class="mr-3">';
+                html += '<input type="hidden" name="sourcePage" value="'+ file +'?id='+ id +'" />';
                 html += '<button class="btn btn-primary px-3" type="submit" name="delete"><i class="far fa-heart mr-1"></i> Delete From Wishlist</button>';
                 html += '</form>';
             } else {
                 html += '<form method="post" action="php/wish_add.php" class="mr-3">';
-                html += '<input type="hidden" name="id_produk" value="'+ game.id +'">';
+                html += '<input type="hidden" name="id_produk" value="'+ id +'">';
                 html += '<button class="btn btn-primary px-3" type="submit" name="add"><i class="far fa-heart mr-1"></i> Add To Wishlist</button>';
                 html += '</form>';
             }
 
-            if (cart.length > 0){
-                html += '<form method="post" action="php/cart_form.php?id_produk='+ game.id +'">';
-                html += '<input type="hidden" name="sourcePage" value="'+ filename +'?id='+ game.id +'" />';
+            if (cart > 0){
+                html += '<form method="post" action="php/cart_form.php?id_produk='+ id +'">';
+                html += '<input type="hidden" name="sourcePage" value="'+ file +'?id='+ id +'" />';
                 html += '<button class="btn btn-primary px-3" type="submit" name="delete"><i class="fa fa-shopping-cart mr-1"></i> Delete From Cart</button>';
                 html += '</form>';
             } else {
                 html += '<form method="post" action="php/cart_add.php">';
-                html += '<input type="hidden" name="id_produk" value="'+ game.id +'">';
+                html += '<input type="hidden" name="id_produk" value="'+ id +'">';
                 html += '<button class="btn btn-primary px-3" type="submit" name="add"><i class="fa fa-shopping-cart mr-1"></i> Add To Cart</button>';
                 html += '</form>';
             }
@@ -182,19 +244,44 @@ function renderProductDetails(data) {
     }
 
     function renderReviews(reviews){
+        function getAvatar(avatar, user){
+            var html = '';
+            if(avatar != null){html += avatar}
+            else{
+                if(user != null && user.avatar != null){html += user.avatar}
+                else{html += 'img/user.jpg'}
+            }
+            return html;
+        }
+        function getAuthor(author, user){
+            var html = '';
+            if(author != null){html += author}
+            else{
+                if(user != null && user.username !=null){html += user.username}
+                else{html += 'username'}
+            }
+            return html;
+        }
+        function getEdited(edited){
+            var html = '';
+            if(edited != null){html += '(edited)';}
+            return html;
+        }
+
+        var html = '';
         if (reviews.length > 0){
             html += '<h4 class="mb-4">Review for "'+ game.name +'"</h4>';
             reviews.forEach(review => {
                 html += '<div class="media mb-4">';
-                html += '<img src="img/user.jpg" alt="Image" class="img-fluid mr-3 mt-1" style="width: 45px;">';
+                html += '<img src="'+ getAvatar(review.external_avatar, review.user) +'" alt="Image" class="img-fluid mr-3 mt-1" style="width: 45px;">';
                 html += '<div class="media-body">';
-                html += '<h6>'+ reviewUser.username +'<small> - ';
-                html += '<i>'+ review.created; if(review.edited > 0){'edited'}+'</i></small></h6>';
+                html += '<h6>'+ getAuthor(review.external_author, review.user) +'<small> - ';
+                html += '<i>'+ review.created +' '+ getEdited(review.edited)+'</i></small></h6>';
                 html += '<div class="text-primary mb-2">';
 
-                const fullStars = Math.floor(review.rating);
-                const hasHalfStar = rating % 1 !== 0;
-                const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+                var fullStars = Math.floor(review.rating);
+                var hasHalfStar = review.rating % 1 !== 0;
+                var emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
                 for (let i = 0; i < fullStars; i++) {
                     html += '<i class="fas fa-star"></i>';
                 }
@@ -216,15 +303,16 @@ function renderProductDetails(data) {
         return html;
     }
 
+    var html = '';
     html += `
         <div class="row px-xl-5">
             <div class="col-lg-5 mb-30">
                 <div id="product-carousel" class="carousel slide" data-ride="carousel">
                     <div class="carousel-inner bg-light">
                         <div class="carousel-item active">
-                            <img class="w-100 h-100" src="img/${game.background_image}" alt="Image">
+                            <img class="w-100 h-100" src="${game.background_image}" alt="Image">
                         </div>
-                        ${renderScreenShots(game.short_screenshots)}
+                        ${renderScreenShots(game.background_image_additional, game.short_screenshots)}
                     </div>
                 </div>
             </div>
@@ -245,37 +333,37 @@ function renderProductDetails(data) {
                     </div>
                     <div class="d-flex mb-4">
                         <strong class="text-dark mr-3">Platform:</strong>
-                        ${renderPlatforms(platforms.platform)}
+                        ${renderPlatforms(game.platforms)}
                     </div>
                     <div class="d-flex mb-4">
                         <strong class="text-dark mr-3">Added:</strong>
                         <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="wish" name="wish" disabled>
-                            <label class="custom-control-label" for="wish">${added.beaten} Wishs</label>
+                            <input type="radio" class="custom-control-input" id="beaten" name="beaten" disabled>
+                            <label class="custom-control-label" for="beaten">${added.beaten} Beaten</label>
                         </div>
                         <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="cart" name="cart" disabled>
-                            <label class="custom-control-label" for="cart">${added.dropped} Carts</label>
+                            <input type="radio" class="custom-control-input" id="dropped" name="dropped" disabled>
+                            <label class="custom-control-label" for="dropped">${added.dropped} Dropped</label>
                         </div>
                         <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="order" name="order" disabled>
-                            <label class="custom-control-label" for="order">${added.owned} Orders</label>
+                            <input type="radio" class="custom-control-input" id="owned" name="owned" disabled>
+                            <label class="custom-control-label" for="owned">${added.owned} Owned</label>
                         </div>
                         <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="wish" name="wish" disabled>
-                            <label class="custom-control-label" for="wish">${added.playing} Wishs</label>
+                            <input type="radio" class="custom-control-input" id="playing" name="playing" disabled>
+                            <label class="custom-control-label" for="playing">${added.playing} Playing</label>
                         </div>
                         <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="cart" name="cart" disabled>
-                            <label class="custom-control-label" for="cart">${added.toplay} Carts</label>
+                            <input type="radio" class="custom-control-input" id="toplay" name="toplay" disabled>
+                            <label class="custom-control-label" for="toplay">${added.toplay} Toplay</label>
                         </div>
                         <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="order" name="order" disabled>
-                            <label class="custom-control-label" for="order">${added.yet} Orders</label>
+                            <input type="radio" class="custom-control-input" id="yet" name="yet" disabled>
+                            <label class="custom-control-label" for="yet">${added.yet} Yet</label>
                         </div>
                     </div>
                     <div class="d-flex align-items-center mb-4 pt-2">
-                        ${renderButtons(orderCount, wishCount, cartCount)}
+                        ${renderButtons(orderCount, wishCount, cartCount, game.id, file)}
                     </div>
                     <div class="d-flex pt-2">
                         <strong class="text-dark mr-2">Share on:</strong>
@@ -315,8 +403,8 @@ function renderProductDetails(data) {
                             <div class="row">
                                 <div class="col-md-6">
                                     <ul class="list-group list-group-flush">
-                                        <li class="list-group-item px-0">Developer: ${game.developers}</li>
-                                        <li class="list-group-item px-0">Publisher: ${game.publishers}</li>
+                                        <li class="list-group-item px-0">Developer: ${renderDevelopers(game.developers)}</li>
+                                        <li class="list-group-item px-0">Publisher: ${renderPublishers(game.publishers)}</li>
                                         <li class="list-group-item px-0">Release Date: ${game.released}</li>
                                     </ul>
                                 </div>
@@ -350,7 +438,7 @@ function renderProductDetails(data) {
                                         </div>
                                         <div class="form-group">
                                             <label for="name">Your Name *</label>
-                                            <input type="text" class="form-control" id="name" name="name" value="${username}" required readonly>
+                                            <input type="text" class="form-control" id="name" name="name" value="${user_name}" required readonly>
                                         </div>
                                         <div class="form-group">
                                             <label for="email">Your Email *</label>
@@ -382,7 +470,7 @@ function setRating(rating) {
 
     // Perbarui tampilan bintang berdasarkan rating yang dipilih
     for (let i = 1; i <= 5; i++) {
-        const star = document.getElementById('star' + i);
+        var star = document.getElementById('star' + i);
         if (i <= rating) {
             star.classList.remove('far');
             star.classList.add('fas');
@@ -453,10 +541,10 @@ function renderRecommendations(recommendations) {
 
 // Memuat detail produk saat halaman dimuat
 $(document).ready(function() {
+    var filename = getFilename();
     var productId = getProductIdFromUrl();
     if (productId) {
-        loadProductDetails(productId);
-        loadRecommendations();
+        loadProductDetails(productId, filename);
     } else {
         console.error('Product ID not found in URL.');
     }

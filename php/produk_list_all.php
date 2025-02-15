@@ -1,5 +1,7 @@
 <?php
 session_start();
+// Include file koneksi ke database
+include_once("connect.php");
 
 // API Key dari RAWG
 $apiKey = 'ffa2dafa779f4fa58f39bdef9851c466';
@@ -18,19 +20,17 @@ function getRandomPrice($min, $max) {
     return rand($min, $max);
 }
 
-// 1. Fungsi Semua Game
+// 1. Fungsi Semua Game (Multi-page)
 function getAllGames($apiKey) {
     $rawgUrl = "https://api.rawg.io/api/games?key={$apiKey}";
     $allGames = [];
     $nextPageUrl = $rawgUrl;
-    $totalGames = 0;
 
     do {
         $data = fetchDataFromRAWGAPI($nextPageUrl);
         $allGames = array_merge($allGames, $data['results']);
-        $totalGames += count($data['results']);
-        $nextPageUrl = $data['next'];
-    } while ($nextPageUrl && $totalGames < 100); // Limit to 100 games
+        $nextPageUrl = $data['next']; // URL halaman berikutnya
+    } while ($nextPageUrl); // Lanjutkan selama ada halaman berikutnya
 
     // Add price to each game
     $allGames = array_map(function($game) {
@@ -44,7 +44,7 @@ function getAllGames($apiKey) {
     return $allGames;
 }
 
-// 2. Fungsi untuk mendapatkan satu game berdasarkan ID
+// 2. Fungsi untuk mendapatkan satu game berdasarkan ID (Multi-page untuk data tambahan jika ada)
 function getGameById($apiKey, $gameId) {
     $rawgUrl = "https://api.rawg.io/api/games/{$gameId}?key={$apiKey}";
     $game = fetchDataFromRAWGAPI($rawgUrl);
@@ -58,10 +58,19 @@ function getGameById($apiKey, $gameId) {
     return $game;
 }
 
-// 3. Fungsi untuk mendapatkan review game berdasarkan ID
+// 3. Fungsi untuk mendapatkan review game berdasarkan ID (Multi-page)
 function getGameReviews($apiKey, $gameId) {
     $rawgUrl = "https://api.rawg.io/api/games/{$gameId}/reviews?key={$apiKey}";
-    return fetchDataFromRAWGAPI($rawgUrl);
+    $allReviews = [];
+    $nextPageUrl = $rawgUrl;
+
+    do {
+        $data = fetchDataFromRAWGAPI($nextPageUrl);
+        $allReviews = array_merge($allReviews, $data['results']);
+        $nextPageUrl = $data['next']; // URL halaman berikutnya
+    } while ($nextPageUrl); // Lanjutkan selama ada halaman berikutnya
+
+    return $allReviews;
 }
 
 // Check if 'id' is set in the GET request
@@ -84,12 +93,16 @@ if (isset($_GET['id'])) {
     }
 
     // Send both game and reviews to JS
-    echo json_encode([
+    $data = [
         'game' => $game,
         'reviews' => $reviews,
         'nama_user' => $nama_user,
         'email_user' => $email_user
-    ]);
+    ];
+
+    // Mengirimkan data produk sebagai respons JSON
+    header('Content-Type: application/json');
+    echo json_encode($data);
 } else {
     // Get all games
     $allGames = getAllGames($apiKey);

@@ -6,24 +6,23 @@ include_once("produk_list_all.php");
 $genreUrl = "https://api.rawg.io/api/genres?key={$apiKey}";
 $platformUrl = "https://api.rawg.io/api/platforms?key={$apiKey}";
 
-// Mengambil data genre dari API
-$genreResponse = file_get_contents($genreUrl);
-$genres = json_decode($genreResponse, true);
-
-// Fungsi untuk mengambil semua data platform dari API multi-page
-function getAllPlatforms($url) {
-    $allPlatforms = [];
+// Fungsi untuk mengambil semua data dari API multi-page
+function getAllData($url) {
+    $allData = [];
     do {
         $response = file_get_contents($url);
         $data = json_decode($response, true);
-        $allPlatforms = array_merge($allPlatforms, $data['results']);
+        $allData = array_merge($allData, $data['results']);
         $url = $data['next']; // URL halaman berikutnya
     } while ($url); // Lanjutkan selama ada halaman berikutnya
-    return $allPlatforms;
+    return $allData;
 }
 
+// Mengambil semua data genre dari API
+$genres = getAllData($genreUrl);
+
 // Mengambil semua data platform dari API
-$platforms = getAllPlatforms($platformUrl);
+$platforms = getAllData($platformUrl);
 
 // Inisialisasi array untuk menyimpan data genre dan platform
 $data = array(
@@ -32,7 +31,7 @@ $data = array(
 );
 
 // Mengumpulkan data genre (id, nama, dan jumlah game)
-foreach ($genres['results'] as $genre) {
+foreach ($genres as $genre) {
     $genreId = $genre['id'];
     $genreName = $genre['name'];
     $genreImage = $genre['image_background'];

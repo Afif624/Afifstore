@@ -7,7 +7,7 @@ include_once("connect.php");
 $id_user = $_SESSION['id_user'];
 
 // Inisialisasi array untuk menyimpan data produk
-$produkData = array();
+$data = array();
 
 // Cek apakah ada parameter `id` yang dikirim melalui GET
 if (isset($_GET['id'])) {
@@ -27,7 +27,7 @@ if (isset($_GET['id'])) {
         $produkDetailArray = json_decode($produkDetail, true);
 
         // Simpan detail produk ke dalam array
-        $produkData[] = $produkDetailArray;
+        $data[] = $produkDetailArray;
     }
 } else {
     // Jika tidak ada `id`, ambil semua produk dari wishlist user
@@ -43,7 +43,7 @@ if (isset($_GET['id'])) {
             $produkDetailArray = json_decode($produkDetail, true);
 
             // Simpan detail produk ke dalam array
-            $produkData[] = $produkDetailArray;
+            $data[] = $produkDetailArray;
         }
     }
 }
@@ -53,5 +53,5 @@ $conn->close();
 
 // Mengirimkan data produk sebagai respons JSON
 header('Content-Type: application/json');
-echo json_encode($produkData);
+echo json_encode($data);
 ?>
