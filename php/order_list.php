@@ -17,18 +17,10 @@ if (isset($_GET['id'])) {
     // Query untuk mengambil satu produk dari order user
     $query = "SELECT * FROM `order` WHERE id_user = $id_user AND id_produk = $id_produk";
     $result = $conn->query($query);
+    $count = $result->num_rows;
 
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        $id_produk = $row['id_produk'];
-
-        // Ambil detail produk dari produk_list_all.php
-        $produkDetail = file_get_contents("produk_list_all.php?id=" . $id_produk);
-        $produkDetailArray = json_decode($produkDetail, true);
-
-        // Simpan detail produk ke dalam array
-        $data[] = $produkDetailArray;
-    }
+    // Simpan detail produk ke dalam array
+    $data = ['order_count' => $count];
 } else {
     // Jika tidak ada `id`, ambil semua produk dari order user
     $query = "SELECT * FROM order WHERE id_user = $id_user";

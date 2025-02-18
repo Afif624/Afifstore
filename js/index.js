@@ -30,13 +30,12 @@ var recentProductsPerPage = 8;
 var recentProductsData = [];
 
 document.addEventListener("DOMContentLoaded", function() {
-    loadPlatform();
-    loadGenre();
+    loadPlatformGenre();
     loadProductRecomData();
     loadProductRecentData();
 });
 
-function loadPlatform() {
+function loadPlatformGenre() {
     var xhr = new XMLHttpRequest();
     xhr.open("GET", "php/platform_&_genre.php", true);
     xhr.onreadystatechange = function() {
@@ -98,7 +97,7 @@ function populateGenre(genres) {
 
 function loadProductRecomData() {
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", "php/rekomendasi.php", true);
+    xhr.open("GET", "php/produk_list.php", true);
     xhr.onreadystatechange = function() {
     if (xhr.readyState === 4 && xhr.status === 200) {
         var response = JSON.parse(xhr.responseText);

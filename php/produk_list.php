@@ -60,7 +60,8 @@ $latestGames = getLatestGames($apiKey);
 // Prepare the response
 $response = [
     'terfilter' => array_values($filteredGames), // Re-index array
-    'terbaru' => $latestGames
+    'terbaru' => $latestGames,
+    'terekomendasi' => $latestGames
 ];
 
 // Send the response as JSON

@@ -40,7 +40,7 @@ foreach ($genres as $genre) {
     // Menghitung jumlah game yang memiliki genre ini
     foreach ($allGames as $game) {
         // Ekstrak ID genre dari array asosiatif
-        $gameGenreIds = array_column($game['genres'], 'id');
+        $gameGenreIds = $game['genres'];
         if (in_array($genreId, $gameGenreIds)) {
             $gameCount++;
         }
@@ -64,7 +64,7 @@ foreach ($platforms as $platform) {
     // Menghitung jumlah game yang memiliki platform ini
     foreach ($allGames as $game) {
         // Ekstrak ID platform dari array platform yang kompleks
-        $gamePlatformIds = array_column(array_column($game['platforms'], 'platform'), 'id');
+        $gamePlatformIds = $game['platforms'];
         if (in_array($platformId, $gamePlatformIds)) {
             $gameCount++;
         }

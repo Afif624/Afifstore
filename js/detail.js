@@ -61,6 +61,21 @@ function loadProductDetails(productId) {
         })
         .then(data => {
             productData = { ...productData, ...data };
+            return fetch(`php/review.php?id=${productId}`);
+        })
+        .then(response => {
+            console.log('Response from review.php:', response); // Log respons mentah
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text(); // Ubah sementara ke .text() untuk melihat respons mentah
+        })
+        .then(text => {
+            console.log('Raw data from review.php:', text); // Log teks respons
+            return JSON.parse(text); // Coba parse teks ke JSON
+        })
+        .then(data => {
+            productData.yourreview = data.yourreview;
             return fetch(`php/wish_list.php?id=${productId}`);
         })
         .then(response => {
@@ -123,7 +138,7 @@ function renderProductDetails(data, file) {
     var reviews = data.reviews;
 
     var user_name = data.nama_user;
-    var email = data.email_user;
+    var user_email = data.email_user;
 
     var wishCount = data.wish_count;
     var cartCount = data.cart_count;
@@ -303,6 +318,83 @@ function renderProductDetails(data, file) {
         return html;
     }
 
+    function renderYourReview(yourReview, game_id, user_name, user_email){
+        var html = '';
+        if (yourReview.length > 0){
+            html += `
+                <h4 class="mb-4">Edit a review</h4>
+                <form method="post" action="php/review.php">
+                    <div class="d-flex my-3">
+                        <p class="mb-0 mr-2">Your Rating * :</p>
+                        <div class="text-primary">
+                            <input type="hidden" id="rating" name="rating" value="${yourReview.rating}">
+                            <i class="far fa-star" onclick="setRating(1)" id="star1"></i>
+                            <i class="far fa-star" onclick="setRating(2)" id="star2"></i>
+                            <i class="far fa-star" onclick="setRating(3)" id="star3"></i>
+                            <i class="far fa-star" onclick="setRating(4)" id="star4"></i>
+                            <i class="far fa-star" onclick="setRating(5)" id="star5"></i>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="review">Your Review *</label>
+                        <textarea id="review" name="review" cols="30" rows="5" class="form-control" value="${yourReview.review}" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="date">Your Review Date *</label>
+                        <input type="date" class="form-control" id="date" name="date" value="${yourReview.tanggal}" required readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="name">Your Name *</label>
+                        <input type="text" class="form-control" id="name" name="name" value="${user_name}" required readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Your Email *</label>
+                        <input type="email" class="form-control" id="email" name="email" value="${user_email}" required readonly>
+                    </div>
+                    <input type="hidden" name="id_review" value="${yourReview.id_review}">
+                    <input type="hidden" name="edit" value="edit">
+                    <div class="form-group mb-0">
+                        <input type="submit" value="Edit Your Review" class="btn btn-primary px-3">
+                    </div>
+                </form>`;
+        } else {
+            html += `
+                <h4 class="mb-4">Leave a review</h4>
+                <form method="post" action="php/review.php">
+                    <div class="d-flex my-3">
+                        <p class="mb-0 mr-2">Your Rating * :</p>
+                        <div class="text-primary">
+                            <input type="hidden" id="rating" name="rating" value="">
+                            <i class="far fa-star" onclick="setRating(1)" id="star1"></i>
+                            <i class="far fa-star" onclick="setRating(2)" id="star2"></i>
+                            <i class="far fa-star" onclick="setRating(3)" id="star3"></i>
+                            <i class="far fa-star" onclick="setRating(4)" id="star4"></i>
+                            <i class="far fa-star" onclick="setRating(5)" id="star5"></i>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="review">Your Review *</label>
+                        <textarea id="review" name="review" cols="30" rows="5" class="form-control" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="name">Your Name *</label>
+                        <input type="text" class="form-control" id="name" name="name" value="${user_name}" required readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Your Email *</label>
+                        <input type="email" class="form-control" id="email" name="email" value="${user_email}" required readonly>
+                    </div>
+                    <input type="hidden" name="id_produk" value="${game_id}">
+                    <input type="hidden" name="edit" value="edit">
+                    <div class="form-group mb-0">
+                        <input type="submit" value="Leave Your Review" class="btn btn-primary px-3">
+                    </div>
+                </form>`;
+
+        }
+        return html;
+    }
+
     var html = '';
     html += `
         <div class="row px-xl-5">
@@ -392,6 +484,7 @@ function renderProductDetails(data, file) {
                         <a class="nav-item nav-link text-dark active" data-toggle="tab" href="#tab-pane-1">Description</a>
                         <a class="nav-item nav-link text-dark" data-toggle="tab" href="#tab-pane-2">Information</a>
                         <a class="nav-item nav-link text-dark" data-toggle="tab" href="#tab-pane-3">Reviews (${reviews.length})</a>
+                        <a class="nav-item nav-link text-dark" data-toggle="tab" href="#tab-pane-4">Your Review</a>
                     </div>
                     <div class="tab-content">
                         <div class="tab-pane fade show active" id="tab-pane-1">
@@ -417,43 +510,10 @@ function renderProductDetails(data, file) {
                             </div>
                         </div>
                         <div class="tab-pane fade" id="tab-pane-3">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <h4 class="mb-4">Leave a review</h4>
-                                    <form method="post" action="php/review.php">
-                                        <div class="d-flex my-3">
-                                            <p class="mb-0 mr-2">Your Rating * :</p>
-                                            <div class="text-primary">
-                                                <input type="hidden" id="rating" name="rating" value="0">
-                                                <i class="far fa-star" onclick="setRating(1)" id="star1"></i>
-                                                <i class="far fa-star" onclick="setRating(2)" id="star2"></i>
-                                                <i class="far fa-star" onclick="setRating(3)" id="star3"></i>
-                                                <i class="far fa-star" onclick="setRating(4)" id="star4"></i>
-                                                <i class="far fa-star" onclick="setRating(5)" id="star5"></i>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="review">Your Review *</label>
-                                            <textarea id="review" name="review" cols="30" rows="5" class="form-control" required></textarea>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="name">Your Name *</label>
-                                            <input type="text" class="form-control" id="name" name="name" value="${user_name}" required readonly>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="email">Your Email *</label>
-                                            <input type="email" class="form-control" id="email" name="email" value="${email}" required readonly>
-                                        </div>
-                                        <input type="hidden" name="id_produk" value="${game.id}">
-                                        <div class="form-group mb-0">
-                                            <input type="submit" value="Leave Your Review" class="btn btn-primary px-3">
-                                        </div>
-                                    </form>
-                                </div>
-                                <div class="col-md-6">
-                                    ${renderReviews(reviews)}
-                                </div>
-                            </div>
+                            ${renderReviews(reviews)}
+                        </div>
+                        <div class="tab-pane fade" id="tab-pane-4">
+                            ${renderYourReview(data.yourreview, game.id, user_name, user_email)}
                         </div>
                     </div>
                 </div>
@@ -481,41 +541,66 @@ function setRating(rating) {
     }
 }
 
-function loadRecommendations() {
-    var productId = getProductIdFromUrl();
+function loadSimilars(productId) {
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", "php/serupa.php?id=" + productId, true);
+    xhr.open("GET", "php/produk_list_all.php?id=" + productId, true);
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4 && xhr.status === 200) {
-            var recommendations = JSON.parse(xhr.responseText);
-            renderRecommendations(recommendations);
+            var response = JSON.parse(xhr.responseText);
+            renderSimilars(response.similarGames);
         }
     };
     xhr.send();
 }
 
-function renderRecommendations(recommendations) {
+function renderSimilars(similars) {
     var productsContainer = document.querySelector('.shop-similar');
     productsContainer.innerHTML = "";
     var htmlContent = ``;
-    if (recommendations.length > 0) {
+    if (similars.length > 0) {
         htmlContent += `<div class="owl-carousel related-carousel" id="carousel-container">`;
-        recommendations.forEach(function(product) {
+        similars.forEach(function(similar) {
+            function generateRatingStars(rating) {
+                let stars = '';
+                const fullStars = Math.floor(rating);
+                const hasHalfStar = rating % 1 !== 0;
+                const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            
+                for (let i = 0; i < fullStars; i++) {
+                    stars += '<small class="fa fa-star text-primary mr-1"></small>';
+                }
+                if (hasHalfStar) {
+                    stars += '<small class="fa fa-star-half-alt text-primary mr-1"></small>';
+                }
+                for (let i = 0; i < emptyStars; i++) {
+                    stars += '<small class="far fa-star text-primary mr-1"></small>';
+                }
+                return stars;
+            }
+
             htmlContent += `
             <div class="product-item bg-light">
                 <div class="product-img position-relative overflow-hidden">
-                    <img class="img-fluid w-100" src="img/${game.background_image}" alt="">
+                    <img class="img-fluid w-100" src="${similar.background_image}" alt="${similar.name}">
                     <div class="product-action">
-                        <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-shopping-cart"></i></a>
-                        <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a>
-                        <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-sync-alt"></i></a>
-                        <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-search"></i></a>
+                        <form method="post" action="php/cart_add.php">
+                            <input type="hidden" name="id_produk" value="${similar.id}">
+                            <a class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="fa fa-shopping-cart"></i></a>
+                        </form>
+                        <form method="post" action="php/wish_add.php">
+                            <input type="hidden" name="id_produk" value="${similar.id}">
+                            <a class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="far fa-heart"></i></a>
+                        </form>
                     </div>
                 </div>
                 <div class="text-center py-4">
-                    <a class="h6 text-decoration-none text-truncate" href="detail.html?id=${game.id}">${game.name}</a>
+                    <a class="h6 text-decoration-none text-truncate" href="detail.html?id=${similar.id}">${similar.name}</a>
                     <div class="d-flex align-items-center justify-content-center mt-2">
-                        <h5>Rp ${game.price}</h5>
+                        <h5>Rp ${similar.price}</h5>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-center mb-1">
+                        ${generateRatingStars(similar.rating)}
+                        <small>(${similar.ratings_count})</small>
                     </div>
                 </div>
             </div>`;
@@ -524,7 +609,7 @@ function renderRecommendations(recommendations) {
     } else {
         htmlContent += `
         <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4">
-            <span class="bg-secondary pr-3">No recommendations found</span>
+            <span class="bg-secondary pr-3">No similars found</span>
         </h2>`;
     }
     productsContainer.innerHTML = htmlContent;
@@ -545,6 +630,7 @@ $(document).ready(function() {
     var productId = getProductIdFromUrl();
     if (productId) {
         loadProductDetails(productId, filename);
+        loadSimilars(productId);
     } else {
         console.error('Product ID not found in URL.');
     }
