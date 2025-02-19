@@ -23,7 +23,7 @@ $(document).ready(function() {
 
 function loadOrder() {
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", "php/checkout_list.php", true);
+    xhr.open("GET", "php/order.php", true);
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4 && xhr.status === 200) {
             var order = JSON.parse(xhr.responseText);

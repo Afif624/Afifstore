@@ -44,7 +44,7 @@ function getProductIdFromUrl() {
     return productId;
 }
 
-function loadProductDetails(productId) {
+function loadProductDetails(productId, file) {
     let productData = {};
 
     fetch(`php/produk_list_all.php?id=${productId}`)
@@ -61,67 +61,67 @@ function loadProductDetails(productId) {
         })
         .then(data => {
             productData = { ...productData, ...data };
-            return fetch(`php/review.php?id=${productId}`);
+            return fetch(`php/yourreview.php?id=${productId}`);
         })
         .then(response => {
-            console.log('Response from review.php:', response); // Log respons mentah
+            console.log('Response from yourreview.php:', response); // Log respons mentah
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             return response.text(); // Ubah sementara ke .text() untuk melihat respons mentah
         })
         .then(text => {
-            console.log('Raw data from review.php:', text); // Log teks respons
+            console.log('Raw data from yourreview.php:', text); // Log teks respons
             return JSON.parse(text); // Coba parse teks ke JSON
         })
         .then(data => {
             productData.yourreview = data.yourreview;
-            return fetch(`php/wish_list.php?id=${productId}`);
+            return fetch(`php/wish.php?id=${productId}`);
         })
         .then(response => {
-            console.log('Response from wish_list.php:', response); // Log respons mentah
+            console.log('Response from wish.php:', response); // Log respons mentah
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             return response.text(); // Ubah sementara ke .text() untuk melihat respons mentah
         })
         .then(text => {
-            console.log('Raw data from wish_list.php:', text); // Log teks respons
+            console.log('Raw data from wish.php:', text); // Log teks respons
             return JSON.parse(text); // Coba parse teks ke JSON
         })
         .then(data => {
             productData.wish_count = data.wish_count;
-            return fetch(`php/cart_list.php?id=${productId}`);
+            return fetch(`php/cart.php?id=${productId}`);
         })
         .then(response => {
-            console.log('Response from cart_list.php:', response); // Log respons mentah
+            console.log('Response from cart.php:', response); // Log respons mentah
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             return response.text(); // Ubah sementara ke .text() untuk melihat respons mentah
         })
         .then(text => {
-            console.log('Raw data from cart_list.php:', text); // Log teks respons
+            console.log('Raw data from cart.php:', text); // Log teks respons
             return JSON.parse(text); // Coba parse teks ke JSON
         })
         .then(data => {
             productData.cart_count = data.cart_count;
-            return fetch(`php/order_list.php?id=${productId}`);
+            return fetch(`php/order.php?id=${productId}`);
         })
         .then(response => {
-            console.log('Response from order_list.php:', response); // Log respons mentah
+            console.log('Response from order.php:', response); // Log respons mentah
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             return response.text(); // Ubah sementara ke .text() untuk melihat respons mentah
         })
         .then(text => {
-            console.log('Raw data from order_list.php:', text); // Log teks respons
+            console.log('Raw data from order.php:', text); // Log teks respons
             return JSON.parse(text); // Coba parse teks ke JSON
         })
         .then(data => {
             productData.order_count = data.order_count;
-            renderProductDetails(productData);
+            renderProductDetails(productData, file);
         })
         .catch(error => {
             console.error('Error in loadProductDetails:', error.message);
@@ -232,24 +232,24 @@ function renderProductDetails(data, file) {
             html += '</form>';
         } else {
             if (wish > 0){
-                html += '<form method="post" action="php/wish_form.php?id_produk='+ id +'" class="mr-3">';
+                html += '<form method="post" action="php/wish.php?id_produk='+ id +'" class="mr-3">';
                 html += '<input type="hidden" name="sourcePage" value="'+ file +'?id='+ id +'" />';
                 html += '<button class="btn btn-primary px-3" type="submit" name="delete"><i class="far fa-heart mr-1"></i> Delete From Wishlist</button>';
                 html += '</form>';
             } else {
-                html += '<form method="post" action="php/wish_add.php" class="mr-3">';
+                html += '<form method="post" action="php/wish.php" class="mr-3">';
                 html += '<input type="hidden" name="id_produk" value="'+ id +'">';
                 html += '<button class="btn btn-primary px-3" type="submit" name="add"><i class="far fa-heart mr-1"></i> Add To Wishlist</button>';
                 html += '</form>';
             }
 
             if (cart > 0){
-                html += '<form method="post" action="php/cart_form.php?id_produk='+ id +'">';
+                html += '<form method="post" action="php/cart.php?id_produk='+ id +'">';
                 html += '<input type="hidden" name="sourcePage" value="'+ file +'?id='+ id +'" />';
                 html += '<button class="btn btn-primary px-3" type="submit" name="delete"><i class="fa fa-shopping-cart mr-1"></i> Delete From Cart</button>';
                 html += '</form>';
             } else {
-                html += '<form method="post" action="php/cart_add.php">';
+                html += '<form method="post" action="php/cart.php">';
                 html += '<input type="hidden" name="id_produk" value="'+ id +'">';
                 html += '<button class="btn btn-primary px-3" type="submit" name="add"><i class="fa fa-shopping-cart mr-1"></i> Add To Cart</button>';
                 html += '</form>';
@@ -323,7 +323,7 @@ function renderProductDetails(data, file) {
         if (yourReview.length > 0){
             html += `
                 <h4 class="mb-4">Edit a review</h4>
-                <form method="post" action="php/review.php">
+                <form method="post" action="php/yourreview.php">
                     <div class="d-flex my-3">
                         <p class="mb-0 mr-2">Your Rating * :</p>
                         <div class="text-primary">
@@ -360,7 +360,7 @@ function renderProductDetails(data, file) {
         } else {
             html += `
                 <h4 class="mb-4">Leave a review</h4>
-                <form method="post" action="php/review.php">
+                <form method="post" action="php/yourreview.php">
                     <div class="d-flex my-3">
                         <p class="mb-0 mr-2">Your Rating * :</p>
                         <div class="text-primary">
@@ -390,7 +390,6 @@ function renderProductDetails(data, file) {
                         <input type="submit" value="Leave Your Review" class="btn btn-primary px-3">
                     </div>
                 </form>`;
-
         }
         return html;
     }
@@ -583,11 +582,11 @@ function renderSimilars(similars) {
                 <div class="product-img position-relative overflow-hidden">
                     <img class="img-fluid w-100" src="${similar.background_image}" alt="${similar.name}">
                     <div class="product-action">
-                        <form method="post" action="php/cart_add.php">
+                        <form method="post" action="php/cart.php">
                             <input type="hidden" name="id_produk" value="${similar.id}">
                             <a class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="fa fa-shopping-cart"></i></a>
                         </form>
-                        <form method="post" action="php/wish_add.php">
+                        <form method="post" action="php/wish.php">
                             <input type="hidden" name="id_produk" value="${similar.id}">
                             <a class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="far fa-heart"></i></a>
                         </form>

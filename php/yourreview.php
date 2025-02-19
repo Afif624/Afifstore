@@ -4,13 +4,6 @@ session_start();
 // Include file koneksi ke database
 include_once("connect.php");
 
-// Memeriksa apakah pengguna sudah login atau belum
-if (!isset($_SESSION['id_user'])) {
-    // Redirect ke halaman login jika pengguna belum login
-    header("Location: ../login.html");
-    exit();
-}
-
 // Memeriksa apakah data review dikirim melalui metode POST
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Mendapatkan data yang dikirimkan dari form

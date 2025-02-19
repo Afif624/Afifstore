@@ -211,11 +211,11 @@ function renderProductsRecom(page) {
                 <div class="product-img position-relative overflow-hidden">
                     <img class="img-fluid w-100" src="${product.background_image}" alt="${product.name}">
                     <div class="product-action">
-                        <form method="post" action="php/cart_add.php">
+                        <form method="post" action="php/cart.php">
                             <input type="hidden" name="id_produk" value="${product.id}">
                             <a class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="fa fa-shopping-cart"></i></a>
                         </form>
-                        <form method="post" action="php/wish_add.php">
+                        <form method="post" action="php/wish.php">
                             <input type="hidden" name="id_produk" value="${product.id}">
                             <a class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="far fa-heart"></i></a>
                         </form>
