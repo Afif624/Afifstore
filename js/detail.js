@@ -1,21 +1,29 @@
 $(document).ready(function() {
     $.ajax({
         type: "GET",
-        url: "php/jumlah_cart&wishlist.php",
+        url: "php/wish.php",
         dataType: "json",
         success: function(response) {
             // Menampilkan respons di konsol
-        console.log(response);
-            // Update elemen HTML kategori
-            var wishlistHTML = '';
-            wishlistHTML += '<i class="fas fa-heart text-primary"></i>';
-            wishlistHTML += '<span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom: 2px;">'+ response.wishlist +'</span>';
-            $('#wishlist').html(wishlistHTML);
-
-            // Update elemen HTML genre
+            console.log(response.wish_count);
+            // Update elemen HTML wish
+            var wishHTML = '';
+            wishHTML += '<i class="fas fa-heart text-primary"></i>';
+            wishHTML += '<span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom: 2px;">'+ response.wish_count +'</span>';
+            $('#wishlist').html(wishHTML);
+        }
+    });
+    $.ajax({
+        type: "GET",
+        url: "php/cart.php",
+        dataType: "json",
+        success: function(response) {
+            // Menampilkan respons di konsol
+            console.log(response.cart_count);
+            // Update elemen HTML cart
             var cartHTML = '';
             cartHTML += '<i class="fas fa-shopping-cart text-primary"></i>';
-            cartHTML += '<span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom: 2px;">'+ response.cart +'</span>';
+            cartHTML += '<span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom: 2px;">'+ response.cart_count +'</span>';
             $('#cart').html(cartHTML);
         }
     });
@@ -47,16 +55,31 @@ function getProductIdFromUrl() {
 function loadProductDetails(productId, file) {
     let productData = {};
 
-    fetch(`php/produk_list_all.php?id=${productId}`)
+    fetch(`php/produk_one.php?id=${productId}`)
         .then(response => {
-            console.log('Response from produk_list_all.php:', response); // Log respons mentah
+            console.log('Response from produk_one.php:', response); // Log respons mentah
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             return response.text(); // Ubah sementara ke .text() untuk melihat respons mentah
         })
         .then(text => {
-            console.log('Raw data from produk_list_all.php:', text); // Log teks respons
+            console.log('Raw data from produk_one.php:', text); // Log teks respons
+            return JSON.parse(text); // Coba parse teks ke JSON
+        })
+        .then(data => {
+            productData = { ...productData, ...data };
+            return fetch(`php/login_check.php?id=${productId}`);
+        })
+        .then(response => {
+            console.log('Response from login_check.php:', response); // Log respons mentah
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text(); // Ubah sementara ke .text() untuk melihat respons mentah
+        })
+        .then(text => {
+            console.log('Raw data from login_check.php:', text); // Log teks respons
             return JSON.parse(text); // Coba parse teks ke JSON
         })
         .then(data => {
@@ -90,7 +113,7 @@ function loadProductDetails(productId, file) {
             return JSON.parse(text); // Coba parse teks ke JSON
         })
         .then(data => {
-            productData.wish_count = data.wish_count;
+            productData.wish_status = data.wish_status;
             return fetch(`php/cart.php?id=${productId}`);
         })
         .then(response => {
@@ -105,7 +128,7 @@ function loadProductDetails(productId, file) {
             return JSON.parse(text); // Coba parse teks ke JSON
         })
         .then(data => {
-            productData.cart_count = data.cart_count;
+            productData.cart_status = data.cart_status;
             return fetch(`php/order.php?id=${productId}`);
         })
         .then(response => {
@@ -120,7 +143,7 @@ function loadProductDetails(productId, file) {
             return JSON.parse(text); // Coba parse teks ke JSON
         })
         .then(data => {
-            productData.order_count = data.order_count;
+            productData.order_status = data.order_status;
             renderProductDetails(productData, file);
         })
         .catch(error => {
@@ -140,9 +163,9 @@ function renderProductDetails(data, file) {
     var user_name = data.nama_user;
     var user_email = data.email_user;
 
-    var wishCount = data.wish_count;
-    var cartCount = data.cart_count;
-    var orderCount = data.order_count;
+    var wishStatus = data.wish_status;
+    var cartStatus = data.cart_status;
+    var orderStatus = data.order_status;
 
     function renderScreenShots(image, screenshots) {
         var html = '';
@@ -454,7 +477,7 @@ function renderProductDetails(data, file) {
                         </div>
                     </div>
                     <div class="d-flex align-items-center mb-4 pt-2">
-                        ${renderButtons(orderCount, wishCount, cartCount, game.id, file)}
+                        ${renderButtons(orderStatus, wishStatus, cartStatus, game.id, file)}
                     </div>
                     <div class="d-flex pt-2">
                         <strong class="text-dark mr-2">Share on:</strong>
@@ -542,7 +565,7 @@ function setRating(rating) {
 
 function loadSimilars(productId) {
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", "php/produk_list_all.php?id=" + productId, true);
+    xhr.open("GET", "php/produk_one.php?id=" + productId, true);
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4 && xhr.status === 200) {
             var response = JSON.parse(xhr.responseText);

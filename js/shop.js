@@ -1,33 +1,41 @@
-var currentRecomPage = 1;
-var recomProductsPerPage = 100;
-var recomProductsData = [];
+var currentPage = 1;
+var ProductsPerPage = 100;
+var ProductsData = [];
 
 document.addEventListener("DOMContentLoaded", function() {
-    loadProductRecomData();
+    loadProductData();
 });
 
 // JavaScript untuk mengambil data platform dan genre dari database
 $(document).ready(function() {
     $.ajax({
         type: "GET",
-        url: "php/jumlah_cart&wishlist.php",
+        url: "php/wish.php",
         dataType: "json",
         success: function(response) {
             // Menampilkan respons di konsol
-            console.log(response);
-            // Update elemen HTML wishlist
-            var wishlistHTML = '';
-            wishlistHTML += '<i class="fas fa-heart text-primary"></i>';
-            wishlistHTML += '<span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom: 2px;">'+ response.wishlist +'</span>';
-            $('#wishlist').html(wishlistHTML);
-
+            console.log(response.wish_count);
+            // Update elemen HTML wish
+            var wishHTML = '';
+            wishHTML += '<i class="fas fa-heart text-primary"></i>';
+            wishHTML += '<span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom: 2px;">'+ response.wish_count +'</span>';
+            $('#wishlist').html(wishHTML);
+        }
+    });
+    $.ajax({
+        type: "GET",
+        url: "php/cart.php",
+        dataType: "json",
+        success: function(response) {
+            // Menampilkan respons di konsol
+            console.log(response.cart_count);
             // Update elemen HTML cart
             var cartHTML = '';
             cartHTML += '<i class="fas fa-shopping-cart text-primary"></i>';
-            cartHTML += '<span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom: 2px;">'+ response.cart +'</span>';
+            cartHTML += '<span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom: 2px;">'+ response.cart_count +'</span>';
             $('#cart').html(cartHTML);
         }
-    });
+    });   
     
     // Ambil data platform dan genre saat halaman dimuat
     $.ajax({
@@ -147,7 +155,7 @@ function updateFilterStorage() {
 }
 
 // Fungsi untuk memuat data produk sesuai dengan filter yang diterapkan
-function loadProductRecomData() {
+function loadProductData() {
     var filterStorage = JSON.parse(localStorage.getItem('filterStorage'));
     var xhr = new XMLHttpRequest();
     var url = "php/produk_list.php";
@@ -168,18 +176,18 @@ function loadProductRecomData() {
         if (xhr.readyState === 4 && xhr.status === 200) {
             var response = JSON.parse(xhr.responseText);
             console.log(response.terfilter);
-            recomProductsData = response.terfilter;
-            renderProductsRecom(currentRecomPage);
-            renderPaginationRecom();
+            ProductsData = response.terfilter;
+            renderProducts(currentPage);
+            renderPagination();
         }
     };
     xhr.send();
 }
 
-function renderProductsRecom(page) {
-    var startIndex = (page - 1) * recomProductsPerPage;
-    var endIndex = startIndex + recomProductsPerPage;
-    var slicedData = recomProductsData.slice(startIndex, endIndex);
+function renderProducts(page) {
+    var startIndex = (page - 1) * ProductsPerPage;
+    var endIndex = startIndex + ProductsPerPage;
+    var slicedData = ProductsData.slice(startIndex, endIndex);
 
     var rowProduk = document.getElementById("rowProdukRekom");
     rowProduk.innerHTML = "";
@@ -238,8 +246,8 @@ function renderProductsRecom(page) {
     });
 }
 
-function renderPaginationRecom() {
-    var totalPages = Math.ceil(recomProductsData.length / recomProductsPerPage);
+function renderPagination() {
+    var totalPages = Math.ceil(ProductsData.length / ProductsPerPage);
     var pagination = document.getElementById("pagination-rekom");
     pagination.innerHTML = "";
 
@@ -251,10 +259,10 @@ function renderPaginationRecom() {
     aPrevious.innerText = "Previous";
     aPrevious.addEventListener("click", function(event) {
         event.preventDefault();
-        if (currentRecomPage > 1) {
-            currentRecomPage--;
-            renderProductsRecom(currentRecomPage);
-            updatePaginationRecomState();
+        if (currentPage > 1) {
+            currentPage--;
+            renderProducts(currentPage);
+            updatePaginationState();
         }
     });
     liPrevious.appendChild(aPrevious);
@@ -264,14 +272,14 @@ function renderPaginationRecom() {
         var li = document.createElement("li");
         li.className = "page-item";
         var a = document.createElement("a");
-        a.className = "page-link recom";
+        a.className = "page-link ";
         a.innerText = i;
         a.setAttribute("href", "#");
         a.addEventListener("click", function(event) {
             event.preventDefault();
-            currentRecomPage = parseInt(this.innerText);
-            renderProductsRecom(currentRecomPage);
-            updatePaginationRecomState();
+            currentPage = parseInt(this.innerText);
+            renderProducts(currentPage);
+            updatePaginationState();
         });
         li.appendChild(a);
         pagination.appendChild(li);
@@ -285,22 +293,22 @@ function renderPaginationRecom() {
     aNext.innerText = "Next";
     aNext.addEventListener("click", function(event) {
         event.preventDefault();
-        if (currentRecomPage < totalPages) {
-            currentRecomPage++;
-            renderProductsRecom(currentRecomPage);
-            updatePaginationRecomState();
+        if (currentPage < totalPages) {
+            currentPage++;
+            renderProducts(currentPage);
+            updatePaginationState();
         }
     });
     liNext.appendChild(aNext);
     pagination.appendChild(liNext);
 
-    updatePaginationRecomState();
+    updatePaginationState();
 }
 
-function updatePaginationRecomState() {
-    var pageLinks = document.querySelectorAll(".recom");
+function updatePaginationState() {
+    var pageLinks = document.querySelectorAll(".");
     pageLinks.forEach(function(link) {
-        if (parseInt(link.innerText) === currentRecomPage) {
+        if (parseInt(link.innerText) === currentPage) {
             link.parentElement.classList.add("active");
         } else {
             link.parentElement.classList.remove("active");

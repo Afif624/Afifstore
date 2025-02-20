@@ -1,5 +1,5 @@
 var xhr = new XMLHttpRequest();
-xhr.open('GET', 'php/ceklogin.php', true);
+xhr.open('GET', 'php/login_check.php', true);
 
 xhr.onload = function() {
     // Response berhasil, Anda dapat memeriksa hasilnya di sini
