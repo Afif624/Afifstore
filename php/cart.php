@@ -105,14 +105,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $count = $result->num_rows;
 
         while ($row = $result->fetch_assoc()) {
-            $id_produk = $row['id_produk'];
-
-            // Ambil detail produk dari produk_one.php
-            $produkDetail = file_get_contents("produk_one.php?id=" . $id_produk);
-            $produkDetailArray = json_decode($produkDetail, true);
-
-            // Simpan detail produk ke dalam array
-            $detail[] = $produkDetailArray;
+            $detail[] = $row['id_produk'];
         }
 
         $data = [

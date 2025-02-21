@@ -29,6 +29,18 @@ $(document).ready(function() {
     });
 });
 
+function getProductDetails(productId, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "php/produk_one.php?id=" + productId, true);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            var productDetail = JSON.parse(xhr.responseText);
+            callback(productDetail);
+        }
+    };
+    xhr.send();
+}
+
 function loadCart() {
     var xhr = new XMLHttpRequest();
     xhr.open("GET", "php/cart.php", true);
@@ -36,7 +48,21 @@ function loadCart() {
         if (xhr.readyState === 4 && xhr.status === 200) {
             var response = JSON.parse(xhr.responseText);
             console.log(response.cart_detail);
-            renderCart(response.cart_detail);
+
+            var cartDetails = [];
+            var pendingRequests = response.cart_detail.length;
+
+            response.cart_detail.forEach(function(productId) {
+                getProductDetails(productId, function(productDetail) {
+                    cartDetails.push(productDetail.game);
+                    pendingRequests--;
+
+                    if (pendingRequests === 0) {
+                        console.log(cartDetails);
+                        renderCart(cartDetails);
+                    }
+                });
+            });
         }
     };
     xhr.send();
@@ -45,7 +71,6 @@ function loadCart() {
 function renderCart(carts) {
     var productsContainer = document.querySelector('.cartshop');
     productsContainer.innerHTML = "";
-    var html = '';
     if (carts.length > 0) {
         function renderDevelopers(developers) {
             var html = '';
@@ -84,31 +109,9 @@ function renderCart(carts) {
             return filename;
         }
 
-        function renderList(carts){
-            var html = '';
-            let totalPrice = 0;
-            carts.forEach(function(cart) {
-                html += `
-                <tr>
-                    <td class="align-middle"><img src="${cart.background_image}" alt="" style="width: 50px;"></td>
-                    <td class="align-middle">${cart.name}</td>
-                    <td class="align-middle">Rp ${cart.price}</td>
-                    <td class="align-middle">${renderDevelopers(cart.developers)}</td>
-                    <td class="align-middle">${renderPublishers(cart.publishers)}</td>
-                    <td class="align-middle">
-                        <form action="php/cart.php?id_produk=${cart.id}" method="POST">
-                            <input type="hidden" name="sourcePage" value="${renderFilename()}" />
-                            <button class="btn btn-sm btn-danger" type="submit" name="delete">
-                                <i class="fa fa-times"></i>
-                            </button>
-                        </form
-                    </td>
-                </tr>`;
-                totalPrice += parseFloat(cart.price);
-            });
-            return html && totalPrice;
-        }
-
+        var html = '';
+        let totalPrice = 0;
+        
         html += `
         <div class="row px-xl-5">
             <div class="col-lg-8 table-responsive mb-5">
@@ -123,8 +126,27 @@ function renderCart(carts) {
                             <th>Remove</th>
                         </tr>
                     </thead>
-                    <tbody class="align-middle">
-                        ${renderList(carts)}
+                    <tbody class="align-middle">`;
+                    carts.forEach(function(cart) {
+                        html += `
+                        <tr>
+                            <td class="align-middle"><img src="${cart.background_image}" alt="" style="width: 50px;"></td>
+                            <td class="align-middle">${cart.name}</td>
+                            <td class="align-middle">Rp ${cart.price}</td>
+                            <td class="align-middle">${renderDevelopers(cart.developers)}</td>
+                            <td class="align-middle">${renderPublishers(cart.publishers)}</td>
+                            <td class="align-middle">
+                                <form action="php/cart.php?id_produk=${cart.id}" method="POST">
+                                    <input type="hidden" name="sourcePage" value="${renderFilename()}" />
+                                    <button class="btn btn-sm btn-danger" type="submit" name="delete">
+                                        <i class="fa fa-times"></i>
+                                    </button>
+                                </form
+                            </td>
+                        </tr>`;
+                        totalPrice += parseFloat(cart.price);
+                    });
+                    html += `
                     </tbody>
                 </table>
             </div>

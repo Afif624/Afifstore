@@ -6,14 +6,24 @@ include_once("produk_list_all.php");
 function getGameById($apiKey, $gameId) {
     $rawgUrl = "https://api.rawg.io/api/games/{$gameId}?key={$apiKey}";
     $game = fetchDataFromRAWGAPI($rawgUrl);
-
-    // Add price to the game
-    $hargaKey = "harga_{$game['id']}";
+    
+    // Extracting only the required fields
+    $selectedFields = [
+        'added_by_status', 'name', 'background_image', 'background_image_additional',
+        'short_screenshots', 'price', 'rating', 'ratings_count', 'genres', 'tags',
+        'platforms', 'id', 'description', 'developers', 'publishers',
+        'released', 'metacritic', 'suggestions_count'
+    ];
+    
+    $filteredGame = array_intersect_key($game, array_flip($selectedFields));
+    
+    // Add price to the filtered game
+    $hargaKey = "harga_{$filteredGame['id']}";
     $harga = isset($_SESSION[$hargaKey]) ? $_SESSION[$hargaKey] : getRandomPrice(100000, 1000000);
     $_SESSION[$hargaKey] = $harga; // Simulate localStorage
-    $game['price'] = $harga;
-
-    return $game;
+    $filteredGame['price'] = $harga;
+    
+    return $filteredGame;
 }
 
 // 3. Fungsi untuk mendapatkan review game berdasarkan ID (Multi-page)
@@ -61,7 +71,7 @@ function calculateSimilarity($game1, $game2) {
 }
 
 // 5. Function to get 20 most similar games
-function getSimilarGames($apiKey, $gameId) {
+function getSimilarGames($apiKey, $gameId, $allGames) {
     $targetGame = getGameById($apiKey, $gameId);
 
     // Calculate similarity scores for all games
@@ -87,22 +97,19 @@ function getSimilarGames($apiKey, $gameId) {
     return $similarGames;
 }
 
-// Check if 'id' is set in the GET request
-if (isset($_GET['id'])) {
-    $gameId = $_GET['id'];
-    $game = getGameById($apiKey, $gameId);
-    $reviews = getGameReviews($apiKey, $gameId);
-    $similarGames = getSimilarGames($apiKey, $gameId);
+$gameId = $_GET['id'];
+$game = getGameById($apiKey, $gameId);
+$reviews = getGameReviews($apiKey, $gameId);
+$similarGames = getSimilarGames($apiKey, $gameId, $allGames);
 
-    // Send both game and reviews to JS
-    $data = [
-        'game' => $game,
-        'reviews' => $reviews,
-        'similarGames' => $similarGames
-    ];
+// Send both game and reviews to JS
+$data = [
+    'game' => $game,
+    'reviews' => $reviews,
+    'similarGames' => $similarGames
+];
 
-    // Mengirimkan data produk sebagai respons JSON
-    header('Content-Type: application/json');
-    echo json_encode($data);
-}
+// Mengirimkan data produk sebagai respons JSON
+header('Content-Type: application/json');
+echo json_encode($data);
 ?>

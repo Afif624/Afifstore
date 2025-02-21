@@ -29,6 +29,18 @@ $(document).ready(function() {
     });
 });
 
+function getProductDetails(productId, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "php/produk_one.php?id=" + productId, true);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            var productDetail = JSON.parse(xhr.responseText);
+            callback(productDetail);
+        }
+    };
+    xhr.send();
+}
+
 function loadOrder() {
     var xhr = new XMLHttpRequest();
     xhr.open("GET", "php/order.php", true);
@@ -49,20 +61,23 @@ function renderOrder(groupedData) {
         let numberOrder = 1;
         Object.keys(groupedData).forEach(function(waktu) {
             var group = groupedData[waktu];
+            let total_harga = 0;
             htmlContent += `
             <div class="col-lg-4">
                 <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Order Total ${numberOrder}</span></h5>
                 <div class="bg-light p-30 mb-5">
                     <div class="border-bottom">
                         <h6 class="mb-3">Products</h6>`;
-                        let total_harga = 0;
                         group.forEach(function(product) {
-                            htmlContent += `
-                            <div class="d-flex justify-content-between">
-                                <p>${product.nama_produk}</p>
-                                <p>Rp ${product.harga_produk}</p>
-                            </div>`;
-                            total_harga += parseFloat(product.harga_produk);
+                            getProductDetails(product.id_produk, function(productDetail) {
+                                game = productDetail.game;
+                                htmlContent += `
+                                <div class="d-flex justify-content-between">
+                                    <p>${game.name}</p>
+                                    <p>Rp ${game.price}</p>
+                                </div>`;
+                                total_harga += parseFloat(game.price);
+                            });
                         });
                         htmlContent += `
                     </div>

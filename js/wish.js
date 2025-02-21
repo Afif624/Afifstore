@@ -29,6 +29,18 @@ $(document).ready(function() {
     });
 });
 
+function getProductDetails(productId, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "php/produk_one.php?id=" + productId, true);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            var productDetail = JSON.parse(xhr.responseText);
+            callback(productDetail);
+        }
+    };
+    xhr.send();
+}
+
 function loadWish() {
     var xhr = new XMLHttpRequest();
     xhr.open("GET", "php/wish.php", true);
@@ -36,7 +48,21 @@ function loadWish() {
         if (xhr.readyState === 4 && xhr.status === 200) {
             var response = JSON.parse(xhr.responseText);
             console.log(response.wish_detail);
-            renderWish(response.wish_detail);
+
+            var wishDetails = [];
+            var pendingRequests = response.wish_detail.length;
+
+            response.wish_detail.forEach(function(productId) {
+                getProductDetails(productId, function(productDetail) {
+                    wishDetails.push(productDetail.game);
+                    pendingRequests--;
+
+                    if (pendingRequests === 0) {
+                        console.log(wishDetails);
+                        renderWish(wishDetails);
+                    }
+                });
+            });
         }
     };
     xhr.send();
@@ -45,7 +71,6 @@ function loadWish() {
 function renderWish(wishs) {
     var productsContainer = document.querySelector('.wishlist');
     productsContainer.innerHTML = "";
-    var html = '';
     if (wishs.length > 0) {
         function renderDevelopers(developers) {
             var html = '';
@@ -84,39 +109,7 @@ function renderWish(wishs) {
             return filename;
         }
 
-        function renderList(wishs){
-            var html = '';
-            let totalPrice = 0;
-            wishs.forEach(function(wish) {
-                html += `
-                <tr>
-                    <td class="align-middle"><img src="${wish.background_image}" alt="" style="width: 50px;"></td>
-                    <td class="align-middle">${wish.name}</td>
-                    <td class="align-middle">Rp ${wish.price}</td>
-                    <td class="align-middle">${renderDevelopers(wish.developers)}</td>
-                    <td class="align-middle">${renderPublishers(wish.publishers)}</td>
-                    <td class="align-middle">
-                        <form action="php/wish.php?id_produk=${wish.id}" method="POST">
-                            <input type="hidden" name="sourcePage" value="${renderFilename()}" />
-                            <button class="btn btn-sm btn-danger" type="submit" name="delete">
-                                <i class="fa fa-times"></i>
-                            </button>
-                        </form
-                    </td>
-                    <td class="align-middle">
-                        <form action="php/wish.php?id_produk=${wish.id}" method="POST">
-                            <input type="hidden" name="sourcePage" value="${renderFilename()}" />
-                            <button class="btn btn-sm btn-danger" type="submit" name="add">
-                                <i class="fa fa-check"></i>
-                            </button>
-                        </form
-                    </td>
-                </tr>`;
-                totalPrice += parseFloat(wish.harga_produk);
-            });
-            return html && totalPrice;
-        }
-
+        var html = '';
         html += `
         <div class="row px-xl-5">
             <div class="col-lg-8 table-responsive mb-5">
@@ -132,8 +125,34 @@ function renderWish(wishs) {
                             <th>Placed</th>
                         </tr>
                     </thead>
-                    <tbody class="align-middle">
-                        ${renderList(wishs)}
+                    <tbody class="align-middle">`;
+                    wishs.forEach(function(wish) {
+                        html += `
+                        <tr>
+                            <td class="align-middle"><img src="${wish.background_image}" alt="" style="width: 50px;"></td>
+                            <td class="align-middle">${wish.name}</td>
+                            <td class="align-middle">Rp ${wish.price}</td>
+                            <td class="align-middle">${renderDevelopers(wish.developers)}</td>
+                            <td class="align-middle">${renderPublishers(wish.publishers)}</td>
+                            <td class="align-middle">
+                                <form action="php/wish.php?id_produk=${wish.id}" method="POST">
+                                    <input type="hidden" name="sourcePage" value="${renderFilename()}" />
+                                    <button class="btn btn-sm btn-danger" type="submit" name="delete">
+                                        <i class="fa fa-times"></i>
+                                    </button>
+                                </form
+                            </td>
+                            <td class="align-middle">
+                                <form action="php/wish.php?id_produk=${wish.id}" method="POST">
+                                    <input type="hidden" name="sourcePage" value="${renderFilename()}" />
+                                    <button class="btn btn-sm btn-danger" type="submit" name="add">
+                                        <i class="fa fa-check"></i>
+                                    </button>
+                                </form
+                            </td>
+                        </tr>`;
+                    });
+                    html += `
                     </tbody>
                 </table>
             </div>

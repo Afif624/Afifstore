@@ -343,7 +343,7 @@ function renderProductDetails(data, file) {
 
     function renderYourReview(yourReview, game_id, user_name, user_email){
         var html = '';
-        if (yourReview.length > 0){
+        if (yourReview != null){
             html += `
                 <h4 class="mb-4">Edit a review</h4>
                 <form method="post" action="php/yourreview.php">

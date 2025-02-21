@@ -52,9 +52,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Query untuk mengambil satu produk dari wishlist user
         $query = "SELECT * FROM review WHERE id_user = $id_user AND id_produk = $id_produk";
         $result = $conn->query($query);
+        $row = $result->fetch_assoc();
 
         // Simpan detail produk ke dalam array
-        $data = ['yourreview' => $result];
+        $data = ['yourreview' => $row];
         
         // Mengirimkan data produk sebagai respons JSON
         header('Content-Type: application/json');

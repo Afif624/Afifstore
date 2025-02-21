@@ -26,17 +26,8 @@ if (isset($_GET['id'])) {
     $query = "SELECT * FROM order WHERE id_user = $id_user";
     $result = $conn->query($query);
 
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $id_produk = $row['id_produk'];
-
-            // Ambil detail produk dari produk_one.php
-            $produkDetail = file_get_contents("produk_one.php?id=" . $id_produk);
-            $produkDetailArray = json_decode($produkDetail, true);
-
-            // Simpan detail produk ke dalam array
-            $data[] = $produkDetailArray;
-        }
+    while ($row = $result->fetch_assoc()) {
+        $data[] = $row;
     }
 }
 
