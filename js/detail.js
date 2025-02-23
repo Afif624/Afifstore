@@ -544,6 +544,7 @@ function renderProductDetails(data, file) {
     `;
 
     $('.shop-detail').html(html);
+    renderSimilars(data.similarGames);
 }
 
 function setRating(rating) {
@@ -561,18 +562,6 @@ function setRating(rating) {
             star.classList.add('far');
         }
     }
-}
-
-function loadSimilars(productId) {
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", "php/produk_one.php?id=" + productId, true);
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-            var response = JSON.parse(xhr.responseText);
-            renderSimilars(response.similarGames);
-        }
-    };
-    xhr.send();
 }
 
 function renderSimilars(similars) {
@@ -652,7 +641,6 @@ $(document).ready(function() {
     var productId = getProductIdFromUrl();
     if (productId) {
         loadProductDetails(productId, filename);
-        loadSimilars(productId);
     } else {
         console.error('Product ID not found in URL.');
     }

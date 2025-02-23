@@ -39,7 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Jika terjadi kesalahan, tampilkan pesan error
             echo "Error: " . $sql . "<br>" . $conn->error;
         }
-    } else {
+    } else if (isset($_POST['cart'])){
         // Mendapatkan data yang dikirimkan dari form
         $id_produk = $_GET['id_produk'];
 
@@ -76,7 +76,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $conn->close();
 } else {
     // Inisialisasi array untuk menyimpan data produk
-    $data = array();
+    $data = [];
 
     // Cek apakah ada parameter `id` yang dikirim melalui GET
     if (isset($_GET['id'])) {
@@ -91,7 +91,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Simpan status ke dalam array
         $data = ['wish_status' => $status];
     } else {
-        $detail = array();
+        $detail = [];
         
         // Jika tidak ada `id`, ambil semua produk dari wishlist user
         $query = "SELECT * FROM wishlist WHERE id_user = $id_user";

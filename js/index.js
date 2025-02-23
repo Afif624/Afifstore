@@ -39,8 +39,7 @@ var recentProductsData = [];
 
 document.addEventListener("DOMContentLoaded", function() {
     loadPlatformGenre();
-    loadProductRecomData();
-    loadProductRecentData();
+    loadProductData();
 });
 
 function loadPlatformGenre() {
@@ -103,16 +102,19 @@ function populateGenre(genres) {
     });
 }
 
-function loadProductRecomData() {
+function loadProductData() {
     var xhr = new XMLHttpRequest();
     xhr.open("GET", "php/produk_list.php", true);
     xhr.onreadystatechange = function() {
     if (xhr.readyState === 4 && xhr.status === 200) {
         var response = JSON.parse(xhr.responseText);
-        console.log(response.terekomendasi);
+        console.log(response);
         recomProductsData = response.terekomendasi;
         renderProductsRecom(currentRecomPage);
         renderPaginationRecom();
+        recentProductsData = response.terbaru;
+        renderProductsRecent(currentRecentPage);
+        renderPaginationRecent();
     }
     };
     xhr.send();
@@ -260,21 +262,6 @@ function updatePaginationRecomState() {
             link.parentElement.classList.remove("active");
         }
     });
-}
-
-function loadProductRecentData() {
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", "php/produk_list.php", true);
-    xhr.onreadystatechange = function() {
-    if (xhr.readyState === 4 && xhr.status === 200) {
-        var response = JSON.parse(xhr.responseText);
-        console.log(response.terbaru);
-        recentProductsData = response.terbaru;
-        renderProductsRecent(currentRecentPage);
-        renderPaginationRecent();
-    }
-    };
-    xhr.send();
 }
 
 function renderProductsRecent(page) {

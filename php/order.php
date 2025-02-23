@@ -7,7 +7,7 @@ include_once("connect.php");
 $id_user = $_SESSION['id_user'];
 
 // Inisialisasi array untuk menyimpan data produk
-$data = array();
+$data = [];
 
 // Cek apakah ada parameter `id` yang dikirim melalui GET
 if (isset($_GET['id'])) {

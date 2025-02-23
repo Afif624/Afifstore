@@ -48,7 +48,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $delete_cart = true;
 
         // SQL untuk membaca cart
-        $sql_read = "SELECT * FROM cart LEFT JOIN produk ON cart.id_produk = produk.id_produk WHERE id_user=$id_user";
+        $sql_read = "SELECT * FROM cart WHERE id_user=$id_user";
         $result_read = $conn->query($sql_read);
         while ($row_cart = $result_read->fetch_assoc()){
             // SQL untuk memasukkan cart ke order
@@ -82,7 +82,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $conn->close();
 } else {
     // Inisialisasi array untuk menyimpan data produk
-    $data = array();
+    $data = [];
 
     // Cek apakah ada parameter `id` yang dikirim melalui GET
     if (isset($_GET['id'])) {
@@ -97,7 +97,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Simpan status ke dalam array
         $data = ['cart_status' => $status];
     } else {
-        $detail = array();
+        $detail = [];
 
         // Jika tidak ada `id`, ambil semua produk dari cart user
         $query = "SELECT * FROM cart WHERE id_user = $id_user";

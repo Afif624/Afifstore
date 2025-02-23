@@ -25,10 +25,10 @@ $genres = getAllData($genreUrl);
 $platforms = getAllData($platformUrl);
 
 // Inisialisasi array untuk menyimpan data genre dan platform
-$data = array(
-    'genre' => array(),
-    'platform' => array()
-);
+$data = [
+    'genre' => [],
+    'platform' => []
+];
 
 // Mengumpulkan data genre (id, nama, dan jumlah game)
 foreach ($genres as $genre) {
@@ -46,12 +46,12 @@ foreach ($genres as $genre) {
         }
     }
 
-    $data['genre'][] = array(
+    $data['genre'][] = [
         'id' => $genreId,
         'name' => $genreName,
         'image' => $genreImage,
         'games_count' => $gameCount
-    );
+    ];
 }
 
 // Mengumpulkan data platform (id, nama, dan jumlah game)
@@ -70,12 +70,12 @@ foreach ($platforms as $platform) {
         }
     }
 
-    $data['platform'][] = array(
+    $data['platform'][] = [
         'id' => $platformId,
         'name' => $platformName,
         'image' => $platformImage,
         'games_count' => $gameCount
-    );
+    ];
 }
 
 // Mengirimkan data genre dan platform sebagai respons JSON
