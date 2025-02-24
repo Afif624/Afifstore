@@ -31,7 +31,7 @@ $(document).ready(function() {
 
 function getProductDetails(productId, callback) {
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", "php/produk_one.php?id=" + productId, true);
+    xhr.open("GET", "php/produk_one.php?id=" + productId + "&list=1", true);
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4 && xhr.status === 200) {
             var productDetail = JSON.parse(xhr.responseText);
@@ -71,6 +71,7 @@ function loadWish() {
 function renderWish(wishs) {
     var productsContainer = document.querySelector('.wishlist');
     productsContainer.innerHTML = "";
+    var html = '';
     if (wishs.length > 0) {
         function renderDevelopers(developers) {
             var html = '';
@@ -109,7 +110,6 @@ function renderWish(wishs) {
             return filename;
         }
 
-        var html = '';
         html += `
         <div class="row px-xl-5">
             <div class="col-lg-8 table-responsive mb-5">
@@ -145,7 +145,7 @@ function renderWish(wishs) {
                             <td class="align-middle">
                                 <form action="php/wish.php?id_produk=${wish.id}" method="POST">
                                     <input type="hidden" name="sourcePage" value="${renderFilename()}" />
-                                    <button class="btn btn-sm btn-danger" type="submit" name="add">
+                                    <button class="btn btn-sm btn-danger" type="submit" name="cart">
                                         <i class="fa fa-check"></i>
                                     </button>
                                 </form

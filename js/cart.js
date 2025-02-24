@@ -31,7 +31,7 @@ $(document).ready(function() {
 
 function getProductDetails(productId, callback) {
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", "php/produk_one.php?id=" + productId, true);
+    xhr.open("GET", "php/produk_one.php?id=" + productId + "&list=1", true);
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4 && xhr.status === 200) {
             var productDetail = JSON.parse(xhr.responseText);
@@ -71,6 +71,7 @@ function loadCart() {
 function renderCart(carts) {
     var productsContainer = document.querySelector('.cartshop');
     productsContainer.innerHTML = "";
+    var html = '';
     if (carts.length > 0) {
         function renderDevelopers(developers) {
             var html = '';
@@ -109,7 +110,6 @@ function renderCart(carts) {
             return filename;
         }
 
-        var html = '';
         let totalPrice = 0;
         
         html += `

@@ -8,22 +8,29 @@ function getGameById($apiKey, $gameId) {
     $game = fetchDataFromRAWGAPI($rawgUrl);
     
     // Extracting only the required fields
-    $selectedFields = [
-        'added_by_status', 'name', 'background_image', 'background_image_additional',
-        'short_screenshots', 'price', 'rating', 'ratings_count', 'genres', 'tags',
-        'platforms', 'id', 'description', 'developers', 'publishers',
-        'released', 'metacritic', 'suggestions_count'
-    ];
+    if (isset($_GET['list'])){
+        $selectedFields = [
+            'id', 'name', 'background_image',
+            'price', 'developers', 'publishers'
+        ];
+    } else {
+        $selectedFields = [
+            'added_by_status', 'name', 'background_image', 'background_image_additional',
+            'short_screenshots', 'price', 'rating', 'ratings_count', 'genres', 'tags',
+            'platforms', 'id', 'description', 'developers', 'publishers',
+            'released', 'metacritic', 'suggestions_count'
+        ];
+    }
     
-    $filteredGame = array_intersect_key($game, array_flip($selectedFields));
+    $oneGame = array_intersect_key($game, array_flip($selectedFields));
     
     // Add price to the filtered game
-    $hargaKey = "harga_{$filteredGame['id']}";
+    $hargaKey = "harga_{$oneGame['id']}";
     $harga = isset($_SESSION[$hargaKey]) ? $_SESSION[$hargaKey] : getRandomPrice(100000, 1000000);
     $_SESSION[$hargaKey] = $harga; // Simulate localStorage
-    $filteredGame['price'] = $harga;
+    $oneGame['price'] = $harga;
     
-    return $filteredGame;
+    return $oneGame;
 }
 
 // 3. Fungsi untuk mendapatkan review game berdasarkan ID (Multi-page)
@@ -33,9 +40,9 @@ function getGameReviews($apiKey, $gameId) {
     $nextPageUrl = $rawgUrl;
 
     do {
-        $data = fetchDataFromRAWGAPI($nextPageUrl);
-        $allReviews = array_merge($allReviews, $data['results']);
-        $nextPageUrl = $data['next']; // URL halaman berikutnya
+        $reviewData = fetchDataFromRAWGAPI($nextPageUrl);
+        $allReviews = array_merge($allReviews, $reviewData['results']);
+        $nextPageUrl = $reviewData['next']; // URL halaman berikutnya
     } while ($nextPageUrl); // Lanjutkan selama ada halaman berikutnya
 
     return $allReviews;
@@ -85,12 +92,20 @@ function getSimilarGames($apiKey, $gameId, $allGames) {
     // Sort games by similarity score in descending order
     arsort($similarityScores);
 
+    // Extracting only the required fields
+    $selectedFields = [
+        'id', 'name', 'background_image',
+        'price', 'rating', 'ratings_count',
+        'genres', 'tags', 'platforms'
+    ];
+
     // Get top 20 most similar games
     $similarGames = [];
     $count = 0;
     foreach ($similarityScores as $id => $score) {
         if ($count >= 20) break;
-        $similarGames[] = getGameById($apiKey, $id);
+        $game = getGameById($apiKey, $id);
+        $similarGames[] = array_intersect_key($game, array_flip($selectedFields)); 
         $count++;
     }
 
@@ -99,15 +114,21 @@ function getSimilarGames($apiKey, $gameId, $allGames) {
 
 $gameId = $_GET['id'];
 $game = getGameById($apiKey, $gameId);
-$reviews = getGameReviews($apiKey, $gameId);
-$similarGames = getSimilarGames($apiKey, $gameId, $allGames);
+$data = [];
 
-// Send both game and reviews to JS
-$data = [
-    'game' => $game,
-    'reviews' => $reviews,
-    'similarGames' => $similarGames
-];
+if (isset($_GET['list'])){
+    $data = ['game' => $game];
+} else {
+    $reviews = getGameReviews($apiKey, $gameId);
+    $similarGames = getSimilarGames($apiKey, $gameId, $allGames);
+
+    // Send both game and reviews to JS
+    $data = [
+        'game' => $game,
+        'reviews' => $reviews,
+        'similarGames' => $similarGames
+    ];
+}
 
 // Mengirimkan data produk sebagai respons JSON
 header('Content-Type: application/json');

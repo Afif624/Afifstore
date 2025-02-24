@@ -158,17 +158,17 @@ function updateFilterStorage() {
 function loadProductData() {
     var filterStorage = JSON.parse(localStorage.getItem('filterStorage'));
     var xhr = new XMLHttpRequest();
-    var url = "php/produk_list.php";
+    var url = "php/produk_list.php?terfilter=1";
     if (filterStorage) {
-        url += "?";
+        url += "";
         if (filterStorage.platform.length > 0) {
-            url += "platform=" + filterStorage.platform.join(",") + "&";
+            url += "&platform=" + filterStorage.platform.join(",");
         }
         if (filterStorage.genre.length > 0) {
-            url += "genre=" + filterStorage.genre.join(",") + "&";
+            url += "&genre=" + filterStorage.genre.join(",");
         }
         if (filterStorage.harga) {
-            url += "harga=" + filterStorage.harga;
+            url += "&harga=" + filterStorage.harga;
         }
     }
     xhr.open("GET", url, true);
