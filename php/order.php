@@ -22,12 +22,31 @@ if (isset($_GET['id'])) {
     // Simpan detail produk ke dalam array
     $data = ['order_status' => $status];
 } else {
-    // Jika tidak ada `id`, ambil semua produk dari order user
-    $query = "SELECT * FROM order WHERE id_user = $id_user";
+    // Jika tidak ada `id`, ambil semua produk dari order user dan urutkan berdasarkan waktu
+    $query = "SELECT * FROM `order` WHERE id_user = $id_user ORDER BY waktu";
     $result = $conn->query($query);
 
+    $data = array();
+    $current_time = null;
+    $group = array();
+
     while ($row = $result->fetch_assoc()) {
-        $data[] = $row;
+        $order_time = $row['waktu'];
+
+        if ($current_time == null || $current_time != $order_time) {
+            if (!empty($group)) {
+                $data[] = $group;
+            }
+            $current_time = $order_time;
+            $group = array();
+        }
+
+        $group[] = $row;
+    }
+
+    // Tambahkan grup terakhir ke data
+    if (!empty($group)) {
+        $data[] = $group;
     }
 }
 

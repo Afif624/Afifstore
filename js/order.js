@@ -29,16 +29,22 @@ $(document).ready(function() {
     });
 });
 
-function getProductDetails(productId, callback) {
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", "php/produk_one.php?id=" + productId, true);
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-            var productDetail = JSON.parse(xhr.responseText);
-            callback(productDetail);
-        }
-    };
-    xhr.send();
+function getProductDetails(productId) {
+    return new Promise(function(resolve, reject) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "php/produk_one.php?id=" + productId + "&list=1", true);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    var productDetail = JSON.parse(xhr.responseText);
+                    resolve(productDetail);
+                } else {
+                    reject(xhr.status);
+                }
+            }
+        };
+        xhr.send();
+    });
 }
 
 function loadOrder() {
@@ -47,39 +53,43 @@ function loadOrder() {
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4 && xhr.status === 200) {
             var order = JSON.parse(xhr.responseText);
+            console.log(order);
             renderOrder(order);
         }
     };
     xhr.send();
 }
 
-function renderOrder(groupedData) {
+async function renderOrder(groupedData) {
     var productsContainer = document.querySelector('.checkout-order');
     productsContainer.innerHTML = "";
-    var htmlContent = ``;
+    var html = ``;
     if (Object.keys(groupedData).length > 0) {
         let numberOrder = 1;
-        Object.keys(groupedData).forEach(function(waktu) {
+        for (const waktu of Object.keys(groupedData)) {
             var group = groupedData[waktu];
             let total_harga = 0;
-            htmlContent += `
+            html += `
             <div class="col-lg-4">
                 <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Order Total ${numberOrder}</span></h5>
                 <div class="bg-light p-30 mb-5">
                     <div class="border-bottom">
                         <h6 class="mb-3">Products</h6>`;
-                        group.forEach(function(product) {
-                            getProductDetails(product.id_produk, function(productDetail) {
-                                game = productDetail.game;
-                                htmlContent += `
-                                <div class="d-flex justify-content-between">
-                                    <p>${game.name}</p>
-                                    <p>Rp ${game.price}</p>
-                                </div>`;
-                                total_harga += parseFloat(game.price);
-                            });
-                        });
-                        htmlContent += `
+            for (const product of group) {
+                try {
+                    const productDetail = await getProductDetails(product.id_produk);
+                    const game = productDetail.game;
+                    html += `
+                        <div class="d-flex justify-content-between">
+                            <p>${game.name}</p>
+                            <p>Rp ${game.price}</p>
+                        </div>`;
+                    total_harga += parseFloat(game.price);
+                } catch (error) {
+                    console.error('Error fetching product details:', error);
+                }
+            }
+            html += `
                     </div>
                     <div class="border-bottom pt-3 pb-2">
                         <div class="d-flex justify-content-between mb-3">
@@ -111,15 +121,15 @@ function renderOrder(groupedData) {
                     </div>
                 </div>
             </div>`;
-            numberOrder ++;
-        });
+            numberOrder++;
+        }
     } else {
-        htmlContent += `
+        html += `
         <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4">
             <span class="bg-secondary pr-3">Masih Kosong</span>
         </h2>`;
     }
-    productsContainer.innerHTML = htmlContent;
+    productsContainer.innerHTML = html;
 }
 
 // Call renderProductDetails function
