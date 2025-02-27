@@ -35,7 +35,7 @@ async function renderOrder(groupedData) {
     var html = ``;
     if (Object.keys(groupedData).length > 0) {
         let numberOrder = 1;
-        for (const waktu of Object.keys(groupedData)) {
+        for (var waktu of Object.keys(groupedData)) {
             var group = groupedData[waktu];
             let total_harga = 0;
             html += `
@@ -44,10 +44,10 @@ async function renderOrder(groupedData) {
                 <div class="bg-light p-30 mb-5">
                     <div class="border-bottom">
                         <h6 class="mb-3">Products</h6>`;
-            for (const product of group) {
+            for (var product of group) {
                 try {
-                    const productDetail = await getProductDetails(product.id_produk);
-                    const game = productDetail.game;
+                    var productDetail = await getProductDetails(product.id_produk);
+                    var game = productDetail.game;
                     html += `
                         <div class="d-flex justify-content-between">
                             <p>${game.name}</p>

@@ -30,6 +30,22 @@ function getGameById($apiKey, $gameId) {
     $_SESSION[$hargaKey] = $harga; // Simulate localStorage
     $oneGame['price'] = $harga;
     
+    // Fetch all screenshots with pagination
+    $shortScreenshots = [];
+    $page = 1;
+    do {
+        $screenshotsUrl = "https://api.rawg.io/api/games/{$gameId}/screenshots?key={$apiKey}&page={$page}";
+        $screenshotsData = fetchDataFromRAWGAPI($screenshotsUrl);
+        
+        if (isset($screenshotsData['results'])) {
+            $shortScreenshots = array_merge($shortScreenshots, $screenshotsData['results']);
+        }
+        
+        $page++;
+    } while (isset($screenshotsData['next']));
+    
+    $oneGame['short_screenshots'] = $shortScreenshots;
+    
     return $oneGame;
 }
 

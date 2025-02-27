@@ -24,6 +24,22 @@ function getFilteredGames($allGames, $filters) {
         });
     }
 
+    // Sorting logic
+    if (isset($filters['sort'])) {
+        usort($allGames, function($a, $b) use ($filters) {
+            switch ($filters['sort']) {
+                case 'latest':
+                    return strtotime($b['released']) <=> strtotime($a['released']);
+                case 'popularity':
+                    return $b['ratings_count'] <=> $a['ratings_count'];
+                case 'rating':
+                    return $b['rating'] <=> $a['rating'];
+                default:
+                    return 0;
+            }
+        });
+    }
+
     // Extracting only the required fields
     $selectedFields = [
         'id', 'name', 'background_image',
@@ -31,11 +47,12 @@ function getFilteredGames($allGames, $filters) {
     ];
 
     $filteredGames = [];
-    foreach ($allGames as $game){
+    foreach ($allGames as $game) {
         $filteredGames[] = array_intersect_key($game, array_flip($selectedFields));
     }
 
-    return $filteredGames;
+    // Limiting the number of games to 100
+    return array_slice($filteredGames, 0, 100);
 }
 
 // 3. Fungsi Game Terbaru
@@ -74,6 +91,7 @@ if (isset($_GET['terfilter'])){
     if (isset($_GET['platform'])) $filters['platform'] = $_GET['platform'];
     if (isset($_GET['genre'])) $filters['genre'] = $_GET['genre'];
     if (isset($_GET['harga'])) $filters['harga'] = $_GET['harga'];
+    if (isset($_GET['sort'])) $filters['sort'] = $_GET['sort'];
 
     // Get filtered games
     $filteredGames = getFilteredGames($allGames, $filters);

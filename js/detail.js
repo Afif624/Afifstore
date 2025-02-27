@@ -1,4 +1,3 @@
-// Function to get product ID from URL parameters
 function getFilename() {
     var segments = window.location.pathname.split('/');
     var toDelete = [];
@@ -14,389 +13,223 @@ function getFilename() {
     return filename;
 }
 
-// Function to get product ID from URL parameters
 function getProductIdFromUrl() {
     var urlParams = new URLSearchParams(window.location.search);
     var productId = urlParams.get('id');
     return productId;
 }
 
-function loadProductDetails(productId, file) {
+function loadDetails(productId, file) {
     let productData = {};
 
-    fetch(`php/produk_one.php?id=${productId}`)
-        .then(response => {
-            console.log('Response from produk_one.php:', response); // Log respons mentah
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.text(); // Ubah sementara ke .text() untuk melihat respons mentah
-        })
-        .then(text => {
-            console.log('Raw data from produk_one.php:', text); // Log teks respons
-            return JSON.parse(text); // Coba parse teks ke JSON
-        })
-        .then(data => {
-            productData = { ...productData, ...data };
-            return fetch(`php/login_check.php?id=${productId}`);
-        })
-        .then(response => {
-            console.log('Response from login_check.php:', response); // Log respons mentah
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.text(); // Ubah sementara ke .text() untuk melihat respons mentah
-        })
-        .then(text => {
-            console.log('Raw data from login_check.php:', text); // Log teks respons
-            return JSON.parse(text); // Coba parse teks ke JSON
-        })
-        .then(data => {
-            productData = { ...productData, ...data };
-            return fetch(`php/yourreview.php?id=${productId}`);
-        })
-        .then(response => {
-            console.log('Response from yourreview.php:', response); // Log respons mentah
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.text(); // Ubah sementara ke .text() untuk melihat respons mentah
-        })
-        .then(text => {
-            console.log('Raw data from yourreview.php:', text); // Log teks respons
-            return JSON.parse(text); // Coba parse teks ke JSON
-        })
-        .then(data => {
-            productData.yourreview = data.yourreview;
-            return fetch(`php/wish.php?id=${productId}`);
-        })
-        .then(response => {
-            console.log('Response from wish.php:', response); // Log respons mentah
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.text(); // Ubah sementara ke .text() untuk melihat respons mentah
-        })
-        .then(text => {
-            console.log('Raw data from wish.php:', text); // Log teks respons
-            return JSON.parse(text); // Coba parse teks ke JSON
-        })
-        .then(data => {
-            productData.wish_status = data.wish_status;
-            return fetch(`php/cart.php?id=${productId}`);
-        })
-        .then(response => {
-            console.log('Response from cart.php:', response); // Log respons mentah
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.text(); // Ubah sementara ke .text() untuk melihat respons mentah
-        })
-        .then(text => {
-            console.log('Raw data from cart.php:', text); // Log teks respons
-            return JSON.parse(text); // Coba parse teks ke JSON
-        })
-        .then(data => {
-            productData.cart_status = data.cart_status;
-            return fetch(`php/order.php?id=${productId}`);
-        })
-        .then(response => {
-            console.log('Response from order.php:', response); // Log respons mentah
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.text(); // Ubah sementara ke .text() untuk melihat respons mentah
-        })
-        .then(text => {
-            console.log('Raw data from order.php:', text); // Log teks respons
-            return JSON.parse(text); // Coba parse teks ke JSON
-        })
-        .then(data => {
-            productData.order_status = data.order_status;
-            renderProductDetails(productData, file);
-        })
-        .catch(error => {
-            console.error('Error in loadProductDetails:', error.message);
-            console.error('Stack trace:', error.stack); // Tampilkan stack trace untuk debugging
-        });
+    var endpoints = [
+        `php/produk_one.php?id=${productId}`,
+        `php/login_check.php?id=${productId}`,
+        `php/yourreview.php?id=${productId}`,
+        `php/wish.php?id=${productId}`,
+        `php/cart.php?id=${productId}`,
+        `php/order.php?id=${productId}`
+    ];
+
+    Promise.all(endpoints.map(endpoint => 
+        fetch(endpoint)
+            .then(response => {
+                console.log(`Response from ${endpoint}:`, response); // Log raw response
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return response.text(); // Temporarily switch to .text() to see raw response
+            })
+            .then(text => {
+                console.log(`Raw data from ${endpoint}:`, text); // Log raw text response
+                return JSON.parse(text); // Try parsing text to JSON
+            })
+    ))
+    .then(dataArray => {
+        productData = {
+            ...productData,
+            ...dataArray[0],
+            ...dataArray[1],
+            yourreview: dataArray[2].yourreview,
+            wish_status: dataArray[3].wish_status,
+            cart_status: dataArray[4].cart_status,
+            order_status: dataArray[5].order_status
+        };
+        console.log(productData);
+        renderProductDetails(productData, file);
+        renderSimilars(productData.similarGames);
+    })
+    .catch(error => {
+        console.error('Error in loadDetails:', error.message);
+        console.error('Stack trace:', error.stack); // Show stack trace for debugging
+    });
 }
 
 // Fungsi untuk menampilkan detail produk
 function renderProductDetails(data, file) {
-    console.log(data);
     var game = data.game;
     var added = game.added_by_status;
 
     var reviews = data.reviews;
-
     var user_name = data.nama_user;
     var user_email = data.email_user;
-
     var wishStatus = data.wish_status;
     var cartStatus = data.cart_status;
     var orderStatus = data.order_status;
 
-    function renderScreenShots(image, screenshots) {
-        var html = '';
-        if (image != null){
-            html += '<div class="carousel-item">';
-            html += '<img class="w-100 h-100" src="'+ image +'" alt="Image">';
-            html += '</div>';
-        }
-        if (screenshots != null){
+    function renderScreenShots(image1, image2, screenshots) {
+        let html = `<div class="carousel-item active"><img class="w-100 h-100" src="${image1}" alt="Image"></div>`;
+        if (image2) html += `<div class="carousel-item"><img class="w-100 h-100" src="${image2}" alt="Image"></div>`;
+        if (screenshots) {
             screenshots.forEach(screenshot => {
-                html += '<div class="carousel-item">';
-                html += '<img class="w-100 h-100" src="'+ screenshot.image +'" alt="Image">';
-                html += '</div>';
+                html += `<div class="carousel-item"><img class="w-100 h-100" src="${screenshot.image}" alt="Image"></div>`;
             });
         }
         return html;
-    }
-
+    }    
+    
     function renderRatingStars(rating) {
-        var html = '';
+        let html = '';
         var fullStars = Math.floor(rating);
         var hasHalfStar = rating % 1 !== 0;
         var emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
     
-        for (let i = 0; i < fullStars; i++) {
-            html += '<small class="fa fa-star"></small>';
-        }
-        if (hasHalfStar) {
-            html += '<small class="fa fa-star-half-alt"></small>';
-        }
-        for (let i = 0; i < emptyStars; i++) {
-            html += '<small class="far fa-star"></small>';
-        }
+        html += '<small class="fa fa-star"></small>'.repeat(fullStars);
+        if (hasHalfStar) html += '<small class="fa fa-star-half-alt"></small>';
+        html += '<small class="far fa-star"></small>'.repeat(emptyStars);
+    
         return html;
     }
-
+    
     function renderGenres(genres) {
-        var html = '';
-        genres.forEach((genre, index) => {
-            html += genre.name;
-            if (index < genres.length - 1) {
-                html += ', ';
-            }
-        });
-        return html;
+        return genres.map((genre, index) => index < genres.length - 1 ? `${genre.name}, ` : genre.name).join('');
     }
-
+    
     function renderPlatforms(platforms) {
-        var html = '';
-        platforms.forEach((platform, index) => {
-            var plat = platform.platform;
-            html += plat.name;
-            if (index < platforms.length - 1) {
-                html += ', ';
-            }
-        });
-        return html;
+        return platforms.map((platform, index) => index < platforms.length - 1 ? `${platform.platform.name}, ` : platform.platform.name).join('');
     }
-
+    
     function renderDevelopers(developers) {
-        var html = '';
-        developers.forEach((developer, index) => {
-            html += developer.name;
-            if (index < developers.length - 1) {
-                html += ', ';
-            }
-        });
-        return html;
+        return developers.map((developer, index) => index < developers.length - 1 ? `${developer.name}, ` : developer.name).join('');
     }
-
+    
     function renderPublishers(publishers) {
-        var html = '';
-        publishers.forEach((publisher, index) => {
-            html += publisher.name;
-            if (index < publishers.length - 1) {
-                html += ', ';
-            }
-        });
-        return html;
+        return publishers.map((publisher, index) => index < publishers.length - 1 ? `${publisher.name}, ` : publisher.name).join('');
     }
-
-    function renderButtons(order, wish, cart, id, file){
-        var html = '';
-        if (order > 0){
-            html += '<form method="post" class="mr-3">';
-            html += '<button class="btn btn-primary px-3" disabled>Sudah Anda Beli</button>';
-            html += '</form>';
+    
+    function renderAddedOptions(added) {
+        return `
+            ${Object.keys(added).map(key => `
+                <div class="custom-control custom-radio custom-control-inline">
+                    <input type="radio" class="custom-control-input" id="${key}" name="${key}" disabled>
+                    <label class="custom-control-label" for="${key}">${added[key]} ${key.charAt(0).toUpperCase() + key.slice(1)}</label>
+                </div>
+            `).join('')}
+        `;
+    }
+    
+    function renderButtons(order, wish, cart, id, file) {
+        let html = '';
+        var formHtml = (action, buttonClass, buttonText, name) => 
+            `<form method="post" action="php/${action}.php" class="mr-3">
+                <input type="hidden" name="sourcePage" value="${file}?id=${id}" />
+                <button class="btn btn-primary px-3" type="submit" name="${name}"><i class="${buttonClass}"></i>${buttonText}</button>
+            </form>`;
+    
+        if (order) {
+            html += '<form method="post" class="mr-3"><button class="btn btn-primary px-3" disabled>Sudah Anda Beli</button></form>';
         } else {
-            if (wish > 0){
-                html += '<form method="post" action="php/wish.php?id_produk='+ id +'" class="mr-3">';
-                html += '<input type="hidden" name="sourcePage" value="'+ file +'?id='+ id +'" />';
-                html += '<button class="btn btn-primary px-3" type="submit" name="delete"><i class="far fa-heart mr-1"></i> Delete From Wishlist</button>';
-                html += '</form>';
-            } else {
-                html += '<form method="post" action="php/wish.php" class="mr-3">';
-                html += '<input type="hidden" name="id_produk" value="'+ id +'">';
-                html += '<button class="btn btn-primary px-3" type="submit" name="add"><i class="far fa-heart mr-1"></i> Add To Wishlist</button>';
-                html += '</form>';
-            }
-
-            if (cart > 0){
-                html += '<form method="post" action="php/cart.php?id_produk='+ id +'">';
-                html += '<input type="hidden" name="sourcePage" value="'+ file +'?id='+ id +'" />';
-                html += '<button class="btn btn-primary px-3" type="submit" name="delete"><i class="fa fa-shopping-cart mr-1"></i> Delete From Cart</button>';
-                html += '</form>';
-            } else {
-                html += '<form method="post" action="php/cart.php">';
-                html += '<input type="hidden" name="id_produk" value="'+ id +'">';
-                html += '<button class="btn btn-primary px-3" type="submit" name="add"><i class="fa fa-shopping-cart mr-1"></i> Add To Cart</button>';
-                html += '</form>';
-            }
+            html += wish ? formHtml('wish', 'far fa-heart mr-1', 'Delete From Wishlist', 'delete') 
+                         : formHtml('wish', 'far fa-heart mr-1', 'Add To Wishlist', 'add');
+            html += cart ? formHtml('cart', 'fa fa-shopping-cart mr-1', 'Delete From Cart', 'delete') 
+                         : formHtml('cart', 'fa fa-shopping-cart mr-1', 'Add To Cart', 'add');
         }
         return html;
     }
+    
+    function renderReviews(reviews, gameName) {
+        var getAvatar = (avatar, user) => avatar || (user && user.avatar) || 'img/user.jpg';
+        var getAuthor = (author, user) => author || (user && user.username) || 'username';
+        var getEdited = edited => edited ? '(edited)' : '';
 
-    function renderReviews(reviews){
-        function getAvatar(avatar, user){
-            var html = '';
-            if(avatar != null){html += avatar}
-            else{
-                if(user != null && user.avatar != null){html += user.avatar}
-                else{html += 'img/user.jpg'}
-            }
-            return html;
+        function formatDateTime(dateTime) {
+            const date = new Date(dateTime);
+            const options = { 
+                year: 'numeric', 
+                month: '2-digit', 
+                day: '2-digit', 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit', 
+                hour12: false 
+            };
+        
+            return `${date.toLocaleDateString('en-GB', options)}`;
         }
-        function getAuthor(author, user){
-            var html = '';
-            if(author != null){html += author}
-            else{
-                if(user != null && user.username !=null){html += user.username}
-                else{html += 'username'}
-            }
-            return html;
-        }
-        function getEdited(edited){
-            var html = '';
-            if(edited != null){html += '(edited)';}
-            return html;
-        }
+    
+        if (!reviews.length) return '<h4 class="mb-4">No reviews yet</h4>';
+    
+        return `<h4 class="mb-4">Review for "${gameName}"</h4>` + reviews.map(review => 
+            `<div class="media mb-4">
+                <img src="${getAvatar(review.external_avatar, review.user)}" alt="Image" class="img-fluid mr-3 mt-1" style="width: 45px;">
+                <div class="media-body">
+                    <h6>${getAuthor(review.external_author, review.user)}<small> - <i>${formatDateTime(review.created)} ${getEdited(review.edited)}</i></small></h6>
+                    <div class="text-primary mb-2">
+                        ${'<i class="fas fa-star"></i>'.repeat(Math.floor(review.rating))}
+                        ${review.rating % 1 ? '<i class="fas fa-star-half-alt"></i>' : ''}
+                        ${'<i class="far fa-star"></i>'.repeat(5 - Math.floor(review.rating) - (review.rating % 1 ? 1 : 0))}
+                    </div>
+                    <p>${review.text}</p>
+                </div>
+            </div>`).join('');
+    }    
 
-        var html = '';
-        if (reviews.length > 0){
-            html += '<h4 class="mb-4">Review for "'+ game.name +'"</h4>';
-            reviews.forEach(review => {
-                html += '<div class="media mb-4">';
-                html += '<img src="'+ getAvatar(review.external_avatar, review.user) +'" alt="Image" class="img-fluid mr-3 mt-1" style="width: 45px;">';
-                html += '<div class="media-body">';
-                html += '<h6>'+ getAuthor(review.external_author, review.user) +'<small> - ';
-                html += '<i>'+ review.created +' '+ getEdited(review.edited)+'</i></small></h6>';
-                html += '<div class="text-primary mb-2">';
+    function renderYourReview(yourReview, game_id, user_name, user_email) {
+        var formHtml = (action, name) => `
+            <h4 class="mb-4">${action}</h4>
+            <form method="post" action="php/yourreview.php">
+                <div class="d-flex my-3">
+                    <p class="mb-0 mr-2">Your Rating * :</p>
+                    <div class="text-primary">
+                        <input type="hidden" id="rating" name="rating" value="${yourReview ? yourReview.rating : ''}">
+                        ${Array(5).fill(0).map((_, i) => `<i class="far fa-star" onclick="setRating(${i + 1})" id="star${i + 1}"></i>`).join('')}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="review">Your Review *</label>
+                    <textarea id="review" name="review" cols="30" rows="5" class="form-control" ${yourReview ? `value="${yourReview.review}"` : ''} required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="name">Your Name *</label>
+                    <input type="text" class="form-control" id="name" name="name" value="${user_name}" required readonly>
+                </div>
+                <div class="form-group">
+                    <label for="email">Your Email *</label>
+                    <input type="email" class="form-control" id="email" name="email" value="${user_email}" required readonly>
+                </div>
+                <input type="hidden" name="${yourReview ? 'id_review' : 'id_produk'}" value="${yourReview ? yourReview.id_review : game_id}">
+                <input type="hidden" name="${name}" value="1">
+                <div class="form-group mb-0">
+                    <input type="submit" value="${action}" class="btn btn-primary px-3" name="">
+                </div>
+            </form>`;
+    
+        return yourReview ? formHtml('Edit Your Review', 'edit') : formHtml('Leave a Review', 'add');
+    }    
 
-                var fullStars = Math.floor(review.rating);
-                var hasHalfStar = review.rating % 1 !== 0;
-                var emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-                for (let i = 0; i < fullStars; i++) {
-                    html += '<i class="fas fa-star"></i>';
-                }
-                if (hasHalfStar) {
-                    html += '<i class="fas fa-star-half-alt"></i>';
-                }
-                for (let i = 0; i < emptyStars; i++) {
-                    html += '<i class="far fa-star"></i>';
-                }
-
-                html += '</div>';
-                html += '<p>'+ review.text +'</p>';
-                html += '</div>';
-                html += '</div>';
-            });
-        } else {
-            html += '<h4 class="mb-4">No reviews yet</h4>';
-        }
-        return html;
-    }
-
-    function renderYourReview(yourReview, game_id, user_name, user_email){
-        var html = '';
-        if (yourReview != null){
-            html += `
-                <h4 class="mb-4">Edit a review</h4>
-                <form method="post" action="php/yourreview.php">
-                    <div class="d-flex my-3">
-                        <p class="mb-0 mr-2">Your Rating * :</p>
-                        <div class="text-primary">
-                            <input type="hidden" id="rating" name="rating" value="${yourReview.rating}">
-                            <i class="far fa-star" onclick="setRating(1)" id="star1"></i>
-                            <i class="far fa-star" onclick="setRating(2)" id="star2"></i>
-                            <i class="far fa-star" onclick="setRating(3)" id="star3"></i>
-                            <i class="far fa-star" onclick="setRating(4)" id="star4"></i>
-                            <i class="far fa-star" onclick="setRating(5)" id="star5"></i>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="review">Your Review *</label>
-                        <textarea id="review" name="review" cols="30" rows="5" class="form-control" value="${yourReview.review}" required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="date">Your Review Date *</label>
-                        <input type="date" class="form-control" id="date" name="date" value="${yourReview.tanggal}" required readonly>
-                    </div>
-                    <div class="form-group">
-                        <label for="name">Your Name *</label>
-                        <input type="text" class="form-control" id="name" name="name" value="${user_name}" required readonly>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Your Email *</label>
-                        <input type="email" class="form-control" id="email" name="email" value="${user_email}" required readonly>
-                    </div>
-                    <input type="hidden" name="id_review" value="${yourReview.id_review}">
-                    <input type="hidden" name="edit" value="edit">
-                    <div class="form-group mb-0">
-                        <input type="submit" value="Edit Your Review" class="btn btn-primary px-3">
-                    </div>
-                </form>`;
-        } else {
-            html += `
-                <h4 class="mb-4">Leave a review</h4>
-                <form method="post" action="php/yourreview.php">
-                    <div class="d-flex my-3">
-                        <p class="mb-0 mr-2">Your Rating * :</p>
-                        <div class="text-primary">
-                            <input type="hidden" id="rating" name="rating" value="">
-                            <i class="far fa-star" onclick="setRating(1)" id="star1"></i>
-                            <i class="far fa-star" onclick="setRating(2)" id="star2"></i>
-                            <i class="far fa-star" onclick="setRating(3)" id="star3"></i>
-                            <i class="far fa-star" onclick="setRating(4)" id="star4"></i>
-                            <i class="far fa-star" onclick="setRating(5)" id="star5"></i>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="review">Your Review *</label>
-                        <textarea id="review" name="review" cols="30" rows="5" class="form-control" required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="name">Your Name *</label>
-                        <input type="text" class="form-control" id="name" name="name" value="${user_name}" required readonly>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Your Email *</label>
-                        <input type="email" class="form-control" id="email" name="email" value="${user_email}" required readonly>
-                    </div>
-                    <input type="hidden" name="id_produk" value="${game_id}">
-                    <input type="hidden" name="edit" value="edit">
-                    <div class="form-group mb-0">
-                        <input type="submit" value="Leave Your Review" class="btn btn-primary px-3">
-                    </div>
-                </form>`;
-        }
-        return html;
-    }
-
-    var html = '';
-    html += `
+    var generateGameHTML = (game, added, reviews, orderStatus, wishStatus, cartStatus, file, user_name, user_email) => `
         <div class="row px-xl-5">
             <div class="col-lg-5 mb-30">
                 <div id="product-carousel" class="carousel slide" data-ride="carousel">
                     <div class="carousel-inner bg-light">
-                        <div class="carousel-item active">
-                            <img class="w-100 h-100" src="${game.background_image}" alt="Image">
-                        </div>
-                        ${renderScreenShots(game.background_image_additional, game.short_screenshots)}
+                        ${renderScreenShots(game.background_image, game.background_image_additional, game.short_screenshots)}
                     </div>
+                    <a class="carousel-control-prev" href="#product-carousel" role="button" data-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="carousel-control-next" href="#product-carousel" role="button" data-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Next</span>
+                    </a>
                 </div>
             </div>
 
@@ -420,30 +253,7 @@ function renderProductDetails(data, file) {
                     </div>
                     <div class="d-flex mb-4">
                         <strong class="text-dark mr-3">Added:</strong>
-                        <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="beaten" name="beaten" disabled>
-                            <label class="custom-control-label" for="beaten">${added.beaten} Beaten</label>
-                        </div>
-                        <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="dropped" name="dropped" disabled>
-                            <label class="custom-control-label" for="dropped">${added.dropped} Dropped</label>
-                        </div>
-                        <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="owned" name="owned" disabled>
-                            <label class="custom-control-label" for="owned">${added.owned} Owned</label>
-                        </div>
-                        <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="playing" name="playing" disabled>
-                            <label class="custom-control-label" for="playing">${added.playing} Playing</label>
-                        </div>
-                        <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="toplay" name="toplay" disabled>
-                            <label class="custom-control-label" for="toplay">${added.toplay} Toplay</label>
-                        </div>
-                        <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="yet" name="yet" disabled>
-                            <label class="custom-control-label" for="yet">${added.yet} Yet</label>
-                        </div>
+                        ${renderAddedOptions(added)}
                     </div>
                     <div class="d-flex align-items-center mb-4 pt-2">
                         ${renderButtons(orderStatus, wishStatus, cartStatus, game.id, file)}
@@ -512,104 +322,97 @@ function renderProductDetails(data, file) {
         </div>
     `;
 
-    $('.shop-detail').html(html);
-    renderSimilars(data.similarGames);
+    $('.shop-detail').html(generateGameHTML(game, added, reviews, orderStatus, wishStatus, cartStatus, file, user_name, user_email));
 }
 
 function setRating(rating) {
-    // Atur nilai rating ke input tersembunyi
     document.getElementById('rating').value = rating;
 
-    // Perbarui tampilan bintang berdasarkan rating yang dipilih
     for (let i = 1; i <= 5; i++) {
-        var star = document.getElementById('star' + i);
-        if (i <= rating) {
-            star.classList.remove('far');
-            star.classList.add('fas');
-        } else {
-            star.classList.remove('fas');
-            star.classList.add('far');
-        }
+        let star = document.getElementById('star' + i);
+        star.classList.toggle('fas', i <= rating);
+        star.classList.toggle('far', i > rating);
     }
 }
 
 function renderSimilars(similars) {
     var productsContainer = document.querySelector('.shop-similar');
-    productsContainer.innerHTML = "";
-    var htmlContent = ``;
-    if (similars.length > 0) {
-        htmlContent += `<div class="owl-carousel related-carousel" id="carousel-container">`;
-        similars.forEach(function(similar) {
-            function generateRatingStars(rating) {
-                let stars = '';
-                const fullStars = Math.floor(rating);
-                const hasHalfStar = rating % 1 !== 0;
-                const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-            
-                for (let i = 0; i < fullStars; i++) {
-                    stars += '<small class="fa fa-star text-primary mr-1"></small>';
-                }
-                if (hasHalfStar) {
-                    stars += '<small class="fa fa-star-half-alt text-primary mr-1"></small>';
-                }
-                for (let i = 0; i < emptyStars; i++) {
-                    stars += '<small class="far fa-star text-primary mr-1"></small>';
-                }
-                return stars;
-            }
 
+    function renderRatingStars(rating) {
+        let stars = '';
+        var fullStars = Math.floor(rating);
+        var hasHalfStar = rating % 1 !== 0;
+        var emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+    
+        for (let i = 0; i < fullStars; i++) {
+            stars += '<small class="fa fa-star text-primary mr-1"></small>';
+        }
+        if (hasHalfStar) {
+            stars += '<small class="fa fa-star-half-alt text-primary mr-1"></small>';
+        }
+        for (let i = 0; i < emptyStars; i++) {
+            stars += '<small class="far fa-star text-primary mr-1"></small>';
+        }
+        return stars;
+    }
+
+    function renderSimilarProductsHTML(similars) {
+        let htmlContent = `<div class="owl-carousel related-carousel" id="carousel-container">`;
+        similars.forEach(similar => {
             htmlContent += `
-            <div class="product-item bg-light">
-                <div class="product-img position-relative overflow-hidden">
-                    <img class="img-fluid w-100" src="${similar.background_image}" alt="${similar.name}">
-                    <div class="product-action">
-                        <form method="post" action="php/cart.php">
-                            <input type="hidden" name="id_produk" value="${similar.id}">
-                            <a class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="fa fa-shopping-cart"></i></a>
-                        </form>
-                        <form method="post" action="php/wish.php">
-                            <input type="hidden" name="id_produk" value="${similar.id}">
-                            <a class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="far fa-heart"></i></a>
-                        </form>
+                <div class="product-item bg-light">
+                    <div class="product-img position-relative overflow-hidden">
+                        <img class="img-fluid w-100" src="${similar.background_image}" alt="${similar.name}">
+                        <div class="product-action">
+                            <form method="post" action="php/cart.php">
+                                <input type="hidden" name="id_produk" value="${similar.id}">
+                                <a class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="fa fa-shopping-cart"></i></a>
+                            </form>
+                            <form method="post" action="php/wish.php">
+                                <input type="hidden" name="id_produk" value="${similar.id}">
+                                <a class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="far fa-heart"></i></a>
+                            </form>
+                        </div>
                     </div>
-                </div>
-                <div class="text-center py-4">
-                    <a class="h6 text-decoration-none text-truncate" href="detail.html?id=${similar.id}">${similar.name}</a>
-                    <div class="d-flex align-items-center justify-content-center mt-2">
-                        <h5>Rp ${similar.price}</h5>
+                    <div class="text-center py-4">
+                        <a class="h6 text-decoration-none text-truncate" href="detail.html?id=${similar.id}">${similar.name}</a>
+                        <div class="d-flex align-items-center justify-content-center mt-2">
+                            <h5>Rp ${similar.price}</h5>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center mb-1">
+                            ${renderRatingStars(similar.rating)}
+                            <small>(${similar.ratings_count})</small>
+                        </div>
                     </div>
-                    <div class="d-flex align-items-center justify-content-center mb-1">
-                        ${generateRatingStars(similar.rating)}
-                        <small>(${similar.ratings_count})</small>
-                    </div>
-                </div>
-            </div>`;
+                </div>`;
         });
         htmlContent += `</div>`;
-    } else {
-        htmlContent += `
-        <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4">
-            <span class="bg-secondary pr-3">No similars found</span>
-        </h2>`;
+        return htmlContent;
     }
-    productsContainer.innerHTML = htmlContent;
+    
+    function renderNoSimilarsFoundHTML() {
+        return `
+            <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4">
+                <span class="bg-secondary pr-3">No similars found</span>
+            </h2>`;
+    }
 
-    // Assuming you have loaded the HTML using innerHTML
-    var carouselContainer = document.getElementById('carousel-container');
+    productsContainer.innerHTML = similars.length > 0 ? renderSimilarProductsHTML(similars) : renderNoSimilarsFoundHTML();
+    initializeOwlCarousel();
+}
 
-    // Initialize owl carousel
-    $(carouselContainer).owlCarousel({
+function initializeOwlCarousel() {
+    $('#carousel-container').owlCarousel({
         loop: true,
         autoplay: true
     });
 }
 
-// Memuat detail produk saat halaman dimuat
 $(document).ready(function() {
     var filename = getFilename();
     var productId = getProductIdFromUrl();
     if (productId) {
-        loadProductDetails(productId, filename);
+        loadDetails(productId, filename);
     } else {
         console.error('Product ID not found in URL.');
     }

@@ -35,6 +35,7 @@ function getAllGames($apiKey) {
             return [
                 'id' => $game['id'],
                 'name' => $game['name'],
+                'released' => $game['released'],
                 'genres' => array_map(function($genre) {
                     return $genre['id'];
                 }, $game['genres']),
