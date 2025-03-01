@@ -1,13 +1,67 @@
 <?php 
-// Include file koneksi ke database
-include_once("produk_list_all.php");
+session_start();
+$apiKey = 'ffa2dafa779f4fa58f39bdef9851c466';
 
-// 2. Fungsi untuk mendapatkan satu game berdasarkan ID (Multi-page untuk data tambahan jika ada)
+function fetchDataFromRAWGAPI($url) {
+    $response = file_get_contents($url);
+    if ($response === FALSE) {
+        die('Error fetching data from RAWG API');
+    }
+    return json_decode($response, true);
+}
+
+function getRandomPrice($min, $max) {
+    return rand($min, $max);
+}
+
+function getAllGames($apiKey) {
+    $rawgUrl = "https://api.rawg.io/api/games?key={$apiKey}&page_size=40";
+    $allgames = [];
+    $nextPageUrl = $rawgUrl;
+    
+    while ($nextPageUrl && count($allgames) < 100) {
+        $data = fetchDataFromRAWGAPI($nextPageUrl);
+        $games = array_map(function($game) {
+            return [
+                'id' => $game['id'],
+                'name' => $game['name'],
+                'background_image' => $game['background_image'],
+                'rating' => $game['rating'],
+                'ratings_count' => $game['ratings_count'],
+                'genres' => array_map(function($genre) {
+                    return $genre['id'];
+                }, $game['genres']),
+                'platforms' => array_map(function($platform) {
+                    return $platform['platform']['id'];
+                }, $game['platforms']),
+                'released' => $game['released']
+            ];
+        }, $data['results']);
+        $games = array_map(function($game) {
+            $hargaKey = "harga_{$game['id']}";
+            $harga = isset($_SESSION[$hargaKey]) ? $_SESSION[$hargaKey] : getRandomPrice(100000, 1000000);
+            $_SESSION[$hargaKey] = $harga;
+            $game['price'] = $harga;
+            return $game;
+        }, $games);
+        $allGames = array_merge($allGames, $games);
+        
+        $nextPageUrl = $data['next'];
+    }
+
+    $selectedFields = ['id', 'name', 'background_image', 'price', 'rating', 'ratings_count'];
+    $resultGames = [];
+    foreach ($allgames as $game) {
+        $resultGames[] = array_intersect_key($game, array_flip($selectedFields));
+    }
+
+    return $resultGames;
+}
+
 function getGameById($apiKey, $gameId) {
     $rawgUrl = "https://api.rawg.io/api/games/{$gameId}?key={$apiKey}";
     $game = fetchDataFromRAWGAPI($rawgUrl);
     
-    // Extracting only the required fields
     if (isset($_GET['list'])){
         $selectedFields = [
             'id', 'name', 'background_image',
@@ -23,20 +77,16 @@ function getGameById($apiKey, $gameId) {
     }
     
     $oneGame = array_intersect_key($game, array_flip($selectedFields));
-    
-    // Add price to the filtered game
     $hargaKey = "harga_{$oneGame['id']}";
     $harga = isset($_SESSION[$hargaKey]) ? $_SESSION[$hargaKey] : getRandomPrice(100000, 1000000);
-    $_SESSION[$hargaKey] = $harga; // Simulate localStorage
+    $_SESSION[$hargaKey] = $harga;
     $oneGame['price'] = $harga;
-    
-    // Fetch all screenshots with pagination
     $shortScreenshots = [];
     $page = 1;
+
     do {
         $screenshotsUrl = "https://api.rawg.io/api/games/{$gameId}/screenshots?key={$apiKey}&page={$page}";
         $screenshotsData = fetchDataFromRAWGAPI($screenshotsUrl);
-        
         if (isset($screenshotsData['results'])) {
             $shortScreenshots = array_merge($shortScreenshots, $screenshotsData['results']);
         }
@@ -45,11 +95,9 @@ function getGameById($apiKey, $gameId) {
     } while (isset($screenshotsData['next']));
     
     $oneGame['short_screenshots'] = $shortScreenshots;
-    
     return $oneGame;
 }
 
-// 3. Fungsi untuk mendapatkan review game berdasarkan ID (Multi-page)
 function getGameReviews($apiKey, $gameId) {
     $rawgUrl = "https://api.rawg.io/api/games/{$gameId}/reviews?key={$apiKey}";
     $allReviews = [];
@@ -58,64 +106,53 @@ function getGameReviews($apiKey, $gameId) {
     do {
         $reviewData = fetchDataFromRAWGAPI($nextPageUrl);
         $allReviews = array_merge($allReviews, $reviewData['results']);
-        $nextPageUrl = $reviewData['next']; // URL halaman berikutnya
-    } while ($nextPageUrl); // Lanjutkan selama ada halaman berikutnya
+        $nextPageUrl = $reviewData['next'];
+    } while ($nextPageUrl);
 
     return $allReviews;
 }
 
-// 4. Function to calculate similarity score between two games
 function calculateSimilarity($game1, $game2) {
     $score = 0;
 
-    // Compare genres
     $genres1 = array_column($game1['genres'], 'id');
     $genres2 = $game2['genres'];
     $commonGenres = array_intersect($genres1, $genres2);
     $score += count($commonGenres) * 10;
 
-    // Compare tags
     $tags1 = array_column($game1['tags'], 'id');
     $tags2 = $game2['tags'];
     $commonTags = array_intersect($tags1, $tags2);
     $score += count($commonTags) * 5;
 
-    // Compare platforms
     $platforms1 = array_column(array_column($game1['platforms'], 'platform'), 'id');
     $platforms2 = $game2['platforms'];
     $commonPlatforms = array_intersect($platforms1, $platforms2);
     $score += count($commonPlatforms) * 3;
 
-    // Compare rating
     $ratingDiff = abs($game1['rating'] - $game2['rating']);
     $score -= $ratingDiff * 2;
 
     return $score;
 }
 
-// 5. Function to get 20 most similar games
-function getSimilarGames($apiKey, $gameId, $allGames) {
+function getSimilarGames($apiKey, $gameId) {
+    $allGames = getAllGames($apiKey)
     $targetGame = getGameById($apiKey, $gameId);
 
-    // Calculate similarity scores for all games
     $similarityScores = [];
     foreach ($allGames as $game) {
         if ($game['id'] != $targetGame['id']) {
             $similarityScores[$game['id']] = calculateSimilarity($targetGame, $game);
         }
     }
-
-    // Sort games by similarity score in descending order
     arsort($similarityScores);
 
-    // Extracting only the required fields
     $selectedFields = [
         'id', 'name', 'background_image',
         'price', 'rating', 'ratings_count',
         'genres', 'tags', 'platforms'
     ];
-
-    // Get top 20 most similar games
     $similarGames = [];
     $count = 0;
     foreach ($similarityScores as $id => $score) {
@@ -136,9 +173,7 @@ if (isset($_GET['list'])){
     $data = ['game' => $game];
 } else {
     $reviews = getGameReviews($apiKey, $gameId);
-    $similarGames = getSimilarGames($apiKey, $gameId, $allGames);
-
-    // Send both game and reviews to JS
+    $similarGames = getSimilarGames($apiKey, $gameId);
     $data = [
         'game' => $game,
         'reviews' => $reviews,
@@ -146,7 +181,6 @@ if (isset($_GET['list'])){
     ];
 }
 
-// Mengirimkan data produk sebagai respons JSON
 header('Content-Type: application/json');
 echo json_encode($data);
 ?>

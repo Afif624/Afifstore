@@ -91,20 +91,11 @@ function updateFilterStorage() {
     alert('Filter updated!');
 }
 
-document.querySelectorAll('.dropdown-item').forEach(function(item) {
-    item.addEventListener('click', function(event) {
-        event.preventDefault();
-        const sortCriteria = this.getAttribute('data-sort');
-        localStorage.setItem('sortCriteria', sortCriteria);
-        location.reload();
-    });
-});
-
 function loadProductData() {
     var filterStorage = JSON.parse(localStorage.getItem('filterStorage'));
     var sortCriteria = localStorage.getItem('sortCriteria') || 'latest';
     let url = `php/produk_list.php?terfilter=1&sort=${sortCriteria}`;
-
+    
     if (filterStorage) {
         var { platform, genre, harga } = filterStorage;
         url += platform.length ? `&platform=${platform.join(",")}` : "";
@@ -113,13 +104,13 @@ function loadProductData() {
     }
 
     fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            ProductsData = data.terfilter;
-            renderProducts(currentPage);
-            renderPagination();
-        })
-        .catch(error => console.error('Error:', error));
+    .then(response => response.json())
+    .then(data => {
+        ProductsData = data.terfilter;
+        renderProducts(currentPage);
+        renderPagination();
+    })
+    .catch(error => console.error('Error:', error));
 }
 
 function renderProducts(page) {
@@ -130,36 +121,104 @@ function renderProducts(page) {
     rowProduk.innerHTML = slicedData.map(product => {
         var ratingStars = generateRatingStars(product.rating);
         return `
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <div class="product-item bg-light mb-4">
-                    <div class="product-img position-relative overflow-hidden">
-                        <img class="img-fluid w-100" src="${product.background_image}" alt="${product.name}">
-                        <div class="product-action">
-                            <form method="post" action="php/cart.php">
-                                <input type="hidden" name="id_produk" value="${product.id}">
-                                <a class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="fa fa-shopping-cart"></i></a>
-                            </form>
-                            <form method="post" action="php/wish.php">
-                                <input type="hidden" name="id_produk" value="${product.id}">
-                                <a class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="far fa-heart"></i></a>
-                            </form>
-                            <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-sync-alt"></i></a>
-                        </div>
+        <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+            <div class="product-item bg-light mb-4">
+                <div class="product-img position-relative overflow-hidden">
+                    <img class="img-fluid w-100" src="${product.background_image}" alt="${product.name}">
+                    <div class="product-action">
+                        <form method="post" action="php/cart.php">
+                            <input type="hidden" name="id_produk" value="${product.id}">
+                            <a class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="fa fa-shopping-cart"></i></a>
+                        </form>
+                        <form method="post" action="php/wish.php">
+                            <input type="hidden" name="id_produk" value="${product.id}">
+                            <a class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="far fa-heart"></i></a>
+                        </form>
+                        <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-sync-alt"></i></a>
                     </div>
-                    <div class="text-center py-4">
-                        <a class="h6 text-decoration-none product-name" href="detail.html?id=${product.id}">${product.name}</a>
-                        <div class="d-flex align-items-center justify-content-center mt-2">
-                            <h5>Rp ${product.price}</h5>
-                        </div>
-                        <div class="d-flex align-items-center justify-content-center mb-1">
-                            ${ratingStars}
-                            <small>(${product.ratings_count})</small>
-                        </div>
+                </div>
+                <div class="text-center py-4">
+                    <a class="h6 text-decoration-none product-name" href="detail.html?id=${product.id}">${product.name}</a>
+                    <div class="d-flex align-items-center justify-content-center mt-2">
+                        <h5>Rp ${product.price}</h5>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-center mb-1">
+                        ${ratingStars} <small>(${product.ratings_count})</small>
                     </div>
                 </div>
             </div>
+        </div>
         `;
     }).join('');
+}
+
+function renderPagination() {
+    var totalPages = Math.ceil(ProductsData.length / ProductsPerPage);
+    var pagination = document.getElementById("pagination-rekom");
+
+    var paginationLinks = '';
+    var startPage = Math.max(1, currentPage - 2);
+    var endPage = Math.min(totalPages, currentPage + 2);
+
+    if (startPage > 1) {
+        paginationLinks += `<li class="page-item"><a class="page-link" href="#">1</a></li>`;
+        if (startPage > 2) {
+            paginationLinks += `<li class="page-item"><a class="page-link">...</a></li>`;
+        }
+    }
+
+    for (var i = startPage; i <= endPage; i++) {
+        paginationLinks += `<li class="page-item${i === currentPage ? ' active' : ''}"><a class="page-link" href="#">${i}</a></li>`;
+    }
+
+    if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+            paginationLinks += `<li class="page-item"><a class="page-link">...</a></li>`;
+        }
+        paginationLinks += `<li class="page-item"><a class="page-link" href="#">${totalPages}</a></li>`;
+    }
+
+    pagination.innerHTML = `
+        <li class="page-item"><a class="page-link" href="#" id="prev">Previous</a></li>
+        ${paginationLinks}
+        <li class="page-item"><a class="page-link" href="#" id="next">Next</a></li>
+    `;
+
+    updatePaginationState();
+
+    document.getElementById("prev").addEventListener("click", (event) => {
+        event.preventDefault();
+        if (currentPage > 1) {
+            currentPage--;
+            loadProductData();
+        }
+    });
+
+    document.getElementById("next").addEventListener("click", (event) => {
+        event.preventDefault();
+        if (currentPage < totalPages) {
+            currentPage++;
+            loadProductData();
+        }
+    });
+
+    document.querySelectorAll(".page-link").forEach(link => {
+        link.addEventListener("click", (event) => {
+            event.preventDefault();
+            var page = parseInt(event.target.innerText);
+            if (!isNaN(page)) {
+                currentPage = page;
+                loadProductData();
+            }
+        });
+    });
+}
+
+function updatePaginationState() {
+    document.querySelectorAll(".page-item").forEach((item) => {
+        var page = parseInt(item.querySelector(".page-link").innerText);
+        item.classList.toggle("active", page === currentPage);
+    });
 }
 
 function generateRatingStars(rating) {
@@ -174,56 +233,14 @@ function generateRatingStars(rating) {
     `;
 }
 
-function renderPagination() {
-    var totalPages = Math.ceil(ProductsData.length / ProductsPerPage);
-    var pagination = document.getElementById("pagination-rekom");
-
-    pagination.innerHTML = `
-        <li class="page-item"><a class="page-link" href="#" id="prev">Previous</a></li>
-        ${Array.from({ length: totalPages }, (_, i) => `
-            <li class="page-item"><a class="page-link" href="#">${i + 1}</a></li>
-        `).join('')}
-        <li class="page-item"><a class="page-link" href="#" id="next">Next</a></li>
-    `;
-
-    updatePaginationState();
-
-    document.getElementById("prev").addEventListener("click", (event) => {
+document.querySelectorAll('.dropdown-item').forEach(function(item) {
+    item.addEventListener('click', function(event) {
         event.preventDefault();
-        if (currentPage > 1) {
-            currentPage--;
-            renderProducts(currentPage);
-            updatePaginationState();
-        }
+        const sortCriteria = this.getAttribute('data-sort');
+        localStorage.setItem('sortCriteria', sortCriteria);
+        location.reload();
     });
-
-    document.getElementById("next").addEventListener("click", (event) => {
-        event.preventDefault();
-        if (currentPage < totalPages) {
-            currentPage++;
-            renderProducts(currentPage);
-            updatePaginationState();
-        }
-    });
-
-    document.querySelectorAll(".page-link").forEach(link => {
-        link.addEventListener("click", (event) => {
-            event.preventDefault();
-            var page = parseInt(event.target.innerText);
-            if (!isNaN(page)) {
-                currentPage = page;
-                renderProducts(currentPage);
-                updatePaginationState();
-            }
-        });
-    });
-}
-
-function updatePaginationState() {
-    document.querySelectorAll(".page-item").forEach((item, index) => {
-        item.classList.toggle("active", index === currentPage);
-    });
-}
+});
 
 $(document).ready(function() {
     initializeFilters();
