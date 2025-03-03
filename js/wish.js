@@ -73,8 +73,8 @@ function renderWishDetails(wishDetails) {
                             <td class="align-middle"><img src="${wish.background_image}" alt="" style="width: 50px;"></td>
                             <td class="align-middle">${wish.name}</td>
                             <td class="align-middle">Rp ${wish.price}</td>
-                            <td class="align-middle">${renderDetails(wish.developers)}</td>
-                            <td class="align-middle">${renderDetails(wish.publishers)}</td>
+                            <td class="align-middle">${renderDetails(wish.details.developers)}</td>
+                            <td class="align-middle">${renderDetails(wish.details.publishers)}</td>
                             <td class="align-middle">
                                 <form action="php/wish.php?id_produk=${wish.id}" method="POST">
                                     <input type="hidden" name="sourcePage" value="${renderFilename()}" />

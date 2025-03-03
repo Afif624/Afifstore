@@ -23,8 +23,9 @@ function loadDetails(productId, file) {
     let productData = {};
 
     var endpoints = [
-        `php/produk_one.php?id=${productId}`,
         `php/login_check.php?id=${productId}`,
+        `php/produk_one.php?id=${productId}`,
+        `php/produk_one_reviews.php?id=${productId}`,
         `php/yourreview.php?id=${productId}`,
         `php/wish.php?id=${productId}`,
         `php/cart.php?id=${productId}`,
@@ -34,13 +35,13 @@ function loadDetails(productId, file) {
     Promise.all(endpoints.map(endpoint => 
         fetch(endpoint)
             .then(response => {
-                console.log(`Response from ${endpoint}:`, response); // Log raw response
+                console.log(`Response from ${endpoint}:`, response);
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                return response.text(); // Temporarily switch to .text() to see raw response
+                return response.text();
             })
             .then(text => {
-                console.log(`Raw data from ${endpoint}:`, text); // Log raw text response
-                return JSON.parse(text); // Try parsing text to JSON
+                console.log(`Raw data from ${endpoint}:`, text);
+                return JSON.parse(text);
             })
     ))
     .then(dataArray => {
@@ -48,25 +49,26 @@ function loadDetails(productId, file) {
             ...productData,
             ...dataArray[0],
             ...dataArray[1],
-            yourreview: dataArray[2].yourreview,
-            wish_status: dataArray[3].wish_status,
-            cart_status: dataArray[4].cart_status,
-            order_status: dataArray[5].order_status
+            reviews: dataArray[2],
+            yourreview: dataArray[3],
+            wish_status: dataArray[4].wish_status,
+            cart_status: dataArray[5].cart_status,
+            order_status: dataArray[6].order_status
         };
         console.log(productData);
         renderProductDetails(productData, file);
-        renderSimilars(productData.similarGames);
+        renderSimilars(productData.similarGames, file);
     })
     .catch(error => {
         console.error('Error in loadDetails:', error.message);
-        console.error('Stack trace:', error.stack); // Show stack trace for debugging
+        console.error('Stack trace:', error.stack);
     });
 }
 
-// Fungsi untuk menampilkan detail produk
 function renderProductDetails(data, file) {
     var game = data.game;
     var added = game.added_by_status;
+    var details = game.details;
 
     var reviews = data.reviews;
     var user_name = data.nama_user;
@@ -129,7 +131,7 @@ function renderProductDetails(data, file) {
     function renderButtons(order, wish, cart, id, file) {
         let html = '';
         var formHtml = (action, buttonClass, buttonText, name) => 
-            `<form method="post" action="php/${action}.php" class="mr-3">
+            `<form method="post" action="php/${action}.php?id_produk=${id}" class="mr-3">
                 <input type="hidden" name="sourcePage" value="${file}?id=${id}" />
                 <button class="btn btn-primary px-3" type="submit" name="${name}"><i class="${buttonClass}"></i>${buttonText}</button>
             </form>`;
@@ -220,7 +222,7 @@ function renderProductDetails(data, file) {
             <div class="col-lg-5 mb-30">
                 <div id="product-carousel" class="carousel slide" data-ride="carousel">
                     <div class="carousel-inner bg-light">
-                        ${renderScreenShots(game.background_image, game.background_image_additional, game.short_screenshots)}
+                        ${renderScreenShots(game.background_image, details.background_image_additional, game.short_screenshots)}
                     </div>
                     <a class="carousel-control-prev" href="#product-carousel" role="button" data-slide="prev">
                         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -290,15 +292,15 @@ function renderProductDetails(data, file) {
                     <div class="tab-content">
                         <div class="tab-pane fade show active" id="tab-pane-1">
                             <h4 class="mb-3">Product Description</h4>
-                            <p>${game.description}</p>
+                            <p>${details.description}</p>
                         </div>
                         <div class="tab-pane fade" id="tab-pane-2">
                             <h4 class="mb-3">Additional Information</h4>
                             <div class="row">
                                 <div class="col-md-6">
                                     <ul class="list-group list-group-flush">
-                                        <li class="list-group-item px-0">Developer: ${renderDevelopers(game.developers)}</li>
-                                        <li class="list-group-item px-0">Publisher: ${renderPublishers(game.publishers)}</li>
+                                        <li class="list-group-item px-0">Developer: ${renderDevelopers(details.developers)}</li>
+                                        <li class="list-group-item px-0">Publisher: ${renderPublishers(details.publishers)}</li>
                                         <li class="list-group-item px-0">Release Date: ${game.released}</li>
                                     </ul>
                                 </div>
@@ -311,7 +313,7 @@ function renderProductDetails(data, file) {
                             </div>
                         </div>
                         <div class="tab-pane fade" id="tab-pane-3">
-                            ${renderReviews(reviews)}
+                            ${renderReviews(reviews, game.name)}
                         </div>
                         <div class="tab-pane fade" id="tab-pane-4">
                             ${renderYourReview(data.yourreview, game.id, user_name, user_email)}
@@ -335,7 +337,7 @@ function setRating(rating) {
     }
 }
 
-function renderSimilars(similars) {
+function renderSimilars(similars, file) {
     var productsContainer = document.querySelector('.shop-similar');
 
     function renderRatingStars(rating) {
@@ -364,13 +366,13 @@ function renderSimilars(similars) {
                     <div class="product-img position-relative overflow-hidden">
                         <img class="img-fluid w-100" src="${similar.background_image}" alt="${similar.name}">
                         <div class="product-action">
-                            <form method="post" action="php/cart.php">
-                                <input type="hidden" name="id_produk" value="${similar.id}">
-                                <a class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="fa fa-shopping-cart"></i></a>
+                            <form method="post" action="php/wish.php?id_produk=${similar.id}">
+                                <input type="hidden" name="sourcePage" value="${file}?id=${similar.id}">
+                                <button class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="far fa-heart"></i></button>
                             </form>
-                            <form method="post" action="php/wish.php">
-                                <input type="hidden" name="id_produk" value="${similar.id}">
-                                <a class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="far fa-heart"></i></a>
+                            <form method="post" action="php/cart.php?id_produk=${similar.id}">
+                                <input type="hidden" name="sourcePage" value="${file}?id=${similar.id}">
+                                <button class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="fa fa-shopping-cart"></i></button>
                             </form>
                         </div>
                     </div>

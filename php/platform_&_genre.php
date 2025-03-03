@@ -1,31 +1,45 @@
 <?php
-$apiKey = 'ffa2dafa779f4fa58f39bdef9851c466';
-$genreUrl = "https://api.rawg.io/api/genres?key={$apiKey}";
-$platformUrl = "https://api.rawg.io/api/platforms?key={$apiKey}";
-
-function getAllData($url) {
-    $allData = [];
-    do {
-        $response = file_get_contents($url);
-        $data = json_decode($response, true);
-        $allData = array_merge($allData, $data['results']);
-        $url = $data['next'];
-    } while ($url);
-    return $allData;
+function getAllData($filename) {
+    $data = file_get_contents($filename);
+    return json_decode($data, true);
 }
 
-$genres = getAllData($genreUrl);
-$platforms = getAllData($platformUrl);
+$genres = getAllData('../db/genres.json');
+$platforms = getAllData('../db/platforms.json');
+$games = getAllData('../db/games.json');
+
 $data = [
     'genre' => [],
     'platform' => []
 ];
 
+$genreGameCount = [];
+$platformGameCount = [];
+
+foreach ($games as $game) {
+    foreach ($game['genres'] as $genre) {
+        $genreId = $genre['id'];
+        if (!isset($genreGameCount[$genreId])) {
+            $genreGameCount[$genreId] = 0;
+        }
+        $genreGameCount[$genreId]++;
+    }
+
+    foreach ($game['platforms'] as $platform) {
+        $platformId = $platform['platform']['id'];
+        if (!isset($platformGameCount[$platformId])) {
+            $platformGameCount[$platformId] = 0;
+        }
+        $platformGameCount[$platformId]++;
+    }
+}
+
 foreach ($genres as $genre) {
     $genreId = $genre['id'];
     $genreName = $genre['name'];
     $genreImage = $genre['image_background'];
-    $gameCount = $genre['games_count'];
+
+    $gameCount = isset($genreGameCount[$genreId]) ? $genreGameCount[$genreId] : 0;
 
     $data['genre'][] = [
         'id' => $genreId,
@@ -39,7 +53,8 @@ foreach ($platforms as $platform) {
     $platformId = $platform['id'];
     $platformName = $platform['name'];
     $platformImage = $platform['image_background'];
-    $gameCount = $platform['games_count'];
+
+    $gameCount = isset($platformGameCount[$platformId]) ? $platformGameCount[$platformId] : 0;
 
     $data['platform'][] = [
         'id' => $platformId,
