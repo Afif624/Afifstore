@@ -6,7 +6,7 @@ function getAllData($filename) {
     return json_decode($data, true);
 }
 
-$games = getAllData('../db/games.json');
+$games = getAllData('../dataset/games.json');
 
 function getRandomPrice($min, $max) {
     return rand($min, $max);
@@ -23,7 +23,7 @@ function getFilteredGames($filters) {
         $game['price'] = $harga;
 
         if (isset($filters['platform'])) {
-            if (!in_array($filters['platform'], array_column($game['platforms'], 'platform.id'))) {
+            if (!in_array($filters['platform'], array_column(array_column($game['platforms'], 'platform'), 'id'))) {
                 continue;
             }
         }
@@ -90,6 +90,56 @@ function getLatestGames() {
     return $resultGames;
 }
 
+function getPopularGames() {
+    global $games;
+    $popularGames = [];
+
+    foreach ($games as $game) {
+        $hargaKey = "harga_{$game['id']}";
+        $harga = isset($_SESSION[$hargaKey]) ? $_SESSION[$hargaKey] : getRandomPrice(100000, 1000000);
+        $_SESSION[$hargaKey] = $harga;
+        $game['price'] = $harga;
+        $popularGames[] = $game;
+    }
+
+    usort($popularGames, function($a, $b) {
+        return $b['ratings_count'] <=> $a['ratings_count'];
+    });
+
+    $selectedFields = ['id', 'name', 'background_image', 'price', 'rating', 'ratings_count'];
+    $resultGames = [];
+    foreach ($popularGames as $game) {
+        $resultGames[] = array_intersect_key($game, array_flip($selectedFields));
+    }
+
+    return $resultGames;
+}
+
+function getBestGames() {
+    global $games;
+    $bestGames = [];
+
+    foreach ($games as $game) {
+        $hargaKey = "harga_{$game['id']}";
+        $harga = isset($_SESSION[$hargaKey]) ? $_SESSION[$hargaKey] : getRandomPrice(100000, 1000000);
+        $_SESSION[$hargaKey] = $harga;
+        $game['price'] = $harga;
+        $bestGames[] = $game;
+    }
+
+    usort($bestGames, function($a, $b) {
+        return $b['rating'] <=> $a['rating'];
+    });
+
+    $selectedFields = ['id', 'name', 'background_image', 'price', 'rating', 'ratings_count'];
+    $resultGames = [];
+    foreach ($bestGames as $game) {
+        $resultGames[] = array_intersect_key($game, array_flip($selectedFields));
+    }
+
+    return $resultGames;
+}
+
 $response = [];
 if (isset($_GET['terfilter'])) {
     $filters = [];
@@ -102,9 +152,12 @@ if (isset($_GET['terfilter'])) {
     $response = ['terfilter' => $filteredGames];
 } else {
     $latestGames = getLatestGames();
+    $popularGames = getPopularGames();
+    $bestGames = getBestGames();
     $response = [
         'terbaru' => $latestGames,
-        'terekomendasi' => $latestGames
+        'terpopuler' => $popularGames,
+        'terbaik' => $bestGames
     ];
 }
 

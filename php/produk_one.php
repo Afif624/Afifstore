@@ -7,7 +7,7 @@ function getAllData($filename) {
     return json_decode($data, true);
 }
 
-$games = getAllData('../db/games_with_details.json');
+$games = getAllData('../dataset/games_with_details.json');
 
 function getRandomPrice($min, $max) {
     return rand($min, $max);

@@ -5,19 +5,21 @@ function fetchAndRenderCart() {
         dataType: "json",
         success: function(response) {
             let cartDetails = [];
-            let pendingRequests = response.cart_detail.length;
-
-            response.cart_detail.forEach(function(productId) {
-                getProductDetails(productId, function(productDetail) {
-                    cartDetails.push(productDetail.game);
-                    pendingRequests--;
-
-                    if (pendingRequests === 0) {
-                        console.log(cartDetails);
-                        renderCartDetails(cartDetails);
-                    }
+            if (response.cart_detail.length === 0) {
+                renderCartDetails(cartDetails);
+            } else {
+                let pendingRequests = response.cart_detail.length;
+                response.cart_detail.forEach(function(productId) {
+                    getProductDetails(productId, function(productDetail) {
+                        cartDetails.push(productDetail.game);
+                        pendingRequests--;
+                        if (pendingRequests === 0) {
+                            console.log(cartDetails);
+                            renderCartDetails(cartDetails);
+                        }
+                    });
                 });
-            });
+            }
         }
     });
 }

@@ -4,7 +4,7 @@ function getAllData($filename) {
     return json_decode($data, true);
 }
 
-$gameReviews = getAllData('../db/game_reviews.json');
+$gameReviews = getAllData('../dataset/game_reviews.json');
 
 function getGameReviews($gameId) {
     global $gameReviews;

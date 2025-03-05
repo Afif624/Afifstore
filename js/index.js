@@ -1,8 +1,10 @@
 var productsPerPage = 8;
-var currentRecomPage = 1;
-var currentRecentPage = 1;
-var recomProductsData = [];
-var recentProductsData = [];
+var currentLatestPage = 1;
+var currentPopularPage = 1;
+var currentBestPage = 1;
+var latestProductsData = [];
+var popularProductsData = [];
+var bestProductsData = [];
 
 function loadPlatformsAndGenres() {
     var xhr = new XMLHttpRequest();
@@ -43,13 +45,8 @@ function renderPlatformsAndGenres(platforms, genres) {
     rowPlatform.innerHTML = "";
     rowGenre.innerHTML = "";
 
-    platforms.forEach(platform => {
-        rowPlatform.appendChild(renderCategoryDiv(platform));
-    });
-
-    genres.forEach(genre => {
-        rowGenre.appendChild(renderCategoryDiv(genre));
-    });
+    platforms.forEach(platform => rowPlatform.appendChild(renderCategoryDiv(platform)));
+    genres.forEach(genre => rowGenre.appendChild(renderCategoryDiv(genre)));
 }
 
 function loadProductData() {
@@ -59,12 +56,15 @@ function loadProductData() {
         if (xhr.readyState === 4 && xhr.status === 200) {
             var response = JSON.parse(xhr.responseText);
             console.log(response);
-            recomProductsData = response.terekomendasi;
-            recentProductsData = response.terbaru;
-            renderProducts("recom", recomProductsData, currentRecomPage);
-            renderProducts("recent", recentProductsData, currentRecentPage);
-            renderPagination("recom", recomProductsData);
-            renderPagination("recent", recentProductsData);
+            latestProductsData = response.terbaru;
+            popularProductsData = response.terpopuler;
+            bestProductsData = response.terbaik;
+            renderProducts("latest", latestProductsData, currentLatestPage);
+            renderProducts("popular", popularProductsData, currentPopularPage);
+            renderProducts("best", bestProductsData, currentBestPage);
+            renderPagination("latest", latestProductsData, currentLatestPage);
+            renderPagination("popular", popularProductsData, currentPopularPage);
+            renderPagination("best", bestProductsData, currentBestPage);
         }
     };
     xhr.send();
@@ -82,15 +82,9 @@ function renderProducts(type, data, page) {
         var hasHalfStar = rating % 1 !== 0;
         var emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
     
-        for (let i = 0; i < fullStars; i++) {
-            stars += '<small class="fa fa-star text-primary mr-1"></small>';
-        }
-        if (hasHalfStar) {
-            stars += '<small class="fa fa-star-half-alt text-primary mr-1"></small>';
-        }
-        for (let i = 0; i < emptyStars; i++) {
-            stars += '<small class="far fa-star text-primary mr-1"></small>';
-        }
+        for (let i = 0; i < fullStars; i++) stars += '<small class="fa fa-star text-primary mr-1"></small>';
+        if (hasHalfStar) stars += '<small class="fa fa-star-half-alt text-primary mr-1"></small>';
+        for (let i = 0; i < emptyStars; i++) stars += '<small class="far fa-star text-primary mr-1"></small>';
         return stars;
     }
 
@@ -104,13 +98,19 @@ function renderProducts(type, data, page) {
                 <div class="product-img position-relative overflow-hidden">
                     <img class="img-fluid w-100" src="${product.background_image}" alt="${product.name}">
                     <div class="product-action">
-                        <form method="post" action="php/wish.php?id_produk=${product.id}">
+                        <form id="wishForm${product.id}" method="post" action="php/wish.php?id_produk=${product.id}">
                             <input type="hidden" name="sourcePage" value="detail.html?id=${product.id}">
-                            <button class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="far fa-heart"></i></button>
+                            <input type="hidden" name="add" value="true">
+                            <a class="btn btn-outline-dark btn-square" href="#" onclick="document.getElementById('wishForm${product.id}').submit();">
+                                <i class="far fa-heart"></i>
+                            </a>
                         </form>
-                        <form method="post" action="php/cart.php?id_produk=${product.id}">
+                        <form id="cartForm${product.id}" method="post" action="php/cart.php?id_produk=${product.id}">
                             <input type="hidden" name="sourcePage" value="detail.html?id=${product.id}">
-                            <button class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="fa fa-shopping-cart"></i></button>
+                            <input type="hidden" name="add" value="true">
+                            <a class="btn btn-outline-dark btn-square" href="#" onclick="document.getElementById('cartForm${product.id}').submit();">
+                                <i class="fa fa-shopping-cart"></i>
+                            </a>
                         </form>
                     </div>
                 </div>
@@ -134,80 +134,84 @@ function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-function renderPagination(type, data) {
+function renderPagination(type, data, currentPage) {
     var totalPages = Math.ceil(data.length / productsPerPage);
     var pagination = document.getElementById(`pagination-${type}`);
-    pagination.innerHTML = "";
+    var paginationLinks = '';
+    var startPage = Math.max(1, currentPage - 2);
+    var endPage = Math.min(totalPages, currentPage + 2);
 
-    var liPrevious = createPaginationItem("Previous", function() {
-        if (type === "recom" && currentRecomPage > 1) {
-            currentRecomPage--;
-            renderProducts(type, data, currentRecomPage);
-        } else if (type === "recent" && currentRecentPage > 1) {
-            currentRecentPage--;
-            renderProducts(type, data, currentRecentPage);
-        }
-    }, type);
-    pagination.appendChild(liPrevious);
-
-    for (var i = 1; i <= totalPages; i++) {
-        var li = createPaginationItem(i, function() {
-            if (type === "recom") {
-                currentRecomPage = parseInt(this.innerText);
-                renderProducts(type, data, currentRecomPage);
-            } else if (type === "recent") {
-                currentRecentPage = parseInt(this.innerText);
-                renderProducts(type, data, currentRecentPage);
-            }
-        }, type);
-        if (i === 1) {
-            li.classList.add("active");
-        }
-        pagination.appendChild(li);
+    if (currentPage <= 3) {
+        endPage = Math.min(5, totalPages);
+    }
+    if (currentPage >= totalPages - 2) {
+        startPage = Math.max(1, totalPages - 4);
     }
 
-    var liNext = createPaginationItem("Next", function() {
-        if (type === "recom" && currentRecomPage < totalPages) {
-            currentRecomPage++;
-            renderProducts(type, data, currentRecomPage);
-        } else if (type === "recent" && currentRecentPage < totalPages) {
-            currentRecentPage++;
-            renderProducts(type, data, currentRecentPage);
+    if (startPage > 1) {
+        paginationLinks += `<li class="page-item"><a class="page-link" href="#">1</a></li>`;
+        if (startPage > 2) {
+            paginationLinks += `<li class="page-item"><a class="page-link">...</a></li>`;
         }
-    }, type);
-    pagination.appendChild(liNext);
+    }
 
-    updatePaginationState(); // Ensure the initial state is updated
-}
+    for (var i = startPage; i <= endPage; i++) {
+        paginationLinks += `<li class="page-item${i === currentPage ? ' active' : ''}"><a class="page-link" href="#">${i}</a></li>`;
+    }
 
-function createPaginationItem(text, onClick, type) {
-    var li = document.createElement("li");
-    var a = document.createElement("a");
-    li.className = `page-item ${type}`;
-    a.className = `page-link ${type}`;
-    a.setAttribute("href", "#");
-    a.innerText = text;
-    a.addEventListener("click", function(event) {
+    if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+            paginationLinks += `<li class="page-item"><a class="page-link">...</a></li>`;
+        }
+        paginationLinks += `<li class="page-item"><a class="page-link" href="#">${totalPages}</a></li>`;
+    }
+
+    pagination.innerHTML = `
+        <li class="page-item"><a class="page-link" href="#" id="prev-${type}">Previous</a></li>
+        ${paginationLinks}
+        <li class="page-item"><a class="page-link" href="#" id="next-${type}">Next</a></li>
+    `;
+
+    updatePaginationState(type, currentPage);
+
+    document.getElementById(`prev-${type}`).addEventListener("click", (event) => {
         event.preventDefault();
-        onClick.call(this);
-        updatePaginationState();
+        if (currentPage > 1) {
+            currentPage--;
+            renderProducts(type, data, currentPage);
+            renderPagination(type, data, currentPage); // Re-render pagination
+            updatePaginationState(type, currentPage); // Update pagination state after changing page
+        }
     });
-    li.appendChild(a);
-    return li;
-}
 
-function updatePaginationState() {
-    ["recom", "recent"].forEach(function(type) {
-        var pageLinks = document.querySelectorAll(`.page-link.${type}`);
-        pageLinks.forEach(function(link) {
-            var pageNumber = parseInt(link.innerText);
-            if ((type === "recom" && pageNumber === currentRecomPage) || 
-                (type === "recent" && pageNumber === currentRecentPage)) {
-                link.parentElement.classList.add("active");
-            } else {
-                link.parentElement.classList.remove("active");
+    document.getElementById(`next-${type}`).addEventListener("click", (event) => {
+        event.preventDefault();
+        if (currentPage < totalPages) {
+            currentPage++;
+            renderProducts(type, data, currentPage);
+            renderPagination(type, data, currentPage); // Re-render pagination
+            updatePaginationState(type, currentPage); // Update pagination state after changing page
+        }
+    });
+
+    document.querySelectorAll(`#pagination-${type} .page-link`).forEach(link => {
+        link.addEventListener("click", (event) => {
+            event.preventDefault();
+            var page = parseInt(event.target.innerText);
+            if (!isNaN(page)) {
+                currentPage = page;
+                renderProducts(type, data, currentPage);
+                renderPagination(type, data, currentPage); // Re-render pagination
+                updatePaginationState(type, currentPage); // Update pagination state after changing page
             }
         });
+    });
+}
+
+function updatePaginationState(type, currentPage) {
+    document.querySelectorAll(`#pagination-${type} .page-item`).forEach((item) => {
+        var page = parseInt(item.querySelector(".page-link").innerText);
+        item.classList.toggle("active", page === currentPage);
     });
 }
 

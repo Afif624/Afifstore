@@ -79,14 +79,18 @@ function renderProductDetails(data, file) {
 
     function renderScreenShots(image1, image2, screenshots) {
         let html = `<div class="carousel-item active"><img class="w-100 h-100" src="${image1}" alt="Image"></div>`;
-        if (image2) html += `<div class="carousel-item"><img class="w-100 h-100" src="${image2}" alt="Image"></div>`;
+        if (image2) {
+            html += `<div class="carousel-item"><img class="w-100 h-100" src="${image2}" alt="Image"></div>`;
+        }
         if (screenshots) {
             screenshots.forEach(screenshot => {
-                html += `<div class="carousel-item"><img class="w-100 h-100" src="${screenshot.image}" alt="Image"></div>`;
+                if (screenshot.image !== image1 && screenshot.image !== image2) {
+                    html += `<div class="carousel-item"><img class="w-100 h-100" src="${screenshot.image}" alt="Image"></div>`;
+                }
             });
         }
         return html;
-    }    
+    }        
     
     function renderRatingStars(rating) {
         let html = '';
@@ -185,6 +189,20 @@ function renderProductDetails(data, file) {
     }    
 
     function renderYourReview(yourReview, game_id, user_name, user_email) {
+        var displayHtml = (review, rating) => `
+            <h4 class="mb-4">Your Existing Review</h4>
+            <div class="d-flex my-3">
+                <p class="mb-0 mr-2">Your Rating:</p>
+                <div class="text-primary">
+                    ${Array(5).fill(0).map((_, i) => `<i class="${i < rating ? 'fas' : 'far'} fa-star"></i>`).join('')}
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="existing-review">Your Review:</label>
+                <textarea id="existing-review" cols="30" rows="5" class="form-control" readonly>${review}</textarea>
+            </div>
+        `;
+    
         var formHtml = (action, name) => `
             <h4 class="mb-4">${action}</h4>
             <form method="post" action="php/yourreview.php">
@@ -197,7 +215,7 @@ function renderProductDetails(data, file) {
                 </div>
                 <div class="form-group">
                     <label for="review">Your Review *</label>
-                    <textarea id="review" name="review" cols="30" rows="5" class="form-control" ${yourReview ? `value="${yourReview.review}"` : ''} required></textarea>
+                    <textarea id="review" name="review" cols="30" rows="5" class="form-control" required></textarea>
                 </div>
                 <div class="form-group">
                     <label for="name">Your Name *</label>
@@ -210,12 +228,14 @@ function renderProductDetails(data, file) {
                 <input type="hidden" name="${yourReview ? 'id_review' : 'id_produk'}" value="${yourReview ? yourReview.id_review : game_id}">
                 <input type="hidden" name="${name}" value="1">
                 <div class="form-group mb-0">
-                    <input type="submit" value="${action}" class="btn btn-primary px-3" name="">
+                    <input type="submit" value="${action}" class="btn btn-primary px-3">
                 </div>
-            </form>`;
+            </form>
+        `;
     
-        return yourReview ? formHtml('Edit Your Review', 'edit') : formHtml('Leave a Review', 'add');
-    }    
+        var html = yourReview ? displayHtml(yourReview.review, yourReview.rating) + formHtml('Edit Your Review', 'edit') : formHtml('Leave a Review', 'add');
+        return html;
+    }            
 
     var generateGameHTML = (game, added, reviews, orderStatus, wishStatus, cartStatus, file, user_name, user_email) => `
         <div class="row px-xl-5">
@@ -366,13 +386,19 @@ function renderSimilars(similars, file) {
                     <div class="product-img position-relative overflow-hidden">
                         <img class="img-fluid w-100" src="${similar.background_image}" alt="${similar.name}">
                         <div class="product-action">
-                            <form method="post" action="php/wish.php?id_produk=${similar.id}">
+                            <form id="wishForm${similar.id}" method="post" action="php/wish.php?id_produk=${similar.id}">
                                 <input type="hidden" name="sourcePage" value="${file}?id=${similar.id}">
-                                <button class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="far fa-heart"></i></button>
+                                <input type="hidden" name="add" value="true">
+                                <a class="btn btn-outline-dark btn-square" href="#" onclick="document.getElementById('wishForm${similar.id}').submit();">
+                                    <i class="far fa-heart"></i>
+                                </a>
                             </form>
-                            <form method="post" action="php/cart.php?id_produk=${similar.id}">
+                            <form id="cartForm${similar.id}" method="post" action="php/cart.php?id_produk=${similar.id}">
                                 <input type="hidden" name="sourcePage" value="${file}?id=${similar.id}">
-                                <button class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="fa fa-shopping-cart"></i></button>
+                                <input type="hidden" name="add" value="true">
+                                <a class="btn btn-outline-dark btn-square" href="#" onclick="document.getElementById('cartForm${similar.id}').submit();">
+                                    <i class="fa fa-shopping-cart"></i>
+                                </a>
                             </form>
                         </div>
                     </div>

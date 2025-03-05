@@ -5,19 +5,21 @@ function fetchAndRenderWish() {
         dataType: "json",
         success: function(response) {
             let wishDetails = [];
-            let pendingRequests = response.wish_detail.length;
-
-            response.wish_detail.forEach(function(productId) {
-                getProductDetails(productId, function(productDetail) {
-                    wishDetails.push(productDetail.game);
-                    pendingRequests--;
-
-                    if (pendingRequests === 0) {
-                        console.log(wishDetails);
-                        renderWishDetails(wishDetails);
-                    }
+            if (response.wish_detail.length === 0) {
+                renderWishDetails(wishDetails);
+            } else {
+                let pendingRequests = response.wish_detail.length;
+                response.wish_detail.forEach(function(productId) {
+                    getProductDetails(productId, function(productDetail) {
+                        wishDetails.push(productDetail.game);
+                        pendingRequests--;
+                        if (pendingRequests === 0) {
+                            console.log(wishDetails);
+                            renderWishDetails(wishDetails);
+                        }
+                    });
                 });
-            });
+            }
         }
     });
 }
@@ -81,7 +83,7 @@ function renderWishDetails(wishDetails) {
                                     <button class="btn btn-sm btn-danger" type="submit" name="delete">
                                         <i class="fa fa-times"></i>
                                     </button>
-                                </form
+                                </form>
                             </td>
                             <td class="align-middle">
                                 <form action="php/wish.php?id_produk=${wish.id}" method="POST">
@@ -89,7 +91,7 @@ function renderWishDetails(wishDetails) {
                                     <button class="btn btn-sm btn-danger" type="submit" name="cart">
                                         <i class="fa fa-check"></i>
                                     </button>
-                                </form
+                                </form>
                             </td>
                         </tr>
         `;

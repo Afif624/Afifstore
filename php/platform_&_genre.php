@@ -4,9 +4,9 @@ function getAllData($filename) {
     return json_decode($data, true);
 }
 
-$genres = getAllData('../db/genres.json');
-$platforms = getAllData('../db/platforms.json');
-$games = getAllData('../db/games.json');
+$genres = getAllData('../dataset/genres.json');
+$platforms = getAllData('../dataset/platforms.json');
+$games = getAllData('../dataset/games.json');
 
 $data = [
     'genre' => [],

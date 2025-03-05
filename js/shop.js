@@ -126,13 +126,19 @@ function renderProducts(page) {
                 <div class="product-img position-relative overflow-hidden">
                     <img class="img-fluid w-100" src="${product.background_image}" alt="${product.name}">
                     <div class="product-action">
-                        <form method="post" action="php/wish.php?id_produk=${product.id}">
+                        <form id="wishForm${product.id}" method="post" action="php/wish.php?id_produk=${product.id}">
                             <input type="hidden" name="sourcePage" value="detail.html?id=${product.id}">
-                            <button class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="far fa-heart"></i></button>
+                            <input type="hidden" name="add" value="true">
+                            <a class="btn btn-outline-dark btn-square" href="#" onclick="document.getElementById('wishForm${product.id}').submit();">
+                                <i class="far fa-heart"></i>
+                            </a>
                         </form>
-                        <form method="post" action="php/cart.php?id_produk=${product.id}">
+                        <form id="cartForm${product.id}" method="post" action="php/cart.php?id_produk=${product.id}">
                             <input type="hidden" name="sourcePage" value="detail.html?id=${product.id}">
-                            <button class="btn btn-outline-dark btn-square" href="" type="submit" name="add"><i class="fa fa-shopping-cart"></i></button>
+                            <input type="hidden" name="add" value="true">
+                            <a class="btn btn-outline-dark btn-square" href="#" onclick="document.getElementById('cartForm${product.id}').submit();">
+                                <i class="fa fa-shopping-cart"></i>
+                            </a>
                         </form>
                     </div>
                 </div>
