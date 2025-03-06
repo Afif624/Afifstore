@@ -1,13 +1,10 @@
 <?php
+ini_set('memory_limit', '1024M');
 session_start();
-$apiKey = 'YOUR_RAWG_API_KEY';
 
-function fetchDataFromRAWGAPI($url) {
-    $response = file_get_contents($url);
-    if ($response === FALSE) {
-        die('Error fetching data from RAWG API');
-    }
-    return json_decode($response, true);
+function fetchGamesDataFromJSON($filePath) {
+    $jsonContent = file_get_contents($filePath);
+    return json_decode($jsonContent, true);
 }
 
 function getRandomPrice($min, $max) {
@@ -15,29 +12,39 @@ function getRandomPrice($min, $max) {
 }
 
 function prepareGamesData($games) {
-    return array_map(function($game) {
-        $priceKey = "price_{$game['id']}";
-        $price = getRandomPrice(100000, 1000000);
-        $game['price'] = $price;
+    $games = array_map(function($game) {
+        $hargaKey = "harga_{$game['id']}";
+        $harga = isset($_SESSION[$hargaKey]) ? $_SESSION[$hargaKey] : getRandomPrice(100000, 1000000);
+        $_SESSION[$hargaKey] = $harga;
+        $game['price'] = $harga;
+        return $game;
+    }, $games);
+
+    $games = array_map(function($game) {
+        $game['price'] = getRandomPrice(100000, 1000000);
         return [
             'id' => $game['id'],
             'name' => $game['name'],
-            'background_image' => $game['background_image'],
+            'short_screenshots' => array_map(function($short_screenshots) {
+                return $short_screenshots['image'];
+            }, $game['short_screenshots']),
             'rating' => $game['rating'],
             'ratings_count' => $game['ratings_count'],
             'price' => $game['price'],
+            'details' => $game['details'],
             'genres' => array_map(function($genre) {
                 return $genre['name'];
             }, $game['genres']),
             'platforms' => array_map(function($platform) {
                 return $platform['platform']['name'];
             }, $game['platforms']),
-            'released' => $game['released'],
             'tags' => array_map(function($tag) {
                 return $tag['name'];
             }, $game['tags'])
         ];
     }, $games);
+
+    return $games;
 }
 
 function combineFeatures($game) {
@@ -60,20 +67,11 @@ function calculateSimilarityScore($featuresA, $featuresB) {
     $featuresBArray = explode(' ', $featuresB);
     $intersection = array_intersect($featuresAArray, $featuresBArray);
     $union = array_unique(array_merge($featuresAArray, $featuresBArray));
-    $similarity = count($intersection) / count($union);
-    return $similarity;
+    return count($intersection) / count($union);
 }
 
-function getRecommendationGames($apiKey, $userPreferences) {
-    $rawgUrl = "https://api.rawg.io/api/games?key={$apiKey}&page_size=40";
-    $allGames = [];
-    $nextPageUrl = $rawgUrl;
-
-    while ($nextPageUrl && count($allGames) < 1000) {
-        $data = fetchDataFromRAWGAPI($nextPageUrl);
-        $allGames = array_merge($allGames, $data['results']);
-        $nextPageUrl = $data['next'];
-    }
+function getRecommendationGames($filePath, $userPreferences) {
+    $allGames = fetchGamesDataFromJSON($filePath);
 
     $gamesData = prepareGamesData($allGames);
     $gamesData = addCombinedFeatures($gamesData);
@@ -107,16 +105,15 @@ function getRecommendationGames($apiKey, $userPreferences) {
     return $results;
 }
 
+$jsonFilePath = '../dataset/games_with_details.json';
 $userPreferences = [
     'genres' => ['Action', 'RPG'],
     'platforms' => ['PC'],
     'tags' => ['Multiplayer', 'Open World']
 ];
-$recommendedGames = getRecommendationGames($apiKey, $userPreferences);
-$response = [
-    'terekomendasi' => $recommendedGames
-];
+
+$recommendedGames = getRecommendationGames($jsonFilePath, $userPreferences);
 
 header('Content-Type: application/json');
-echo json_encode($response);
+echo json_encode($recommendedGames);
 ?>

@@ -6,6 +6,94 @@ var latestProductsData = [];
 var popularProductsData = [];
 var bestProductsData = [];
 
+function loadCarouselData() {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "php/produk_recom.php", true);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            var response = JSON.parse(xhr.responseText);
+            console.log(response);
+            renderCarousel(response);
+        }
+    };
+    xhr.send();
+}
+
+function renderCarousel(data) {
+    var carouselIndicators = document.querySelector('.carousel-indicators');
+    var carouselInner = document.querySelector('.carousel-inner');
+
+    carouselIndicators.innerHTML = "";
+    carouselInner.innerHTML = "";
+
+    data.forEach((item, index) => {
+        var indicator = document.createElement("li");
+        indicator.setAttribute("data-target", "#header-carousel");
+        indicator.setAttribute("data-slide-to", index);
+        if (index === 0) indicator.classList.add("active");
+        carouselIndicators.appendChild(indicator);
+
+        var carouselItem = document.createElement("div");
+        carouselItem.classList.add("carousel-item", "position-relative");
+        if (index === 0) carouselItem.classList.add("active");
+        carouselItem.style.height = "600px";
+
+        var mainImage = document.createElement("img");
+        mainImage.classList.add("position-absolute", "w-100", "h-100");
+        mainImage.src = item.short_screenshots[0]; // Use the first screenshot as the main image
+        mainImage.style.objectFit = "cover";
+
+        var thumbnailContainer = document.createElement("div");
+        thumbnailContainer.classList.add("thumbnail-container", "d-flex", "flex-row", "justify-content-center");
+        thumbnailContainer.style.marginTop = "10px"; // Add some space between caption and thumbnails
+
+        item.short_screenshots.forEach((screenshot, thumbIndex) => {
+            var thumbnail = document.createElement("img");
+            thumbnail.classList.add("thumbnail");
+            thumbnail.src = screenshot;
+            thumbnail.style.width = "50px"; // Adjust the size of thumbnails as needed
+            thumbnail.style.height = "50px";
+            thumbnail.style.margin = "5px";
+            thumbnail.style.cursor = "pointer";
+
+            thumbnail.addEventListener("click", () => {
+                mainImage.src = screenshot;
+            });
+
+            thumbnailContainer.appendChild(thumbnail);
+        });
+
+        carouselItem.innerHTML = `
+            <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
+                <div class="p-3" style="max-width: 700px;">
+                    <h1 class="display-4 text-white mb-3 animate__animated animate__fadeInDown">${item.name}</h1>
+                    <p class="mx-md-5 px-5 animate__animated animate__bounceIn">${item.details.description_raw.slice(0, 100)}...</p>
+                    <a class="btn btn-outline-light py-2 px-4 mt-3 animate__animated animate__fadeInUp" href="detail.html?id=${item.id}">Shop Now</a>
+                </div>
+                <!-- Move the thumbnail container here -->
+                <div class="d-flex justify-content-center w-100">
+                    ${thumbnailContainer.innerHTML}
+                </div>
+            </div>
+        `;
+
+        // Add event listeners for thumbnails
+        carouselItem.querySelectorAll(".thumbnail").forEach((thumbnail, thumbIndex) => {
+            thumbnail.addEventListener("click", () => {
+                mainImage.src = item.short_screenshots[thumbIndex];
+            });
+        });
+
+        carouselItem.appendChild(mainImage);
+        carouselInner.appendChild(carouselItem);
+
+        // Change main image on indicator click
+        indicator.addEventListener("click", () => {
+            mainImage.src = item.short_screenshots[0];
+        });
+    });
+}
+
 function loadPlatformsAndGenres() {
     var xhr = new XMLHttpRequest();
     xhr.open("GET", "php/platform_&_genre.php", true);
@@ -216,6 +304,7 @@ function updatePaginationState(type, currentPage) {
 }
 
 $(document).ready(function() {
+    loadCarouselData();
     loadPlatformsAndGenres();
     loadProductData();
 });

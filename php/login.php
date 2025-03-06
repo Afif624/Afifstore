@@ -17,7 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $cpassword = $_POST['cpassword'];
 
         // Insert user into database
-        $sql = "INSERT INTO user (nama, email, no_hp, password) 
+        $sql = "INSERT INTO user (name, email, no_hp, password) 
                 VALUES ('$name', '$email', '$no_hp', '$password')";
 
         if ($password == $cpassword){

@@ -71,7 +71,7 @@ function renderProductDetails(data, file) {
     var details = game.details;
 
     var reviews = data.reviews;
-    var user_name = data.nama_user;
+    var user_name = data.name_user;
     var user_email = data.email_user;
     var wishStatus = data.wish_status;
     var cartStatus = data.cart_status;

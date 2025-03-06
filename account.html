@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>AfifStore - Online Shop</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Free HTML Templates" name="keywords">
+    <meta content="Free HTML Templates" name="description">
+
+    <!-- Favicon -->
+    <link href="img/favicon.ico" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">  
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="lib/animate/animate.min.css" rel="stylesheet">
+    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Topbar Start -->
+    <div class="container-fluid" id="topbar">
+    </div>
+    <!-- Topbar End -->
+
+
+    <!-- Navbar Start -->
+    <div class="container-fluid bg-dark mb-30" id="navbar">
+    </div>
+    <!-- Navbar End -->
+
+
+    <!-- Breadcrumb Start -->
+    <div class="container-fluid">
+        <div class="row px-xl-5">
+            <div class="col-12">
+                <nav class="breadcrumb bg-light mb-30">
+                    <a class="breadcrumb-item text-dark" href="#">Home</a>
+                    <a class="breadcrumb-item text-dark" href="#">Shop</a>
+                    <span class="breadcrumb-item active">Checkout</span>
+                </nav>
+            </div>
+        </div>
+    </div>
+    <!-- Breadcrumb End -->
+
+
+    <!-- Checkout Start -->
+    <div class="container-fluid">
+        <div class="row px-xl-5">
+            <!-- Account Details -->
+            <div class="col-lg-12">
+                <h5 class="section-title position-relative text-uppercase mb-3">
+                    <span class="bg-secondary pr-3">Account Details</span>
+                </h5>
+                <div class="bg-light p-30 mb-5">
+                    <form method="post" action="save_account.php">
+                        <div class="row">
+                            <!-- Account Details Inputs -->
+                            <div class="col-md-6 form-group">
+                                <label>Name</label>
+                                <input class="form-control" type="text" name="name" placeholder="John">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>Email</label>
+                                <input class="form-control" type="email" name="email" placeholder="example@email.com">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>Phone Number</label>
+                                <input class="form-control" type="text" name="phone" placeholder="+123 456 789">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>Address</label>
+                                <input class="form-control" type="text" name="address" placeholder="123 Street">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>Country</label>
+                                <select class="custom-select" name="country">
+                                    <option selected>United States</option>
+                                    <option>Afghanistan</option>
+                                    <option>Albania</option>
+                                    <option>Algeria</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>State</label>
+                                <input class="form-control" type="text" name="state" placeholder="New York">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>City</label>
+                                <input class="form-control" type="text" name="city" placeholder="New York">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>ZIP Code</label>
+                                <input class="form-control" type="text" name="zip" placeholder="123">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Account Details</button>
+                    </form>
+                </div>
+            </div>
+    
+            <!-- Store Preferences -->
+            <div class="col-lg-12">
+                <h5 class="section-title position-relative text-uppercase mb-3">
+                    <span class="bg-secondary pr-3">Store Preferences</span>
+                </h5>
+                <div class="bg-light p-30 mb-5">
+                    <form method="post" action="save_preferences.php">
+                        <div class="row">
+                            <!-- Genres -->
+                            <div class="col-md-4">
+                                <label><b>Genres</b></label>
+                                <div><input type="checkbox" name="genres[]" value="Action" id="genre-action"><label for="genre-action">Action</label></div>
+                                <div><input type="checkbox" name="genres[]" value="Adventure" id="genre-adventure"><label for="genre-adventure">Adventure</label></div>
+                                <div><input type="checkbox" name="genres[]" value="RPG" id="genre-rpg"><label for="genre-rpg">RPG</label></div>
+                                <div><input type="checkbox" name="genres[]" value="Shooter" id="genre-shooter"><label for="genre-shooter">Shooter</label></div>
+                                <div><input type="checkbox" name="genres[]" value="Horror" id="genre-horror"><label for="genre-horror">Horror</label></div>
+                                <div><input type="checkbox" name="genres[]" value="Strategy" id="genre-strategy"><label for="genre-strategy">Strategy</label></div>
+                            </div>
+                            <!-- Platforms -->
+                            <div class="col-md-4">
+                                <label><b>Platforms</b></label>
+                                <div><input type="checkbox" name="platforms[]" value="PC" id="platform-pc"><label for="platform-pc">PC</label></div>
+                                <div><input type="checkbox" name="platforms[]" value="PlayStation" id="platform-playstation"><label for="platform-playstation">PlayStation</label></div>
+                                <div><input type="checkbox" name="platforms[]" value="Xbox" id="platform-xbox"><label for="platform-xbox">Xbox</label></div>
+                                <div><input type="checkbox" name="platforms[]" value="Nintendo" id="platform-nintendo"><label for="platform-nintendo">Nintendo</label></div>
+                                <div><input type="checkbox" name="platforms[]" value="Mobile" id="platform-mobile"><label for="platform-mobile">Mobile</label></div>
+                                <div><input type="checkbox" name="platforms[]" value="VR" id="platform-vr"><label for="platform-vr">VR</label></div>
+                            </div>
+                            <!-- Tags -->
+                            <div class="col-md-4">
+                                <label><b>Tags</b></label>
+                                <div><input type="checkbox" name="tags[]" value="Multiplayer" id="tag-multiplayer"><label for="tag-multiplayer">Multiplayer</label></div>
+                                <div><input type="checkbox" name="tags[]" value="Singleplayer" id="tag-singleplayer"><label for="tag-singleplayer">Singleplayer</label></div>
+                                <div><input type="checkbox" name="tags[]" value="OpenWorld" id="tag-openworld"><label for="tag-openworld">Open World</label></div>
+                                <div><input type="checkbox" name="tags[]" value="Co-op" id="tag-coop"><label for="tag-coop">Co-op</label></div>
+                                <div><input type="checkbox" name="tags[]" value="Sandbox" id="tag-sandbox"><label for="tag-sandbox">Sandbox</label></div>
+                                <div><input type="checkbox" name="tags[]" value="Puzzle" id="tag-puzzle"><label for="tag-puzzle">Puzzle</label></div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-3">Save Preferences</button>
+                    </form>
+                </div>
+            </div>                        
+    
+            <!-- Language Preferences -->
+            <div class="col-lg-12">
+                <h5 class="section-title position-relative text-uppercase mb-3">
+                    <span class="bg-secondary pr-3">Language Preferences</span>
+                </h5>
+                <div class="bg-light p-30 mb-5">
+                    <form method="post" action="save_language.php">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <input type="radio" name="language" value="English" id="lang-english" checked>
+                                <label for="lang-english">English</label><br>
+                                <input type="radio" name="language" value="Spanish" id="lang-spanish">
+                                <label for="lang-spanish">Spanish</label><br>
+                                <input type="radio" name="language" value="French" id="lang-french">
+                                <label for="lang-french">French</label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="radio" name="language" value="Bahasa Indonesia" id="lang-indonesia">
+                                <label for="lang-indonesia">Bahasa Indonesia</label><br>
+                                <input type="radio" name="language" value="Japanese" id="lang-japanese">
+                                <label for="lang-japanese">Japanese</label><br>
+                                <input type="radio" name="language" value="Korean" id="lang-korean">
+                                <label for="lang-korean">Korean</label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="radio" name="language" value="German" id="lang-german">
+                                <label for="lang-german">German</label><br>
+                                <input type="radio" name="language" value="Chinese" id="lang-chinese">
+                                <label for="lang-chinese">Chinese</label><br>
+                                <input type="radio" name="language" value="Russian" id="lang-russian">
+                                <label for="lang-russian">Russian</label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-3">Save Language</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>        
+    <!-- Checkout End -->
+
+
+    <!-- Footer Start -->
+    <div class="container-fluid bg-dark text-secondary mt-5 pt-5" id="footer">
+    </div>
+    <!-- Footer End -->
+
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-primary back-to-top"><i class="fa fa-angle-double-up"></i></a>
+
+    
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/easing/easing.min.js"></script>
+    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+
+    <!-- Contact Javascript File -->
+    <script src="mail/jqBootstrapValidation.min.js"></script>
+    <script src="mail/contact.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="js/main.js"></script>
+    <script src="js/login_check.js"></script>
+    <script src="js/bar.js"></script>
+    <script src="js/account.js"></script>
+</body>
+
+</html>

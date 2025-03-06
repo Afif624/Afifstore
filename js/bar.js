@@ -60,7 +60,7 @@ $(document).ready(function() {
         dataType: "json",
         success: function(response) {
             $('#myaccount').html(`
-                <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">${response.nama_user}</button>
+                <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">${response.name_user}</button>
                 <div class="dropdown-menu dropdown-menu-right">
                     <button class="dropdown-item" type="button" id="logout-button">Logout</button>
                 </div>
