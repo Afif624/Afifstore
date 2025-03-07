@@ -432,7 +432,7 @@ CREATE TABLE `user` (
   `id_user` int(11) NOT NULL,
   `nama` varchar(255) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
-  `no_hp` varchar(50) DEFAULT NULL,
+  `phone` varchar(50) DEFAULT NULL,
   `password` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -440,7 +440,7 @@ CREATE TABLE `user` (
 -- Dumping data for table `user`
 --
 
-INSERT INTO `user` (`id_user`, `nama`, `email`, `no_hp`, `password`) VALUES
+INSERT INTO `user` (`id_user`, `nama`, `email`, `phone`, `password`) VALUES
 (1, 'Aan', 'aan@gmail.com', '0823-5358-0750', '12345'),
 (2, 'Abil', 'abil@gmail.com', '0823-5358-0750', '12345'),
 (3, 'AfifPristantio', 'afifpristantio@gmail.com', '0823-5358-0750', '12345'),

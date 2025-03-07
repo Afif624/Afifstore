@@ -57,54 +57,49 @@
     <!-- Checkout Start -->
     <div class="container-fluid">
         <div class="row px-xl-5">
-            <!-- Account Details -->
+            <!-- Account -->
             <div class="col-lg-12">
                 <h5 class="section-title position-relative text-uppercase mb-3">
-                    <span class="bg-secondary pr-3">Account Details</span>
+                    <span class="bg-secondary pr-3">Bio Details</span>
                 </h5>
                 <div class="bg-light p-30 mb-5">
-                    <form method="post" action="save_account.php">
+                    <form method="post" action="bio.php" id="bioForm">
                         <div class="row">
-                            <!-- Account Details Inputs -->
+                            <!-- Bio Details Inputs -->
                             <div class="col-md-6 form-group">
                                 <label>Name</label>
-                                <input class="form-control" type="text" name="name" placeholder="John">
+                                <input class="form-control" type="text" name="name" id="name" placeholder="John">
                             </div>
                             <div class="col-md-6 form-group">
                                 <label>Email</label>
-                                <input class="form-control" type="email" name="email" placeholder="example@email.com">
+                                <input class="form-control" type="email" name="email" id="email" placeholder="example@email.com">
                             </div>
                             <div class="col-md-6 form-group">
                                 <label>Phone Number</label>
-                                <input class="form-control" type="text" name="phone" placeholder="+123 456 789">
+                                <input class="form-control" type="text" name="phone" id="phone" placeholder="+123 456 789">
                             </div>
                             <div class="col-md-6 form-group">
                                 <label>Address</label>
-                                <input class="form-control" type="text" name="address" placeholder="123 Street">
+                                <input class="form-control" type="text" name="address" id="address" placeholder="123 Street">
                             </div>
                             <div class="col-md-6 form-group">
                                 <label>Country</label>
-                                <select class="custom-select" name="country">
-                                    <option selected>United States</option>
-                                    <option>Afghanistan</option>
-                                    <option>Albania</option>
-                                    <option>Algeria</option>
-                                </select>
+                                <select id="country" class="custom-select" name="country"></select>
                             </div>
                             <div class="col-md-6 form-group">
                                 <label>State</label>
-                                <input class="form-control" type="text" name="state" placeholder="New York">
+                                <select id="state" class="custom-select" name="state"></select>
                             </div>
                             <div class="col-md-6 form-group">
                                 <label>City</label>
-                                <input class="form-control" type="text" name="city" placeholder="New York">
-                            </div>
+                                <select id="city" class="custom-select" name="city"></select>
+                            </div>                            
                             <div class="col-md-6 form-group">
                                 <label>ZIP Code</label>
-                                <input class="form-control" type="text" name="zip" placeholder="123">
+                                <input class="form-control" type="text" name="zip" id="zip" placeholder="123">
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary">Save Account Details</button>
+                        <button type="submit" class="btn btn-primary" name="save">Save Bio Details</button>
                     </form>
                 </div>
             </div>
@@ -115,37 +110,23 @@
                     <span class="bg-secondary pr-3">Store Preferences</span>
                 </h5>
                 <div class="bg-light p-30 mb-5">
-                    <form method="post" action="save_preferences.php">
+                    <form method="post" action="save_preferences.php" id="preferencesForm">
                         <div class="row">
                             <!-- Genres -->
                             <div class="col-md-4">
                                 <label><b>Genres</b></label>
-                                <div><input type="checkbox" name="genres[]" value="Action" id="genre-action"><label for="genre-action">Action</label></div>
-                                <div><input type="checkbox" name="genres[]" value="Adventure" id="genre-adventure"><label for="genre-adventure">Adventure</label></div>
-                                <div><input type="checkbox" name="genres[]" value="RPG" id="genre-rpg"><label for="genre-rpg">RPG</label></div>
-                                <div><input type="checkbox" name="genres[]" value="Shooter" id="genre-shooter"><label for="genre-shooter">Shooter</label></div>
-                                <div><input type="checkbox" name="genres[]" value="Horror" id="genre-horror"><label for="genre-horror">Horror</label></div>
-                                <div><input type="checkbox" name="genres[]" value="Strategy" id="genre-strategy"><label for="genre-strategy">Strategy</label></div>
+                                <div id="genresContainer"></div>
                             </div>
                             <!-- Platforms -->
                             <div class="col-md-4">
                                 <label><b>Platforms</b></label>
-                                <div><input type="checkbox" name="platforms[]" value="PC" id="platform-pc"><label for="platform-pc">PC</label></div>
-                                <div><input type="checkbox" name="platforms[]" value="PlayStation" id="platform-playstation"><label for="platform-playstation">PlayStation</label></div>
-                                <div><input type="checkbox" name="platforms[]" value="Xbox" id="platform-xbox"><label for="platform-xbox">Xbox</label></div>
-                                <div><input type="checkbox" name="platforms[]" value="Nintendo" id="platform-nintendo"><label for="platform-nintendo">Nintendo</label></div>
-                                <div><input type="checkbox" name="platforms[]" value="Mobile" id="platform-mobile"><label for="platform-mobile">Mobile</label></div>
-                                <div><input type="checkbox" name="platforms[]" value="VR" id="platform-vr"><label for="platform-vr">VR</label></div>
+                                <div id="platformsContainer"></div>
                             </div>
                             <!-- Tags -->
                             <div class="col-md-4">
                                 <label><b>Tags</b></label>
-                                <div><input type="checkbox" name="tags[]" value="Multiplayer" id="tag-multiplayer"><label for="tag-multiplayer">Multiplayer</label></div>
-                                <div><input type="checkbox" name="tags[]" value="Singleplayer" id="tag-singleplayer"><label for="tag-singleplayer">Singleplayer</label></div>
-                                <div><input type="checkbox" name="tags[]" value="OpenWorld" id="tag-openworld"><label for="tag-openworld">Open World</label></div>
-                                <div><input type="checkbox" name="tags[]" value="Co-op" id="tag-coop"><label for="tag-coop">Co-op</label></div>
-                                <div><input type="checkbox" name="tags[]" value="Sandbox" id="tag-sandbox"><label for="tag-sandbox">Sandbox</label></div>
-                                <div><input type="checkbox" name="tags[]" value="Puzzle" id="tag-puzzle"><label for="tag-puzzle">Puzzle</label></div>
+                                <input type="text" id="tagSearch" class="form-control mb-3" placeholder="Search tags...">
+                                <div id="tagsContainer"></div>
                             </div>
                         </div>
                         <button type="submit" class="btn btn-primary mt-3">Save Preferences</button>

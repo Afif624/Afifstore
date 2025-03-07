@@ -5,7 +5,7 @@ var ProductsData = [];
 function initializeFilters() {
     $.ajax({
         type: "GET",
-        url: "php/platform_&_genre.php",
+        url: "php/store_preferences.php",
         dataType: "json",
         success: function(response) {
             updateHTML(response.platform, 'platform');

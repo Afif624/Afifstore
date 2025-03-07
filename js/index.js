@@ -96,7 +96,7 @@ function renderCarousel(data) {
 
 function loadPlatformsAndGenres() {
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", "php/platform_&_genre.php", true);
+    xhr.open("GET", "php/store_preferences.php", true);
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4 && xhr.status === 200) {
             var response = JSON.parse(xhr.responseText);

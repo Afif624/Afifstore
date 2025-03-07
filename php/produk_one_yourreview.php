@@ -10,11 +10,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $review = $_POST['review'];
     $tanggal = date("Y-m-d");
 
-    if (!isset($_POST['edit'])){
+    if (isset($_POST['edit'])){
         $sql = "UPDATE review SET rating='$rating', review='$review' WHERE id_review=$id_review";
 
         if ($conn->query($sql) === TRUE) {
-            echo "<script>alert('Adding review successful!!');
+            echo "<script>alert('Editing review successful!!');
                 window.location.href = '../detail.html?id=$id_produk';
                     </script>";
         } else {

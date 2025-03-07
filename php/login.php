@@ -12,13 +12,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $name = $firstName . "" . $lastName;
 
         $email = $_POST['email'];
-        $no_hp = $_POST['nohp'];
+        $phone = $_POST['nohp'];
         $password = $_POST['password'];
         $cpassword = $_POST['cpassword'];
 
         // Insert user into database
-        $sql = "INSERT INTO user (name, email, no_hp, password) 
-                VALUES ('$name', '$email', '$no_hp', '$password')";
+        $sql = "INSERT INTO user (name, email, phone, password) 
+                VALUES ('$name', '$email', '$phone', '$password')";
 
         if ($password == $cpassword){
             if ($conn->query($sql) === TRUE) {
