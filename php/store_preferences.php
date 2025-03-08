@@ -33,8 +33,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 } else {
     function getAllData($filename) {
         $data = file_get_contents($filename);
-        return json_decode($data, true);
-    }
+        $dataArray = json_decode($data, true);
+    
+        usort($dataArray, function($a, $b) {
+            return strcmp($a['name'], $b['name']);
+        });
+    
+        return $dataArray;
+    }    
     
     $genres = getAllData('../dataset/genres.json');
     $platforms = getAllData('../dataset/platforms.json');

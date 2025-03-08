@@ -13,7 +13,7 @@ function loadCarouselData() {
         if (xhr.readyState === 4 && xhr.status === 200) {
             var response = JSON.parse(xhr.responseText);
             console.log(response);
-            renderCarousel(response);
+            renderCarousel(response.terekomendasi);
         }
     };
     xhr.send();
@@ -40,18 +40,18 @@ function renderCarousel(data) {
 
         var mainImage = document.createElement("img");
         mainImage.classList.add("position-absolute", "w-100", "h-100");
-        mainImage.src = item.short_screenshots[0]; // Use the first screenshot as the main image
+        mainImage.src = item.short_screenshots[0]; 
         mainImage.style.objectFit = "cover";
 
         var thumbnailContainer = document.createElement("div");
         thumbnailContainer.classList.add("thumbnail-container", "d-flex", "flex-row", "justify-content-center");
-        thumbnailContainer.style.marginTop = "10px"; // Add some space between caption and thumbnails
+        thumbnailContainer.style.marginTop = "10px"; 
 
         item.short_screenshots.forEach((screenshot, thumbIndex) => {
             var thumbnail = document.createElement("img");
             thumbnail.classList.add("thumbnail");
             thumbnail.src = screenshot;
-            thumbnail.style.width = "50px"; // Adjust the size of thumbnails as needed
+            thumbnail.style.width = "50px"; 
             thumbnail.style.height = "50px";
             thumbnail.style.margin = "5px";
             thumbnail.style.cursor = "pointer";
@@ -77,7 +77,6 @@ function renderCarousel(data) {
             </div>
         `;
 
-        // Add event listeners for thumbnails
         carouselItem.querySelectorAll(".thumbnail").forEach((thumbnail, thumbIndex) => {
             thumbnail.addEventListener("click", () => {
                 mainImage.src = item.short_screenshots[thumbIndex];
@@ -87,7 +86,6 @@ function renderCarousel(data) {
         carouselItem.appendChild(mainImage);
         carouselInner.appendChild(carouselItem);
 
-        // Change main image on indicator click
         indicator.addEventListener("click", () => {
             mainImage.src = item.short_screenshots[0];
         });
@@ -111,11 +109,11 @@ function renderPlatformsAndGenres(platforms, genres) {
     var rowPlatform = document.getElementById("rowPlatform");
     var rowGenre = document.getElementById("rowGenre");
 
-    function renderCategoryDiv(category) {
+    function renderCategoryDiv(category, categoryType) {
         var categoryDiv = document.createElement("div");
         categoryDiv.className = "col-lg-3 col-md-4 col-sm-6 pb-1";
         categoryDiv.innerHTML = `
-            <a class="text-decoration-none" href="">
+            <a class="text-decoration-none" href="javascript:void(0);">
                 <div class="cat-item d-flex align-items-center mb-4">
                     <div class="overflow-hidden" style="width: 100px; height: 100px;">
                         <img class="img-fluid" src="${category.image}" alt="">
@@ -127,14 +125,20 @@ function renderPlatformsAndGenres(platforms, genres) {
                 </div>
             </a>
         `;
+
+        categoryDiv.addEventListener("click", function () {
+            localStorage.setItem(`${categoryType}-${category.id}`, 'true');
+            window.location.href = "shop.html";
+        });
+
         return categoryDiv;
     }
 
     rowPlatform.innerHTML = "";
     rowGenre.innerHTML = "";
 
-    platforms.forEach(platform => rowPlatform.appendChild(renderCategoryDiv(platform)));
-    genres.forEach(genre => rowGenre.appendChild(renderCategoryDiv(genre)));
+    platforms.forEach(platform => rowPlatform.appendChild(renderCategoryDiv(platform, 'platform')));
+    genres.forEach(genre => rowGenre.appendChild(renderCategoryDiv(genre, 'genre')));
 }
 
 function loadProductData() {

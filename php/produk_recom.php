@@ -1,6 +1,7 @@
 <?php
 ini_set('memory_limit', '1024M');
 session_start();
+include_once 'connect.php';
 
 function fetchGamesDataFromJSON($filePath) {
     $jsonContent = file_get_contents($filePath);
@@ -106,14 +107,24 @@ function getRecommendationGames($filePath, $userPreferences) {
 }
 
 $jsonFilePath = '../dataset/games_with_details.json';
+
+$id_user = $_SESSION['id_user'];
+$sql = "SELECT * FROM user WHERE id_user = $id_user";
+$result = $conn->query($sql);
+$row = $result->fetch_assoc();
 $userPreferences = [
-    'genres' => ['Action', 'RPG'],
-    'platforms' => ['PC'],
-    'tags' => ['Multiplayer', 'Open World']
+    'genres' => json_decode($row['genres'], true),
+    'platforms' => json_decode($row['platforms'], true),
+    'tags' => json_decode($row['tags'], true)
 ];
 
 $recommendedGames = getRecommendationGames($jsonFilePath, $userPreferences);
 
+$data = [
+    'preferensi' => $userPreferences,
+    'terekomendasi' => $recommendedGames
+];
+
 header('Content-Type: application/json');
-echo json_encode($recommendedGames);
+echo json_encode($data);
 ?>

@@ -1,5 +1,4 @@
 var currentPage = 1;
-var ProductsPerPage = 40;
 var ProductsData = [];
 
 function initializeFilters() {
@@ -94,7 +93,21 @@ function updateFilterStorage() {
 function loadProductData() {
     var filterStorage = JSON.parse(localStorage.getItem('filterStorage'));
     var sortCriteria = localStorage.getItem('sortCriteria') || 'latest';
+    var showCriteria = localStorage.getItem('showCriteria') || 40;
     let url = `php/produk_list.php?terfilter=1&sort=${sortCriteria}`;
+
+    if (sortCriteria) {
+        const activeSortItem = document.querySelector(`.dropdown-item[data-sort="${sortCriteria}"]`);
+        if (activeSortItem) {
+            activeSortItem.classList.add('active');
+        }
+    }
+    if (showCriteria) {
+        const activeShowItem = document.querySelector(`.dropdown-item[data-show="${showCriteria}"]`);
+        if (activeShowItem) {
+            activeShowItem.classList.add('active');
+        }
+    }
     
     if (filterStorage) {
         var { platform, genre, harga } = filterStorage;
@@ -107,13 +120,13 @@ function loadProductData() {
     .then(response => response.json())
     .then(data => {
         ProductsData = data.terfilter;
-        renderProducts(currentPage);
-        renderPagination();
+        renderProducts(currentPage, showCriteria);
+        renderPagination(showCriteria);
     })
     .catch(error => console.error('Error:', error));
 }
 
-function renderProducts(page) {
+function renderProducts(page, ProductsPerPage) {
     var startIndex = (page - 1) * ProductsPerPage;
     var slicedData = ProductsData.slice(startIndex, startIndex + ProductsPerPage);
     var rowProduk = document.getElementById("rowProdukRekom");
@@ -157,7 +170,7 @@ function renderProducts(page) {
     }).join('');
 }
 
-function renderPagination() {
+function renderPagination(ProductsPerPage) {
     var totalPages = Math.ceil(ProductsData.length / ProductsPerPage);
     var pagination = document.getElementById("pagination-rekom");
 
@@ -238,12 +251,31 @@ function generateRatingStars(rating) {
     `;
 }
 
-document.querySelectorAll('.dropdown-item').forEach(function(item) {
+document.querySelectorAll('.dropdown-item[data-sort]').forEach(function(item) {
     item.addEventListener('click', function(event) {
         event.preventDefault();
         const sortCriteria = this.getAttribute('data-sort');
         localStorage.setItem('sortCriteria', sortCriteria);
         location.reload();
+
+        document.querySelectorAll('.dropdown-item[data-sort]').forEach(function(el) {
+            el.classList.remove('active');
+        });
+        this.classList.add('active');
+    });
+});
+
+document.querySelectorAll('.dropdown-item[data-show]').forEach(function(item) {
+    item.addEventListener('click', function(event) {
+        event.preventDefault();
+        const showCriteria = this.getAttribute('data-show');
+        localStorage.setItem('showCriteria', showCriteria);
+        location.reload();
+
+        document.querySelectorAll('.dropdown-item[data-show])').forEach(function(el) {
+            el.classList.remove('active');
+        });
+        this.classList.add('active');
     });
 });
 
