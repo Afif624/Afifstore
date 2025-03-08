@@ -17,6 +17,7 @@
 
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet">
 
     <!-- Libraries Stylesheet -->
     <link href="lib/animate/animate.min.css" rel="stylesheet">
@@ -63,7 +64,7 @@
                     <span class="bg-secondary pr-3">Bio Details</span>
                 </h5>
                 <div class="bg-light p-30 mb-5">
-                    <form method="post" action="bio.php" id="bioForm">
+                    <form method="post" action="php/bio.php" id="bioForm">
                         <div class="row">
                             <!-- Bio Details Inputs -->
                             <div class="col-md-6 form-group">
@@ -110,7 +111,7 @@
                     <span class="bg-secondary pr-3">Store Preferences</span>
                 </h5>
                 <div class="bg-light p-30 mb-5">
-                    <form method="post" action="save_preferences.php" id="preferencesForm">
+                    <form method="post" action="php/store_preferences.php" id="preferencesForm">
                         <div class="row">
                             <!-- Genres -->
                             <div class="col-md-4">
@@ -125,8 +126,7 @@
                             <!-- Tags -->
                             <div class="col-md-4">
                                 <label><b>Tags</b></label>
-                                <input type="text" id="tagSearch" class="form-control mb-3" placeholder="Search tags...">
-                                <div id="tagsContainer"></div>
+                                <select id="tagsDropdown" name="tags[]" class="form-control" multiple="multiple"></select>
                             </div>
                         </div>
                         <button type="submit" class="btn btn-primary mt-3">Save Preferences</button>
@@ -140,7 +140,7 @@
                     <span class="bg-secondary pr-3">Language Preferences</span>
                 </h5>
                 <div class="bg-light p-30 mb-5">
-                    <form method="post" action="save_language.php">
+                    <form method="post" action="php/language.php">
                         <div class="row">
                             <div class="col-md-4">
                                 <input type="radio" name="language" value="English" id="lang-english" checked>
@@ -189,6 +189,7 @@
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
     <script src="lib/easing/easing.min.js"></script>
     <script src="lib/owlcarousel/owl.carousel.min.js"></script>
 

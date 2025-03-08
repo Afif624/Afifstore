@@ -13,8 +13,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $city = $_POST["city"];
     $zip = $_POST["zip"];
 
-    $sql = "INSERT INTO user (name, email, phone, address, country, state, city, zip) 
-                VALUES ('$name', '$email', '$phone', '$address', $country, $state, $city, $zip)
+    $sql = "UPDATE user SET name = '$name', email = '$email', phone = '$phone', address = '$address', 
+                country = '$country', state = '$state', city = '$city', zip = '$zip' 
                     WHERE id_user = $id_user";
     if ($conn->query($sql) === TRUE) {
         echo "<script>alert('Bio details successfully saved!');

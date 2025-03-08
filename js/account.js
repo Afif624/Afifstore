@@ -63,24 +63,25 @@ async function loadBio() {
         if (!response.ok) {
             throw new Error('Failed to fetch data: ' + response.statusText);
         }
-        const existingData = await response.json();
-        setBio(existingData);
+        const bio = await response.json();
+        console.log(bio);
+        setBio(bio);
     } catch (error) {
         console.error('Error fetching bio data:', error);
     }
 }
 
-function setBio(existingData) {
-    document.getElementById("name").value = existingData.name;
-    document.getElementById("email").value = existingData.email;
-    document.getElementById("phone").value = existingData.phone;
-    document.getElementById("address").value = existingData.address;
-    countrySelect.value = existingData.country;
+function setBio(bio) {
+    document.getElementById("name").value = bio.name;
+    document.getElementById("email").value = bio.email;
+    document.getElementById("phone").value = bio.phone;
+    document.getElementById("address").value = bio.address;
+    countrySelect.value = bio.country;
     populateStates();
-    stateSelect.value = existingData.state;
+    stateSelect.value = bio.state;
     populateCities();
-    citySelect.value = existingData.city;
-    document.getElementById("zip").value = existingData.zip;
+    citySelect.value = bio.city;
+    document.getElementById("zip").value = bio.zip;
 }
 
 countrySelect.addEventListener("change", populateStates);
@@ -89,8 +90,7 @@ loadCountriesData();
 
 const genresContainer = document.getElementById("genresContainer");
 const platformsContainer = document.getElementById("platformsContainer");
-const tagsContainer = document.getElementById("tagsContainer");
-const tagSearch = document.getElementById("tagSearch");
+const tagsDropdown = document.getElementById("tagsDropdown");
 
 let genresData = [];
 let platformsData = [];
@@ -98,15 +98,16 @@ let tagsData = [];
 
 async function loadPreferencesData() {
     try {
-        const response = await fetch('php/store_preferences.php');
+        const response = await fetch('php/store_preferences.php?preferences=true');
         if (!response.ok) {
             throw new Error('Failed to fetch data: ' + response.statusText);
         }
 
         const data = await response.json();
-        genresData = data.genres;
-        platformsData = data.platforms;
-        tagsData = data.tags;
+        console.log(data);
+        genresData = data.genre;
+        platformsData = data.platform;
+        tagsData = data.tag;
 
         populateGenres();
         populatePlatforms();
@@ -138,24 +139,9 @@ function populatePlatforms() {
 }
 
 function populateTags() {
-    tagsContainer.innerHTML = "";
-    tagsData.forEach(tag => {
-        const div = document.createElement("div");
-        div.innerHTML = `<input type="checkbox" name="tags[]" value="${tag.name}" id="tag-${tag.name}">
-                            <label for="tag-${tag.name}">${tag.name}</label>`;
-        tagsContainer.appendChild(div);
-    });
-}
-
-function filterTags() {
-    const searchTerm = tagSearch.value.toLowerCase();
-    const filteredTags = tagsData.filter(tag => tag.name.toLowerCase().includes(searchTerm));
-    tagsContainer.innerHTML = "";
-    filteredTags.forEach(tag => {
-        const div = document.createElement("div");
-        div.innerHTML = `<input type="checkbox" name="tags[]" value="${tag.name}" id="tag-${tag.name}">
-                            <label for="tag-${tag.name}">${tag.name}</label>`;
-        tagsContainer.appendChild(div);
+    $(tagsDropdown).select2({
+        data: tagsData.map(tag => ({ id: tag.name, text: tag.name })),
+        placeholder: 'Select tags'
     });
 }
 
@@ -166,10 +152,7 @@ function setPreferences(preferences) {
     preferences.platforms.forEach(platform => {
         document.getElementById(`platform-${platform}`).checked = true;
     });
-    preferences.tags.forEach(tag => {
-        document.getElementById(`tag-${tag}`).checked = true;
-    });
+    $(tagsDropdown).val(preferences.tags).trigger('change');
 }
 
-tagSearch.addEventListener("input", filterTags);
 loadPreferencesData();
