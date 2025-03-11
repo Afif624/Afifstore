@@ -32,7 +32,7 @@ function prepareGamesData($games) {
             'rating' => $game['rating'],
             'ratings_count' => $game['ratings_count'],
             'price' => $game['price'],
-            'details' => $game['details'],
+            'description_raw' => $game['description_raw'],
             'genres' => array_map(function($genre) {
                 return $genre['name'];
             }, $game['genres']),
@@ -106,7 +106,7 @@ function getRecommendationGames($filePath, $userPreferences) {
     return $results;
 }
 
-$jsonFilePath = '../dataset/games_with_details.json';
+$jsonFilePath = '../dataset/games.json';
 
 $id_user = $_SESSION['id_user'];
 $sql = "SELECT * FROM user WHERE id_user = $id_user";

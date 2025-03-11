@@ -7,7 +7,7 @@ function getAllData($filename) {
     return json_decode($data, true);
 }
 
-$games = getAllData('../dataset/games_with_details.json');
+$games = getAllData('../dataset/games.json');
 
 function getRandomPrice($min, $max) {
     return rand($min, $max);
@@ -42,12 +42,12 @@ function getGameById($gameId) {
     
     $game = reset($game);
     if (isset($_GET['list'])) {
-        $selectedFields = ['id', 'name', 'background_image', 'price', 'details'];
+        $selectedFields = ['id', 'name', 'background_image', 'price', 'developers', 'publishers'];
     } else {
         $selectedFields = [
-            'id', 'name', 'background_image', 'short_screenshots',
-            'price', 'rating', 'ratings_count', 'genres', 'platforms', 'tags',
-            'added_by_status', 'released', 'metacritic', 'suggestions_count', 'details'
+            'id', 'name', 'background_image', 'background_image_additional', 'short_screenshots',
+            'price', 'rating', 'ratings_count', 'genres', 'platforms', 'tags', 'developers', 'publishers', 'released',
+            'description', 'added_by_status', 'metacritic', 'suggestions_count'
         ];
     }
     $oneGame = array_intersect_key($game, array_flip($selectedFields));

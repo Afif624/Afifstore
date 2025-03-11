@@ -26,7 +26,7 @@ function loadDetails(productId, file) {
         `php/login_check.php?id=${productId}`,
         `php/produk_one.php?id=${productId}`,
         `php/produk_one_reviews.php?id=${productId}`,
-        `php/yourreview.php?id=${productId}`,
+        `php/produk_one_yourreview.php?id=${productId}`,
         `php/wish.php?id=${productId}`,
         `php/cart.php?id=${productId}`,
         `php/order.php?id=${productId}`
@@ -68,7 +68,6 @@ function loadDetails(productId, file) {
 function renderProductDetails(data, file) {
     var game = data.game;
     var added = game.added_by_status;
-    var details = game.details;
 
     var reviews = data.reviews;
     var user_name = data.name_user;
@@ -152,7 +151,7 @@ function renderProductDetails(data, file) {
     }
     
     function renderReviews(reviews, gameName) {
-        var getAvatar = (avatar, user) => avatar || (user && user.avatar) || 'img/user.jpg';
+        var getAvatar = (avatar, user) => avatar || (user && user.avatar) || 'img/user.png';
         var getAuthor = (author, user) => author || (user && user.username) || 'username';
         var getEdited = edited => edited ? '(edited)' : '';
 
@@ -205,7 +204,7 @@ function renderProductDetails(data, file) {
     
         var formHtml = (action, name) => `
             <h4 class="mb-4">${action}</h4>
-            <form method="post" action="php/yourreview.php">
+            <form method="post" action="php/produk_one_yourreview.php">
                 <div class="d-flex my-3">
                     <p class="mb-0 mr-2">Your Rating * :</p>
                     <div class="text-primary">
@@ -242,7 +241,7 @@ function renderProductDetails(data, file) {
             <div class="col-lg-5 mb-30">
                 <div id="product-carousel" class="carousel slide" data-ride="carousel">
                     <div class="carousel-inner bg-light">
-                        ${renderScreenShots(game.background_image, details.background_image_additional, game.short_screenshots)}
+                        ${renderScreenShots(game.background_image, game.background_image_additional, game.short_screenshots)}
                     </div>
                     <a class="carousel-control-prev" href="#product-carousel" role="button" data-slide="prev">
                         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -312,15 +311,15 @@ function renderProductDetails(data, file) {
                     <div class="tab-content">
                         <div class="tab-pane fade show active" id="tab-pane-1">
                             <h4 class="mb-3">Product Description</h4>
-                            <p>${details.description}</p>
+                            <p>${game.description}</p>
                         </div>
                         <div class="tab-pane fade" id="tab-pane-2">
                             <h4 class="mb-3">Additional Information</h4>
                             <div class="row">
                                 <div class="col-md-6">
                                     <ul class="list-group list-group-flush">
-                                        <li class="list-group-item px-0">Developer: ${renderDevelopers(details.developers)}</li>
-                                        <li class="list-group-item px-0">Publisher: ${renderPublishers(details.publishers)}</li>
+                                        <li class="list-group-item px-0">Developer: ${renderDevelopers(game.developers)}</li>
+                                        <li class="list-group-item px-0">Publisher: ${renderPublishers(game.publishers)}</li>
                                         <li class="list-group-item px-0">Release Date: ${game.released}</li>
                                     </ul>
                                 </div>

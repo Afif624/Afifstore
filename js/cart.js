@@ -74,8 +74,8 @@ function renderCartDetails(cartDetails) {
                             <td class="align-middle"><img src="${cart.background_image}" alt="" style="width: 50px;"></td>
                             <td class="align-middle">${cart.name}</td>
                             <td class="align-middle">Rp ${cart.price}</td>
-                            <td class="align-middle">${renderDetails(cart.details.developers)}</td>
-                            <td class="align-middle">${renderDetails(cart.details.publishers)}</td>
+                            <td class="align-middle">${renderDetails(cart.developers)}</td>
+                            <td class="align-middle">${renderDetails(cart.publishers)}</td>
                             <td class="align-middle">
                                 <form action="php/cart.php?id_produk=${cart.id}" method="POST">
                                     <input type="hidden" name="sourcePage" value="${renderFilename()}" />
