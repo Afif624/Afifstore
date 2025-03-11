@@ -9720,3 +9720,18 @@ a.text-dark:hover, a.text-dark:focus {
   white-space: normal; /* Memungkinkan teks untuk wrap */
   max-width: 100%; /* Membatasi lebar maksimum */
 }
+
+#searchResults {
+  max-height: 300px; /* Adjust height as needed */
+  overflow-y: auto;  /* Enable vertical scrolling if content exceeds max-height */
+  width: 100%;       /* Ensure it fits within the search form container width */
+  background-color: #fff; /* Optional: Set a background color */
+  border: 1px solid #ddd;  /* Optional: Add a border for better visibility */
+  border-top: none;  /* Remove top border to blend with search input */
+  padding: 10px;     /* Optional: Add padding for some spacing */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Add shadow for a nice effect */
+  position: absolute; /* Position the results container relative to the search form */
+  top: calc(100%); /* Position it directly below the search form */
+  left: 0; /* Align it to the left edge */
+  z-index: 1000; /* Ensure it appears above other elements */
+}

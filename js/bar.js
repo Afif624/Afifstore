@@ -45,12 +45,72 @@ function updateHTML(selector, iconClass, textClass, count) {
     `);
 }
 
+function attachSearchEvent() {
+    let gamesData = [];
+
+    fetch('dataset/games.json')
+        .then(response => response.json())
+        .then(data => {
+            gamesData = data;
+            console.log('Fetched Data:', gamesData); 
+
+            const searchInput = document.getElementById('searchInput');
+            const searchResults = document.getElementById('searchResults');
+            searchResults.style.display = 'none';
+
+            if (searchInput) {
+                searchInput.addEventListener('input', function(event) {
+                    const query = event.target.value.toLowerCase();
+
+                    if (query.length > 0) {
+                        const results = gamesData.filter(g => g.name.toLowerCase().includes(query));
+                        searchResults.innerHTML = '';
+
+                        if (results.length > 0) {
+                            searchResults.style.display = 'block';
+
+                            results.forEach(game => {
+                                const gameElement = document.createElement('div');
+                                gameElement.className = 'search-result mb-3';
+
+                                gameElement.innerHTML = `
+                                    <div class="card">
+                                        <img src="${game.background_image}" class="card-img-top" alt="${game.name}">
+                                        <div class="card-body">
+                                            <h5 class="card-title">${game.name}</h5>
+                                        </div>
+                                    </div>
+                                `;
+
+                                gameElement.querySelector('.card-img-top').addEventListener('click', function() {
+                                    window.location.href = `detail.html?id=${game.id}`;
+                                });
+                                gameElement.querySelector('.card-title').addEventListener('click', function() {
+                                    window.location.href = `detail.html?id=${game.id}`;
+                                });
+
+                                searchResults.appendChild(gameElement);
+                            });
+                        } else {
+                            searchResults.style.display = 'none';
+                        }
+                    } else {
+                        searchResults.innerHTML = ''; 
+                        searchResults.style.display = 'none'; 
+                    }
+                });
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
 window.onload = () => {
     loadContent('bar.html', 'topbar', function() {
         loadContent('bar.html', 'navbar', function() {
             loadContent('bar.html', 'footer', setActiveNavLink);
         });
     });
+    attachSearchEvent();
 };
 
 $(document).ready(function() {
