@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 07, 2025 at 11:41 AM
+-- Generation Time: Mar 13, 2025 at 02:29 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,16 +20,6 @@ SET time_zone = "+00:00";
 --
 -- Database: `afifstore`
 --
-
-DELIMITER $$
---
--- Functions
---
-CREATE DEFINER=`root`@`localhost` FUNCTION `random_datetime` () RETURNS DATETIME  BEGIN
-    RETURN DATE_ADD(NOW(), INTERVAL RAND() * 30 DAY);
-END$$
-
-DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -48,7 +38,9 @@ CREATE TABLE `cart` (
 --
 
 INSERT INTO `cart` (`id_cart`, `id_user`, `id_produk`) VALUES
-(17, 3, 5679);
+(17, 3, 5679),
+(19, 3, 41494),
+(20, 3, 3636);
 
 -- --------------------------------------------------------
 
@@ -114,21 +106,21 @@ CREATE TABLE `user` (
   `country` varchar(100) DEFAULT NULL,
   `state` varchar(100) DEFAULT NULL,
   `city` varchar(100) DEFAULT NULL,
-  `zip_code` varchar(10) DEFAULT NULL,
+  `zip` varchar(10) DEFAULT NULL,
   `password` varchar(50) DEFAULT NULL,
-  `genres` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`genres`)),
-  `platforms` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`platforms`)),
-  `tags` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`tags`))
+  `genres` longtext DEFAULT '[]',
+  `platforms` longtext DEFAULT '[]',
+  `tags` longtext DEFAULT '[]'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `user`
 --
 
-INSERT INTO `user` (`id_user`, `name`, `email`, `phone`, `address`, `country`, `state`, `city`, `zip_code`, `password`, `genres`, `platforms`, `tags`) VALUES
+INSERT INTO `user` (`id_user`, `name`, `email`, `phone`, `address`, `country`, `state`, `city`, `zip`, `password`, `genres`, `platforms`, `tags`) VALUES
 (1, 'Aan', 'aan@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, '12345', '', '', ''),
 (2, 'Abil', 'abil@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, '12345', '', '', ''),
-(3, 'AfifPristantio', 'afifpristantio@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, '12345', '', '', ''),
+(3, 'AfifPristantio', 'afifpristantio@gmail.com', '0823-5358-0750', 'Oro Oro Ombo', 'Indonesia', 'Jakarta', 'Kota Administrasi Jakarta Selatan', '58256', '12345', '[\"Action\",\"Adventure\",\"RPG\"]', '[\"PC\",\"PlayStation 5\",\"Android\"]', '[\"Multiplayer\",\"First-Person\"]'),
 (4, 'Azka', 'azka@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, '12345', '', '', ''),
 (5, 'Aca', 'aca@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, '12345', '', '', ''),
 (6, 'Adela', 'adela@gmail.com', NULL, NULL, NULL, NULL, NULL, NULL, '12345', '', '', ''),
@@ -207,7 +199,7 @@ ALTER TABLE `wishlist`
 -- AUTO_INCREMENT for table `cart`
 --
 ALTER TABLE `cart`
-  MODIFY `id_cart` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id_cart` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `order`
